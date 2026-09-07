@@ -1,0 +1,92 @@
+// src/components/FeedForm.tsx
+"use client";
+
+import { useState } from "react";
+import { createPost } from "@/app/actions/posts";
+
+interface FeedFormProps {
+  currentUser: {
+    id: string;
+    username: string;
+    displayName: string;
+    avatarUrl: string | null;
+  };
+}
+
+export default function FeedForm({ currentUser }: FeedFormProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setError(null);
+    setFileName(null);
+
+    if (!file) return;
+
+    // Check if file size exceeds 3MB (3 * 1024 * 1024 bytes)
+    const maxSizeBytes = 3 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      setError("❌ This image is too large! Files must be smaller than 3MB.");
+      e.target.value = ""; // Clear out the file selection completely
+      return;
+    }
+
+    setFileName(file.name);
+  };
+
+  return (
+    <form 
+      action={async (formData) => {
+        if (error) return; // Block submission if there's an unresolved size error
+        await createPost(formData, currentUser.id);
+        setFileName(null); // Clear file name on success
+        setError(null);
+      }} 
+      className="mb-8 bg-white p-5 rounded-2xl border border-gray-200 shadow-sm"
+    >
+      <textarea
+        name="content"
+        placeholder="What's on your mind, Chloe?"
+        className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 resize-none text-gray-800"
+        rows={3}
+      />
+      
+      {/* File Size Error Box Layout */}
+      {error && (
+        <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-xl">
+          {error}
+        </div>
+      )}
+
+      {/* Visual File Attachment Indicator */}
+      {fileName && !error && (
+        <div className="mt-3 p-2 bg-green-50 border border-green-200 text-green-700 text-xs font-medium rounded-lg flex items-center justify-between">
+          <span>📎 Attached: {fileName}</span>
+          <button type="button" onClick={() => { setFileName(null); setError(null); }} className="text-red-500 font-bold hover:underline">Remove</button>
+        </div>
+      )}
+      
+      <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+        <label className="cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-xl transition flex items-center space-x-1">
+          <span>📷 Attach Photo</span>
+          <input 
+            type="file" 
+            name="image" 
+            accept="image/*" 
+            className="hidden" 
+            onChange={handleFileChange}
+          />
+        </label>
+        <span className="text-xs text-gray-400 font-medium">Max size: 3MB</span>
+        <button 
+          type="submit" 
+          disabled={!!error}
+          className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-blue-700 transition shadow-sm disabled:opacity-50"
+        >
+          Post Update
+        </button>
+      </div>
+    </form>
+  );
+}
