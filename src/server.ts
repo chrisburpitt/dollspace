@@ -1,4 +1,4 @@
-import type * as Party from "partykit/server";
+import { Server } from "partyserver";
 
 interface UserProfile {
   id: string; 
@@ -17,63 +17,61 @@ interface ChatMessage {
   targetId?: string;
 }
 
-// Declare a type helper to easily access our profile fields on the client connection
-interface PartyClientConnection extends Party.Connection {
+interface ConnectionAttachment {
   userId?: string;
-  state?: {
-    profile?: {
-      name: string;
-      avatar: string;
-      isTyping: boolean;
-    }
-  }
+  profile?: {
+    name: string;
+    avatar: string;
+    isTyping: boolean;
+  };
 }
 
-export default class Server implements Party.Server {
-  constructor(readonly room: Party.Room) {}
-
-  // Broadcasts a clean presence list safely
+export default class ChatServer extends Server {
+  // Broadcasts a clean presence list safely to all open sockets
   broadcastPresence() {
     const usersMap = new Map<string, UserProfile>();
     
-    for (const client of this.room.getConnections() as PartyClientConnection[]) {
-      let persistentId = client.userId; 
+    for (const client of this.getConnections()) {
+      const customState = (client.state || {}) as ConnectionAttachment;
+      let persistentId = customState.userId; 
       
       if (!persistentId) {
-        try {
-          const parsedUrl = new URL(client.uri || client.url, "http://localhost");
-          persistentId = parsedUrl.searchParams.get("userId") || client.id;
-        } catch (e) {
-          persistentId = client.id;
-        }
+        persistentId = client.id;
       }
 
-      // ⚡ FIX: Use the official client.state object instead of calling client.setState as an object
-      const state = client.state?.profile || {};
+      const profile = customState.profile || { name: "", avatar: "", isTyping: false };
       
       usersMap.set(persistentId, {
         id: persistentId,
-        // Now accurately reads the username saved to client.state!
-        name: state.name || `User #${persistentId.slice(0, 4)}`,
-        avatar: state.avatar || "👤",
-        isTyping: !!state.isTyping
+        name: profile.name || `User #${persistentId.slice(0, 4)}`,
+        avatar: profile.avatar || "👤",
+        isTyping: !!profile.isTyping
       });
     }
 
-    this.room.broadcast(JSON.stringify({ 
+    this.broadcast(JSON.stringify({ 
       type: "presence", 
       count: usersMap.size, 
       users: Array.from(usersMap.values()) 
     }));
   }
 
-  async onConnect(connection: PartyClientConnection, ctx: Party.ConnectionContext) {
-    const url = new URL(ctx.request.url);
-    const userId = url.searchParams.get("userId") || connection.id;
+  async onConnect(connection: any, ctx: any) {
+    let userId = connection.id;
+    try {
+      const url = new URL(ctx.request.url || "http://localhost");
+      userId = url.searchParams.get("userId") || connection.id;
+    } catch (e) {
+      // Fallback if context request lacks url attributes
+    }
     
-    connection.userId = userId;
+    connection.state = {
+      ...(connection.state || {}),
+      userId: userId
+    };
 
-    const history = await this.room.storage.get<ChatMessage[]>("public_messages") || [];
+    const storage = (this as any).ctx.storage;
+    const history = (await storage.get("public_messages")) as ChatMessage[] || [];
     connection.send(JSON.stringify({ type: "history", messages: history }));
     this.broadcastPresence();
   }
@@ -82,24 +80,26 @@ export default class Server implements Party.Server {
     this.broadcastPresence();
   }
 
-  async onMessage(message: string, sender: PartyClientConnection) {
+  async onMessage(connection: any, message: string) {
     try {
       const data = JSON.parse(message);
-      const senderPersistentId = sender.userId || sender.id;
+      const customState = (connection.state || {}) as ConnectionAttachment;
+      const senderPersistentId = customState.userId || connection.id;
 
       if (data.type === "update-profile") {
-        // ⚡ FIX: Use the official PartyKit connection state storage engine
-        sender.setState({
+        connection.state = {
+          ...connection.state,
           profile: { name: data.name, avatar: data.avatar, isTyping: false }
-        });
+        };
         this.broadcastPresence();
       } 
 
       if (data.type === "typing") {
-        const currentProfile = sender.state?.profile || { name: "", avatar: "🦊", isTyping: false };
-        sender.setState({
+        const currentProfile = customState.profile || { name: "", avatar: "🦊", isTyping: false };
+        connection.state = {
+          ...connection.state,
           profile: { ...currentProfile, isTyping: data.isTyping }
-        });
+        };
         this.broadcastPresence();
       }
       
@@ -113,12 +113,13 @@ export default class Server implements Party.Server {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
 
-        const history = await this.room.storage.get<ChatMessage[]>("public_messages") || [];
+        const storage = (this as any).ctx.storage;
+        const history = (await storage.get("public_messages")) as ChatMessage[] || [];
         history.push(newMessage);
         if (history.length > 100) history.shift();
-        await this.room.storage.put("public_messages", history);
+        await storage.put("public_messages", history);
 
-        this.room.broadcast(JSON.stringify({ type: "chat", ...newMessage }));
+        this.broadcast(JSON.stringify({ type: "chat", ...newMessage }));
       }
 
       if (data.type === "dm") {
@@ -132,8 +133,9 @@ export default class Server implements Party.Server {
           targetId: data.targetId 
         };
 
-        for (const client of this.room.getConnections() as PartyClientConnection[]) {
-          const clientPersistentId = client.userId;
+        for (const client of this.getConnections()) {
+          const clientState = (client.state || {}) as ConnectionAttachment;
+          const clientPersistentId = clientState.userId;
 
           if (clientPersistentId === data.targetId || clientPersistentId === senderPersistentId) {
             client.send(JSON.stringify({ type: "dm", ...privateMessage }));

@@ -1,5 +1,5 @@
 // This is a Server Component by default, which is great for SEO and speed!
-import ChatStatus from "@/app/chat/ChatStatus.tsx"; 
+import ChatStatus from "@/app/chat/ChatStatus"; // No .tsx at the end
 
 export default function HomePage() {
   return (

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    unoptimized: true,   
+  },
   // 1. Allow up to 3MB for image uploads
   experimental: {
     serverActions: {
@@ -13,10 +16,6 @@ const nextConfig: NextConfig = {
       fullUrl: true,
     },
   },
-  // If you need the specific allowed origins flag in newer Next versions:
-  async headers() {
-    return [];
-  }
 };
 
 export default nextConfig;

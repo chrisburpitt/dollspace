@@ -1,6 +1,6 @@
-// party.ts
-import type { Party, Connection } from "partyserver";
+import type { Connection, Party } from "partykit/server";
 
+// Now you can safely use Connection and Party as types in your parameters:
 export default {
   async onConnect(connection: Connection, room: Party) {
     // When a user joins, send them the current message history (optional)
