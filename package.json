@@ -2,9 +2,14 @@
   "name": "dollspace",
   "version": "0.2.0",
   "private": true,
+  "homepage": "https://github.io",
   "scripts": {
     "dev": "next dev",
-    "party": "partykit dev"
+    "party": "partykit dev",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
+    "build": "react-scripts build"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
@@ -23,6 +28,7 @@
     "autoprefixer": "^10.5.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "gh-pages": "^6.3.0",
     "partyserver": "^0.5.10",
     "postcss": "^8.5.28",
     "prisma": "^6.15.0",
@@ -34,6 +40,8 @@
     "esbuild@0.28.2": true,
     "msgpackr-extract@3.0.4": true,
     "workerd@1.20260704.1": true,
-    "@prisma/engines@6.12.0": true
+    "@prisma/client@6.15.0": true,
+    "@prisma/engines@6.15.0": true,
+    "prisma@6.15.0": true
   }
 }
