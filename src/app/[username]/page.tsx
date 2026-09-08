@@ -181,18 +181,17 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
               
               {/* 🚀 3. INJECTED: Live Profile Analytical View Counter Badge */}
-              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
-                <span>Profile Views:</span>
-                <span className="text-rose-500 font-black">👀 {user.views}</span>
-              </div>
-
               <div className="flex justify-between">
                 <span>Account Created:</span>
                 <span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span>
               </div>
               <div className="flex justify-between">
-                <span>Total Posts Stored:</span>
+                <span>Total Posts So Far:</span>
                 <span className="text-gray-900 font-bold">{userPosts.length}</span>
+              </div>
+              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
+                <span>Profile Views:</span>
+                <span className="text-rose-500 font-black">👀 {user.views}</span>
               </div>
             </div>
           </div>
