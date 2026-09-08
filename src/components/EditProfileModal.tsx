@@ -105,8 +105,15 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender</label>
-                   setGenderIdentity(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
+                    <select
+                      value={GenderIdentity}
+                      onChange={(event) => setGenderIdentity(event.target.value)}
+                      className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-bold text-gray-700 cursor-pointer"
+                    >
+                      <option value="TGIRL">Tgirl</option>
+                      <option value="CDT">CD</option>
+                      <option value="CHASER">Dirty Old Man</option>
+                    </select>
                   />
                 </div>
                 <div>
