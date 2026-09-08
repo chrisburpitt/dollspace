@@ -12,7 +12,7 @@ export const ourFileRouter = {
       if (!user) throw new Error("Unauthorized");
       return { userId: user.id };
     })
-    .onUploadComplete(async ({ middlewareData, file }) => {
+    .onUploadComplete(async ({ metadata, file }) => {
       return { uploadedBy: metadata.userId, url: file.url };
     }),
 
