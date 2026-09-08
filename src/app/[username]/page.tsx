@@ -33,7 +33,6 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   };
 }
 
-
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
 }
@@ -60,44 +59,23 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     orderBy: { createdAt: "desc" }
   });
 
+  // 4. CHECK RELATIONSHIP FOLLOW MATRIX
+  const isFollowingResult = await prisma.follow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: sessionUser.id,
+        followingId: user.id,
+      },
+    },
+  });
+
+  const isFollowing = !!isFollowingResult;
   const isOwner = user.id === sessionUser.id;
 
-  // 🚀 HARD TYPE FIX: Safely structure a non-null object for the Header component
   const validatedHeaderUser = {
     id: sessionUser.id,
     status: sessionUser.status || "ONLINE"
   };
-
-const isFollowingResult = await prisma.follow.findUnique({
-  where: {
-    followerId_followingId: {
-      followerId: sessionUser.id,
-      followingId: user.id,
-    },
-  },
-});
-
-const isFollowing = !!isFollowingResult;
-const isOwner = user.id === sessionUser.id;
-
-// FOLLOWER SECTION //
-return (
-  // ... top layout blocks ...
-  <div>
-    <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
-    <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
-  </div>
-  
-  {/* 🚀 3. REPLACE STATIC TEXT TAG WITH LIVE INTERACTIVE FOLLOW COMPONENT BUTTON */}
-  {isOwner ? (
-    <EditProfileModal user={user} />
-  ) : (
-    <FollowButton 
-      currentUserId={sessionUser.id} 
-      targetUserId={user.id} 
-      initialIsFollowing={isFollowing} 
-    />
-  )}
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -135,7 +113,8 @@ return (
               <AvatarUpload user={user} />
 
               <div className="flex-1 w-full">
-                <div className="flex items-start justify-between">
+                {/* 🚀 BOUNDED FLEXBOX PARENT GRID CONTAINER PREVENTS TSX PARSING CRASHES */}
+                <div className="flex items-start justify-between w-full">
                   <div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
                     <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
@@ -144,20 +123,22 @@ return (
                   {isOwner ? (
                     <EditProfileModal user={user} />
                   ) : (
-                    <button className="bg-gray-900 text-white font-bold px-5 py-2 rounded-xl text-sm hover:bg-gray-800 transition shadow-sm">
-                      Follow
-                    </button>
+                    <FollowButton 
+                      currentUserId={sessionUser.id} 
+                      targetUserId={user.id} 
+                      initialIsFollowing={isFollowing} 
+                    />
                   )}
                 </div>
                 
-                {/* 📊 VISUAL BIOGRAPHICAL DATA BADGES DECK */}
+                {/* Visual Biographical Badges Deck */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.age && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">🎂 {user.age} Years Old</span>}
                   {user.genderIdentity && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">⚧️ {user.genderIdentity}</span>}
                   {user.location && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">📍 {user.location}</span>}
                   {user.lookingFor && (
                     <span className="bg-rose-50 px-2.5 py-1 rounded-lg text-rose-500 uppercase tracking-wider">
-                      🔍 Looking For: {user.lookingFor.replace('_', ' ')}
+                      🔍 Looking For: {user.lookingFor.replace(/_/g, ' ')}
                     </span>
                   )}
                 </div>
@@ -187,7 +168,7 @@ return (
                   {post.user.avatarUrl ? (
                     <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
-                    <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
+                    <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
                   )}
                   <div>
                     <span className="font-bold text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
@@ -211,8 +192,6 @@ return (
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
-              
-              {/* 🚀 3. INJECTED: Live Profile Analytical View Counter Badge */}
               <div className="flex justify-between">
                 <span>Account Created:</span>
                 <span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span>
@@ -228,7 +207,6 @@ return (
             </div>
           </div>
         </aside>
-
       </div>
     </div>
   );
