@@ -16,12 +16,15 @@ model User {
   displayName  String
   passwordHash String
   status       String     @default("ONLINE")
+
+// Custom fields
   age          Int?
   genderIdentity String?
   location     String?
   bio          String?
   lookingFor   String?
   avatarUrl    String?
+  views        Int        @default(0)
 
   createdAt    DateTime   @default(now())
   posts        Post[]

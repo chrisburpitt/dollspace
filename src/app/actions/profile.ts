@@ -44,3 +44,15 @@ export async function updateProfileDetails(
   revalidatePath("/");
   revalidatePath("/[username]", "layout");
 }
+
+// ACTION: Increment profile visitor counter
+export async function incrementProfileViews(username: string) {
+  try {
+    await prisma.user.update({
+      where: { username },
+      data: { views: { increment: 1 } },
+    });
+  } catch (error) {
+    console.error("Failed to increment profile metrics view:", error);
+  }
+}
