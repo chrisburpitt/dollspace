@@ -13,7 +13,7 @@ export const ourFileRouter = {
       return { userId: user.id };
     })
     .onUploadComplete(async ({ middlewareData, file }) => {
-      return { uploadedBy: middlewareData.userId, url: file.url };
+      return { uploadedBy: metadata.userId, url: file.url };
     }),
 
   imageUploader: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
