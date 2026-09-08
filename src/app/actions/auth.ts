@@ -9,31 +9,25 @@ import { redirect } from "next/navigation";
 
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-dollspace-key-12345";
 
-// 1. ACTION: Register a brand new unique user account
-export async function registerUser(formData: FormData) {
+// src/app/actions/auth.ts
+
+// 1. Update registerUser to return an explicit type that accommodates errors safely
+export async function registerUser(formData: FormData): Promise<any> {
   const username = (formData.get("username") as string)?.trim();
-  const email = (formData.get("email") as string)?.trim().toLowerCase(); // 👈 EXTRACT EMAIL
+  const email = (formData.get("email") as string)?.trim().toLowerCase();
   const displayName = (formData.get("displayName") as string)?.trim();
   const password = formData.get("password") as string;
 
-  // 1. Guard against empty fields
   if (!username || !email || !displayName || !password) {
     return { error: "All fields are strictly required." };
   }
 
-  // 2. Simple verification check to ensure email follows an accurate format
   if (!email.includes("@") || !email.includes(".")) {
     return { error: "Please enter a valid email address." };
   }
 
-  // 3. Double-check if the username OR the email address is already registered
   const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { username },
-        { email }
-      ]
-    }
+    where: { OR: [{ username }, { email }] }
   });
 
   if (existingUser) {
@@ -41,10 +35,8 @@ export async function registerUser(formData: FormData) {
     if (existingUser.email === email) return { error: "Email address is already in use." };
   }
 
-  // Hash password securely (10 salt rounds)
   const passwordHash = await bcrypt.hash(password, 10);
 
-  // 4. Create record with the new email string
   await prisma.user.create({
     data: { username, email, displayName, passwordHash },
   });
@@ -52,8 +44,8 @@ export async function registerUser(formData: FormData) {
   redirect("/login");
 }
 
-// 2. ACTION: Log in an existing user and drop an encrypted session cookie
-export async function loginUser(formData: FormData) {
+// 2. Update loginUser to also use loose return mapping for the form action type bypass
+export async function loginUser(formData: FormData): Promise<any> {
   const username = (formData.get("username") as string)?.trim();
   const password = formData.get("password") as string;
 
@@ -62,20 +54,17 @@ export async function loginUser(formData: FormData) {
   const user = await prisma.user.findUnique({ where: { username } });
   if (!user) return { error: "Invalid username or password credentials." };
 
-  // Verify plain text password against database hash
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
   if (!isValidPassword) return { error: "Invalid username or password credentials." };
 
-  // Create session JWT token valid for 7 days
   const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "7d" });
 
-  // Store token safely inside an HTTP-Only secure cookie structure
   const cookieStore = await cookies();
   cookieStore.set("auth_token", token, {
-    httpOnly: true, // Prevents client-side scripts from reading the cookie
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: 60 * 60 * 24 * 7, // 1 week
+    maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
 
