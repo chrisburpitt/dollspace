@@ -138,11 +138,12 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   onChange={(e) => setLookingFor(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-bold text-gray-700 cursor-pointer"
                 >
-                  <option value="FRIENDS">💕 Friends</option>
-                  <option value="SUPPORT">🤝 Support</option>
-                  <option value="SUGAR_DADDY">👑 Sugar Daddy</option>
+                  <option value="FRIENDS">Friends</option>
+                  <option value="SUPPORT">Support</option>
+                  <option value="SUGAR_DADDY">Sugar Daddy</option>
                 </select>
               </div>
+
 
               {/* Row 4: Personal Bio Textarea */}
               <div>
