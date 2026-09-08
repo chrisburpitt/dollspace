@@ -1,7 +1,6 @@
 // prisma/schema.prisma
 
 datasource db {
-  // 🚀 UPDATE THIS LINE to pull the provider dynamically from your environment string variables!
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
@@ -16,12 +15,12 @@ model User {
   email        String     @unique 
   displayName  String
   passwordHash String
-  status       String     @default("ONLINE") // 👈 ADD THIS FIELD (ONLINE, AWAY, BUSY, OFFLINE)
+  status       String     @default("ONLINE")
   age          Int?
   genderIdentity String?
   location     String?
   bio          String?
-  lookingFor   String?    // Options: FRIENDS, SUPPORT, SUGAR_DADDY
+  lookingFor   String?
   avatarUrl    String?
 
   createdAt    DateTime   @default(now())

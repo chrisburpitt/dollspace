@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { updateProfileDetails } from "@/app/actions/profile";
+import LocationAutofill from "./LocationAutofill"; // 👈 IMPORT THE SPLIT INPUT
 
 interface EditProfileModalProps {
   user: {
@@ -21,15 +22,28 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Form State Values
   const [displayName, setDisplayName] = useState(user.displayName);
   const [age, setAge] = useState(user.age ? user.age.toString() : "");
-  const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "");
+  const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "tgirl");
   const [location, setLocation] = useState(user.location || "");
   const [bio, setBio] = useState(user.bio || "");
-  const [lookingFor, setLookingFor] = useState(user.lookingFor || "FRIENDS");
+
+  // Multi-Select Looking For Array State
+  const [lookingList, setLookingList] = useState<string[]>(
+    user.lookingFor ? user.lookingFor.split(",") : []
+  );
+
+  const handleToggleLookingFor = (value: string) => {
+    if (lookingList.includes(value)) {
+      setLookingList(lookingList.filter((item) => item !== value));
+    } else {
+      setLookingList([...lookingList, value]);
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); 
+    event.preventDefault();
     setIsSaving(true);
     setError(null);
 
@@ -46,7 +60,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       genderIdentity,
       location,
       bio,
-      lookingFor,
+      lookingFor: lookingList.join(","),
     });
 
     setIsSaving(false);
@@ -61,16 +75,16 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-200 shadow-sm transition ml-auto"
+        className="bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-200 shadow-sm transition ml-auto flex items-center space-x-1"
       >
-        ✏️ Edit Profile
+        <span>✏️ Edit Profile</span>
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-3xl border border-gray-200 p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-left">
             
-            <h2 className="text-xl font-black text-gray-900 mb-1">Edit Profile</h2>
+            <h2 className="text-xl font-black text-gray-900 mb-1">Edit Profile Details</h2>
             <p className="text-gray-400 text-xs font-semibold mb-6">Update your custom profile card configurations.</p>
 
             {error && (
@@ -79,9 +93,9 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               
-              {/* Row 1: Name & Age Grid */}
+              {/* Fields: Name & Age */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Display Name</label>
@@ -90,7 +104,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     required
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
                   />
                 </div>
                 <div>
@@ -99,57 +113,80 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     type="number"
                     value={age}
                     onChange={(event) => setAge(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
                   />
                 </div>
               </div>
 
-              {/* Row 2: Gender & Location Grid (FIXED & COMPLETE) */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender</label>
-                   setGenderIdentity{(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Location</label>
-                  <input
-                    type="text"
-                    value={location}
-                    onChange={(event) => setLocation(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
-                  />
+              {/* Fields: Gender Radio Grid Selection */}
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Gender Identity</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {["tgirl", "crossdresser", "chaser"].map((g) => (
+                    <button
+                      key={g}
+                      type="button"
+                      onClick={() => setGenderIdentity(g)}
+                      className={`p-3 text-xs font-bold rounded-xl border text-center transition capitalize ${
+                        genderIdentity === g
+                          ? "bg-rose-50 border-rose-400 text-rose-600 shadow-sm"
+                          : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      {g}
+                    </button>
+                  ))}
                 </div>
               </div>
 
+              {/* Fields: Standalone Autofill Component */}
+              <LocationAutofill value={location} onChange={setLocation} />
+
+              {/* Fields: Looking For Multi-Select Tags */}
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Looking For</label>
-                <select
-                  value={lookingFor}
-                  onChange={(event) => setLookingFor(event.target.value)}
-                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-bold text-gray-700 cursor-pointer"
-                >
-                  <option value="FRIENDS">Friends</option>
-                  <option value="SUPPORT">Support</option>
-                  <option value="SUGAR_DADDY">Sugar Daddy</option>
-                </select>
+                <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Looking For (Select multiple)</label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { key: "friends", label: "Friends" },
+                    { key: "support", label: "Support" },
+                    { key: "sugar_daddy", label: "Sugar Daddy" },
+                  ].map((item) => {
+                    const isSelected = lookingList.includes(item.key);
+                    return (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => handleToggleLookingFor(item.key)}
+                        className={`px-4 py-2 text-xs font-bold rounded-xl border transition ${
+                          isSelected
+                            ? "bg-rose-50 border-rose-400 text-rose-600 shadow-sm"
+                            : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        {isSelected ? "✓ " : ""} {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
+              {/* Fields: Biography Area */}
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Biography</label>
+                <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Biography Description</label>
                 <textarea
                   value={bio}
                   onChange={(event) => setBio(event.target.value)}
-                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 resize-none"
+                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-rose-400"
                   rows={3}
                 />
               </div>
 
+              {/* Form Trigger Row Footer */}
               <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100 mt-6">
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 text-sm font-bold text-gray-500 transition"
+                  className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition"
                 >
                   Cancel
                 </button>
@@ -158,7 +195,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   disabled={isSaving}
                   className="bg-rose-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition"
                 >
-                  Save
+                  Save Updates
                 </button>
               </div>
             </form>
