@@ -5,6 +5,7 @@ import FeedForm from "@/components/FeedForm";
 import PostControls from "@/components/PostControls";
 import { getCurrentUser, logoutUser } from "@/app/actions/auth"; // Ensure imports are current
 import { redirect } from "next/navigation";
+import GlobalHeader from "@/components/GlobalHeader"; 
 
 export default async function Home() {
   // 1. SECURE SESSION CHECK: Verify cryptographic token from HTTP-Only cookies
@@ -24,20 +25,8 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Global Navigation Bar */}
-      <header className="sticky top-0 bg-white border-b border-gray-200 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black tracking-tight text-rose-500 hover:opacity-90">
-            Dollspace
-          </Link>
-          {/* Quick Logout Control Dropdown Form Trigger */}
-          <form action={logoutUser}>
-            <button type="submit" className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold px-4 py-2 rounded-xl border border-gray-200 transition">
-              🚪 Logout
-            </button>
-          </form>
-        </div>
-      </header>
+      {/* 🚀 DROP IN THE NEW INTERACTIVE STATUS HEADER */}
+      <GlobalHeader currentUser={currentUser} />
 
       {/* Responsive Multi-Column Desktop Grid */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">

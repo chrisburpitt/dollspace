@@ -7,6 +7,8 @@ import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import PostControls from "@/components/PostControls";
 import { getCurrentUser } from "@/app/actions/auth"; // 👈 1. IMPORT THE AUTH HELPER
+import { redirect } from "next/navigation";
+import GlobalHeader from "@/components/GlobalHeader"; 
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
@@ -36,7 +38,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* ... keeping header layout matching ... */}
+      {/* 🚀 DROP IN THE INTERACTIVE STATUS HEADER TO MATCH HOMEPAGE */}
+      <GlobalHeader currentUser={sessionUser} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         

@@ -16,6 +16,7 @@ model User {
   email        String     @unique 
   displayName  String
   passwordHash String
+  status       String     @default("ONLINE") // 👈 ADD THIS FIELD (ONLINE, AWAY, BUSY, OFFLINE)
   bio          String?
   avatarUrl    String?
   createdAt    DateTime   @default(now())

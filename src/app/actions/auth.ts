@@ -90,4 +90,16 @@ export async function logoutUser() {
   const cookieStore = await cookies();
   cookieStore.delete("auth_token");
   redirect("/login");
+
+
+// ACTION: Update a user's presence status string
+export async function updateStatus(userId: string, status: string) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { status },
+  });
+
+  // Revalidate current cache states
+  revalidatePath("/");
+  revalidatePath("/[username]", "layout");
 }
