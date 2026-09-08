@@ -3,6 +3,12 @@ import { getCurrentUser } from "@/app/actions/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import FullScreenChat from "./ChatStatus"; // Imports your interactive client chat wrapper
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dollspace | Live Chatroom",
+  description: "Chat in real-time with the DOLLS",
+};
 
 export default async function ChatPage() {
   // 1. SECURE SESSION CHECK: Verify cryptographic token from HTTP-Only cookies

@@ -6,6 +6,11 @@ import PostControls from "@/components/PostControls";
 import { getCurrentUser, logoutUser } from "@/app/actions/auth"; // Ensure imports are current
 import { redirect } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader"; 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dollspace | Home Feed",
+  description: "See the latest updates from the DOLLS on Dollspace",
 
 export default async function Home() {
   // 1. SECURE SESSION CHECK: Verify cryptographic token from HTTP-Only cookies

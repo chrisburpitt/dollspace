@@ -9,6 +9,28 @@ import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import { getCurrentUser } from "@/app/actions/auth";
+import { Metadata } from "next";
+
+// 🚀 DYNAMIC TAB GENERATOR
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+  const { username } = await params;
+
+  // Query your Neon database to grab the true display name for the tab
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { displayName: true }
+  });
+
+  if (!user) {
+    return { title: "User Not Found | Dollspace" };
+  }
+
+  return {
+    title: `Dollspace | ${user.displayName} (@${username})`,
+    description: `View ${user.displayName}'s profile on Dollspace.com`
+  };
+}
+
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
