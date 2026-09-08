@@ -28,8 +28,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [bio, setBio] = useState(user.bio || "");
   const [lookingFor, setLookingFor] = useState(user.lookingFor || "FRIENDS");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault(); // 🚀 FIXED NAME HERE: Explicit parameter tracking aligned
     setIsSaving(true);
     setError(null);
 
@@ -105,9 +105,9 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender</label>
-                   setGenderIdentity{(e.target.value)}
+                   setGenderIdentity(e.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
-
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Location</label>
