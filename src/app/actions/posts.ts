@@ -1,28 +1,41 @@
+// src/app/actions/posts.ts
 "use server";
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
+import { UTApi } from "uploadthing/server";
 
-// Helper function to handle saving an image to the local public folder
-async function saveImageLocally(file: File | null, folderName: string): Promise<string | null> {
+const utapi = new UTApi();
+
+// Updated hybrid helper function to handle both local file system and cloud uploads smoothly
+async function saveImage(file: File | null, folderName: string): Promise<string | null> {
   if (!file || file.size === 0 || !file.name) return null;
 
-  // Ensure upload directory exists
+  // 🚀 VERCEL PRODUCTION ENVIRONMENT DETECTOR SWITCH
+  if (process.env.NODE_ENV === "production" || process.env.UPLOADTHING_TOKEN) {
+    try {
+      const uploadResult = await utapi.uploadFiles(file);
+      if (uploadResult.data?.url) {
+        return uploadResult.data.url; // Returns the permanent cloud secure CDN link!
+      }
+    } catch (error) {
+      console.error("Cloud upload error, falling back to local layout:", error);
+    }
+  }
+
+  // Local Development Hard Drive Fallback
   const uploadDir = path.join(process.cwd(), "public", "uploads", folderName);
   await fs.mkdir(uploadDir, { recursive: true });
 
-  // Create a unique filename to prevent overwriting files with the same name
   const uniqueFilename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
   const filePath = path.join(uploadDir, uniqueFilename);
 
-  // Convert File object to buffer and write to disc
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   await fs.writeFile(filePath, buffer);
 
-  // Return the public web path to save in the database
   return `/uploads/${folderName}/${uniqueFilename}`;
 }
 
@@ -34,7 +47,7 @@ export async function createPost(formData: FormData, userId: string) {
   if ((!content || content.trim() === "") && (!imageFile || imageFile.size === 0)) return;
 
   // Save image if present
-  const imageUrl = await saveImageLocally(imageFile, "posts");
+  const imageUrl = await saveImage(imageFile, "posts");
 
   await prisma.post.create({
     data: {
@@ -52,7 +65,7 @@ export async function updateAvatar(formData: FormData, userId: string) {
   const avatarFile = formData.get("avatar") as File | null;
   if (!avatarFile || avatarFile.size === 0) return;
 
-  const avatarUrl = await saveImageLocally(avatarFile, "avatars");
+  const avatarUrl = await saveImage(avatarFile, "avatars");
 
   await prisma.user.update({
     where: { id: userId },
