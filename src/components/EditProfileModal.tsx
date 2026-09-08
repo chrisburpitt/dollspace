@@ -21,7 +21,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Form Field Local State Hooks
+  // Form Field Local States
   const [displayName, setDisplayName] = useState(user.displayName);
   const [age, setAge] = useState(user.age ? user.age.toString() : "");
   const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "");
@@ -36,7 +36,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
     const parsedAge = age.trim() ? parseInt(age, 10) : null;
     if (parsedAge !== null && isNaN(parsedAge)) {
-      setError("❌ Please enter a valid number for age.");
+      setError("Please enter a valid number for age.");
       setIsSaving(false);
       return;
     }
@@ -60,7 +60,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
   return (
     <>
-      {/* ✏️ Trigger Button */}
+      {/* Edit Profile Action Trigger Button */}
       <button
         onClick={() => setIsOpen(true)}
         className="bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-200 shadow-sm transition ml-auto flex items-center space-x-1"
@@ -68,7 +68,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
         <span>✏️ Edit Profile</span>
       </button>
 
-      {/* Popover Modal Backdrop Layout */}
+      {/* Floating Popover Overlay Frame Modal */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
           <div className="bg-white w-full max-w-lg rounded-3xl border border-gray-200 p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-left">
@@ -84,7 +84,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               
-              {/* Row 1: Display Name & Age Grid */}
+              {/* Row 1: Display Name & Age Grid Layout */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Display Name</label>
@@ -109,13 +109,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 </div>
               </div>
 
-              {/* Row 2: Gender Identity & Location Grid */}
+              {/* Row 2: Gender Identity & Location Grid Layout */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender Identity</label>
                    setGenderIdentity(e.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800"
-                    placeholder="E.g. Female / Non-binary"
+                    placeholder="E.g. Female"
                   />
                 </div>
                 <div>
@@ -144,20 +144,19 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 </select>
               </div>
 
-
-              {/* Row 4: Personal Bio Textarea */}
+              {/* Row 4: Personal Bio Textarea Box */}
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Biography description</label>
+                <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Biography</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800 resize-none"
                   rows={3}
-                  placeholder="Tell the lounge about yourself..."
+                  placeholder="Tell Dollspace about yourself..."
                 />
               </div>
 
-              {/* Lower Control Actions Button Bar Panels */}
+              {/* Lower Console Actions Button Suite Panel */}
               <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100 mt-6">
                 <button
                   type="button"
