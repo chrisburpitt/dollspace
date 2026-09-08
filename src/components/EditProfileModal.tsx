@@ -31,7 +31,9 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
   // Multi-Select Looking For Array State
   const [lookingList, setLookingList] = useState<string[]>(
-    user.lookingFor ? user.lookingFor.split(",") : []
+    user.lookingFor
+      ? user.lookingFor.toUpperCase().split(",")
+      : ["FRIENDS"]
   );
 
   const handleToggleLookingFor = (value: string) => {

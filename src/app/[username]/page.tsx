@@ -137,9 +137,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {user.genderIdentity && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">⚧️ {user.genderIdentity}</span>}
                   {user.location && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">📍 {user.location}</span>}
                   {user.lookingFor && (
-                    <span className="bg-rose-50 px-2.5 py-1 rounded-lg text-rose-500 uppercase tracking-wider">
-                      🔍 Looking For: {user.lookingFor.replace(/_/g, ' ')}
-                    </span>
+                    <div className="flex flex-wrap gap-1.5 items-center">
+                      <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
+                      {user.lookingFor.split(",").map((option) => (
+                        <span key={option} className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm">
+                          {option.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
 
