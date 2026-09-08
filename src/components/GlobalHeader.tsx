@@ -12,7 +12,7 @@ interface GlobalHeaderProps {
     status: string;
     [key: string]: any; // 🚀 ADD THIS LINE to allow any extra user fields to pass safely
   };
-}s
+}
 
 // Map status strings to beautiful visual indicators
 const STATUS_OPTIONS = [
