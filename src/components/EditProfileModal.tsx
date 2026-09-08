@@ -61,17 +61,17 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-200 shadow-sm transition ml-auto flex items-center space-x-1"
+        className="bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-200 shadow-sm transition ml-auto"
       >
-        <span>✏️ Edit Profile</span>
+        ✏️ Edit Profile
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-lg rounded-3xl border border-gray-200 p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-left">
             
-            <h2 className="text-xl font-black text-gray-900 mb-1">Edit Profile Cards</h2>
-            <p className="text-gray-400 text-xs font-semibold mb-6">Customize your metrics and background information card bio.</p>
+            <h2 className="text-xl font-black text-gray-900 mb-1">Edit Profile</h2>
+            <p className="text-gray-400 text-xs font-semibold mb-6">Update your custom profile card configurations.</p>
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-xl mb-4">
@@ -80,7 +80,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Display Name</label>
@@ -89,8 +88,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     required
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800"
-                    placeholder="E.g. Chloe Smith"
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
                 <div>
@@ -99,18 +97,16 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     type="number"
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800"
-                    placeholder="24"
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender Identity</label>
+                  <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender</label>
                    setGenderIdentity(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800"
-                    placeholder="E.g. Female"
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
                 <div>
@@ -119,8 +115,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800"
-                    placeholder="E.g. Brisbane, QLD"
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
               </div>
@@ -130,7 +125,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <select
                   value={lookingFor}
                   onChange={(e) => setLookingFor(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-bold text-gray-700 cursor-pointer"
+                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-bold text-gray-700 cursor-pointer"
                 >
                   <option value="FRIENDS">Friends</option>
                   <option value="SUPPORT">Support</option>
@@ -143,9 +138,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 text-sm font-medium text-gray-800 resize-none"
+                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 resize-none"
                   rows={3}
-                  placeholder="Tell Dollspace about yourself..."
                 />
               </div>
 
@@ -153,16 +147,16 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition"
+                  className="px-4 py-2 text-sm font-bold text-gray-500 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="bg-rose-500 hover:bg-rose-600 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition shadow-sm disabled:opacity-50"
+                  className="bg-rose-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition"
                 >
-                  {isSaving ? "Saving..." : "Save Changes"}
+                  Save
                 </button>
               </div>
             </form>
