@@ -19,7 +19,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   // 1. SECURE VISITOR SESSION CHECK
   const sessionUser = await getCurrentUser();
-  if (!sessionUser) redirect("/login"); // Instantly blocks 'null' propagation downstream
+  if (!sessionUser) redirect("/login"); 
 
   // 2. FETCH PROFILE PAGE TARGET DATA
   const user = await prisma.user.findUnique({
@@ -38,9 +38,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const isOwner = user.id === sessionUser.id;
 
+  // 🚀 HARD TYPE FIX: Safely structure a non-null object for the Header component
+  const validatedHeaderUser = {
+    id: sessionUser.id,
+    status: sessionUser.status || "ONLINE"
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <GlobalHeader currentUser={sessionUser} />
+      <GlobalHeader currentUser={validatedHeaderUser} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
