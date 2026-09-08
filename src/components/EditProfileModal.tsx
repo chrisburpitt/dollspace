@@ -29,7 +29,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [lookingFor, setLookingFor] = useState(user.lookingFor || "FRIENDS");
 
   const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault(); // 🚀 FIXED NAME HERE: Explicit parameter tracking aligned
+    event.preventDefault(); 
     setIsSaving(true);
     setError(null);
 
@@ -87,7 +87,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     type="text"
                     required
                     value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
+                    onChange={(event) => setDisplayName(event.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
@@ -96,7 +96,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   <input
                     type="number"
                     value={age}
-                    onChange={(e) => setAge(e.target.value)}
+                    onChange={(event) => setAge(event.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
@@ -105,7 +105,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender</label>
-                   setGenderIdentity(e.target.value)}
+                   setGenderIdentity(event.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
@@ -114,7 +114,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   <input
                     type="text"
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                    onChange={(event) => setLocation(event.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
                   />
                 </div>
@@ -124,7 +124,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Looking For</label>
                 <select
                   value={lookingFor}
-                  onChange={(e) => setLookingFor(e.target.value)}
+                  onChange={(event) => setLookingFor(event.target.value)}
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-bold text-gray-700 cursor-pointer"
                 >
                   <option value="FRIENDS">Friends</option>
@@ -137,7 +137,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Biography</label>
                 <textarea
                   value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  onChange={(event) => setBio(event.target.value)}
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 resize-none"
                   rows={3}
                 />
