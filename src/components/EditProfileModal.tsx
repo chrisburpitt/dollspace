@@ -114,7 +114,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                       <option value="CDT">CD</option>
                       <option value="CHASER">Dirty Old Man</option>
                     </select>
-                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Location</label>
