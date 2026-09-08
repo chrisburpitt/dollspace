@@ -8,6 +8,7 @@ import AvatarUpload from "@/components/AvatarUpload";
 import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
+import FollowButton from "@/components/FollowButton"; 
 import { getCurrentUser } from "@/app/actions/auth";
 import { incrementProfileViews } from "@/app/actions/profile";
 import { Metadata } from "next";
@@ -66,6 +67,37 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     id: sessionUser.id,
     status: sessionUser.status || "ONLINE"
   };
+
+const isFollowingResult = await prisma.follow.findUnique({
+  where: {
+    followerId_followingId: {
+      followerId: sessionUser.id,
+      followingId: user.id,
+    },
+  },
+});
+
+const isFollowing = !!isFollowingResult;
+const isOwner = user.id === sessionUser.id;
+
+// FOLLOWER SECTION //
+return (
+  // ... top layout blocks ...
+  <div>
+    <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
+    <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
+  </div>
+  
+  {/* 🚀 3. REPLACE STATIC TEXT TAG WITH LIVE INTERACTIVE FOLLOW COMPONENT BUTTON */}
+  {isOwner ? (
+    <EditProfileModal user={user} />
+  ) : (
+    <FollowButton 
+      currentUserId={sessionUser.id} 
+      targetUserId={user.id} 
+      initialIsFollowing={isFollowing} 
+    />
+  )}
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
