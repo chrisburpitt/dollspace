@@ -48,7 +48,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       <textarea
         name="content"
         placeholder="What's on your mind, Chloe?"
-        className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 resize-none text-gray-800"
+        className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400 bg-gray-50 resize-none text-gray-800"
         rows={3}
       />
       
@@ -68,7 +68,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       )}
       
       <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
-        <label className="cursor-pointer text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-4 py-2 rounded-xl transition flex items-center space-x-1">
+        <label className="cursor-pointer text-sm font-semibold text-rose-500 hover:text-rose-600 bg-rose-50 px-4 py-2 rounded-xl transition flex items-center space-x-1">
           <span>📷 Attach Photo</span>
           <input 
             type="file" 
@@ -82,7 +82,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
         <button 
           type="submit" 
           disabled={!!error}
-          className="bg-blue-600 text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-blue-700 transition shadow-sm disabled:opacity-50"
+          className="bg-rose-500 text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-rose-600 transition shadow-sm disabled:opacity-50"
         >
           Post Update
         </button>

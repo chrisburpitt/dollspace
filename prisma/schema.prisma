@@ -10,17 +10,19 @@ generator client {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
-  displayName String
-  bio         String?
-  avatarUrl   String?
-  createdAt   DateTime @default(now())
+  id           String     @id @default(cuid())
+  username     String     @unique
+  email        String     @unique 
+  displayName  String
+  passwordHash String
+  bio          String?
+  avatarUrl    String?
+  createdAt    DateTime   @default(now())
   
-  posts       Post[]
-  reactions   Reaction[] // 👈 ADD THIS MISSING FIELD TO YOUR USER MODEL
-  followers   Follow[]   @relation("UserFollowers")
-  following   Follow[]   @relation("UserFollowing")
+  posts        Post[]
+  reactions    Reaction[]
+  followers    Follow[]   @relation("UserFollowers")
+  following    Follow[]   @relation("UserFollowing")
 }
 
 model Post {

@@ -1,4 +1,5 @@
 {
   "name": "my-partykit-app",
-  "main": "src/server.ts" 
+  "main": "party.ts",
+  "compatibilityDate": "2026-05-31"
 }

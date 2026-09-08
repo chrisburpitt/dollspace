@@ -3,12 +3,17 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import FeedForm from "@/components/FeedForm";
 import PostControls from "@/components/PostControls";
+import { getCurrentUser, logoutUser } from "@/app/actions/auth"; // Ensure imports are current
+import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const currentUser = await prisma.user.findUnique({
-    where: { username: "Chloe" }
-  });
+  // 1. SECURE SESSION CHECK: Verify cryptographic token from HTTP-Only cookies
+  const currentUser = await getCurrentUser();
 
+  // If session is empty or missing, immediately bounce them to log in
+  if (!currentUser) redirect("/login");
+
+  // 2. FIXED PATH HERE: Dropped back in your missing database feed posts query!
   const feedPosts = await prisma.post.findMany({
     include: { 
       user: true,
@@ -17,33 +22,33 @@ export default async function Home() {
     orderBy: { createdAt: "desc" }
   });
 
-  if (!currentUser) return <div className="p-10 text-center text-red-500">Run setup first!</div>;
-
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* 1. Global Navigation Bar */}
+      {/* Global Navigation Bar */}
       <header className="sticky top-0 bg-white border-b border-gray-200 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black tracking-tight text-blue-600 hover:opacity-90">
+          <Link href="/" className="text-2xl font-black tracking-tight text-rose-500 hover:opacity-90">
             Dollspace
           </Link>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm font-semibold text-gray-500">Status: Local Engine</span>
-            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-          </div>
+          {/* Quick Logout Control Dropdown Form Trigger */}
+          <form action={logoutUser}>
+            <button type="submit" className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold px-4 py-2 rounded-xl border border-gray-200 transition">
+              🚪 Logout
+            </button>
+          </form>
         </div>
       </header>
 
-      {/* 2. Responsive Multi-Column Desktop Grid */}
+      {/* Responsive Multi-Column Desktop Grid */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT COLUMN: Profile Sidebar (Takes 3 of 12 columns on desktop) */}
+        {/* LEFT COLUMN: Profile Sidebar Navigation Layout */}
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
           <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center text-center">
             {currentUser.avatarUrl ? (
-              <img src={currentUser.avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover border-2 border-blue-500 shadow-sm" />
+              <img src={currentUser.avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover border-2 border-rose-500 shadow-sm" />
             ) : (
-              <div className="w-20 h-20 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-2xl uppercase shadow-sm">
+              <div className="w-20 h-20 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-2xl uppercase shadow-sm">
                 {currentUser.displayName.charAt(0)}
               </div>
             )}
@@ -53,34 +58,31 @@ export default async function Home() {
             
             <Link 
               href={`/${currentUser.username}`} 
-              className="mt-5 w-full bg-blue-600 text-white py-2 rounded-xl text-sm font-bold text-center hover:bg-blue-700 transition shadow-sm"
+              className="mt-5 w-full bg-rose-500 text-white py-2 rounded-xl text-sm font-bold text-center hover:bg-rose-600 transition shadow-sm"
             >
               View Full Profile
             </Link>
           </div>
 
-          {/* Quick Navigation Panel */}
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm hidden lg:block">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 bg-blue-50 text-blue-600 font-bold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
-              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
+              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-500 font-semibold rounded-xl text-sm transition">
                 👤 My Profile
               </Link>
-              <Link href="/api/setup-chloe" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
-                ⚙️ Run Setup Route
-              </Link>
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-500 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                💬 Live Chatrooms
+             </Link>
             </nav>
           </div>
         </aside>
 
-        {/* CENTER COLUMN: The Core Feed Stream (Takes 6 of 12 columns) */}
+        {/* CENTER COLUMN: Main Dynamic Feed Layout Stream */}
         <main className="lg:col-span-6 space-y-6">
-          {/* Interactive Form Component */}
           <FeedForm currentUser={currentUser} />
 
-          {/* Timeline Feed Container */}
           <div className="space-y-4">
             {feedPosts.length === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300">
@@ -94,7 +96,7 @@ export default async function Home() {
                     {post.user.avatarUrl ? (
                       <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100" />
                     ) : (
-                      <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
+                      <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
                     )}
                     <div>
                       <Link href={`/${post.user.username}`} className="font-bold text-gray-900 hover:underline block text-sm leading-tight">{post.user.displayName}</Link>
@@ -121,28 +123,8 @@ export default async function Home() {
           </div>
         </main>
 
-        {/* RIGHT COLUMN: Info Dashboard Sidebar (Takes 3 of 12 columns) */}
+        {/* RIGHT COLUMN: Insight Sidebar Indicators */}
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-          {/* Who to Follow Panel */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-3">Suggested Connections</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full text-white flex items-center justify-center text-xs font-bold">G</div>
-                  <div>
-                    <p className="text-xs font-bold text-gray-900 leading-tight">Guest Account</p>
-                    <p className="text-[10px] text-gray-400">@Guest</p>
-                  </div>
-                </div>
-                <button className="text-xs bg-gray-900 text-white font-bold px-3 py-1 rounded-lg hover:bg-gray-800 transition">
-                  Follow
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Social Stats Dashboard */}
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Platform Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
@@ -151,8 +133,8 @@ export default async function Home() {
                 <span className="text-gray-900 font-bold">{feedPosts.length}</span>
               </div>
               <div className="flex justify-between">
-                <span>Database Engine:</span>
-                <span className="text-blue-600 font-bold">SQLite Local</span>
+                <span>Session Entity ID:</span>
+                <span className="text-gray-400 font-mono truncate max-w-[120px]">{currentUser.id}</span>
               </div>
             </div>
           </div>

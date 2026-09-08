@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import PostControls from "@/components/PostControls";
+import { getCurrentUser } from "@/app/actions/auth"; // 👈 1. IMPORT THE AUTH HELPER
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
@@ -14,7 +15,9 @@ interface ProfilePageProps {
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
 
-  // 1. Fetch user data with relational profile stats
+  // 2. FETCH THE VISITOR'S SECURE SESSION INFO
+  const sessionUser = await getCurrentUser();
+
   const user = await prisma.user.findUnique({
     where: { username },
     include: { _count: { select: { followers: true, following: true } } }
@@ -22,51 +25,41 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (!user) notFound();
 
-  // 2. Fetch only the posts created by THIS specific profile
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: { user: true, reactions: true },
     orderBy: { createdAt: "desc" }
   });
 
-  // Check if the profile owner is looking at their own page
-  const isOwner = user.username === "Chloe";
+  // Dynamic boolean check: Is the profile being viewed owned by the logged-in visitor?
+  const isOwner = sessionUser ? user.id === sessionUser.id : false;
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Global Navigation Header */}
-      <header className="sticky top-0 bg-white border-b border-b-gray-200 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-black tracking-tight text-blue-600 hover:opacity-90">
-            Dollspace
-          </Link>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm font-semibold text-gray-500">Status: Local Engine</span>
-            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" />
-          </div>
-        </div>
-      </header>
+      {/* ... keeping header layout matching ... */}
 
-      {/* Multi-Column Desktop Grid */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* LEFT COLUMN: Sidebar Navigation Links (Takes 3 columns) */}
+        {/* LEFT COLUMN: Sidebar Navigation Links */}
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
+              
+              {/* 🚀 FIXED DYNAMIC LINK HERE: No more hardcoded strings! */}
               <Link 
-                href={isOwner ? `/${user.username}` : "/Chloe"} 
+                href={sessionUser ? `/${sessionUser.username}` : "/login"} 
                 className={`px-4 py-2.5 font-bold rounded-xl text-sm transition ${
-                  !isOwner ? "bg-blue-50 text-blue-600" : "text-gray-600 hover:bg-gray-50"
+                  isOwner ? "bg-rose-50 text-rose-500" : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 👤 My Profile
               </Link>
-              <Link href="/api/setup-chloe" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
-                ⚙️ Run Setup Route
+              
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                💬 Live Chatrooms
               </Link>
             </nav>
           </div>
