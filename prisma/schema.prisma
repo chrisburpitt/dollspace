@@ -17,10 +17,14 @@ model User {
   displayName  String
   passwordHash String
   status       String     @default("ONLINE") // 👈 ADD THIS FIELD (ONLINE, AWAY, BUSY, OFFLINE)
+  age          Int?
+  genderIdentity String?
+  location     String?
   bio          String?
+  lookingFor   String?    // Options: FRIENDS, SUPPORT, SUGAR_DADDY
   avatarUrl    String?
+
   createdAt    DateTime   @default(now())
-  
   posts        Post[]
   reactions    Reaction[]
   followers    Follow[]   @relation("UserFollowers")

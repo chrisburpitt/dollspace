@@ -3,7 +3,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { logoutUser, updateStatus } from "@/app/actions/auth";
+import { logoutUser } from "@/app/actions/auth";
+import { updateStatus } from "@/app/actions/profile"; 
 
 interface GlobalHeaderProps {
   currentUser: {
