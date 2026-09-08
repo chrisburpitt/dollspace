@@ -29,6 +29,7 @@ model User {
   createdAt    DateTime   @default(now())
   posts        Post[]
   reactions    Reaction[]
+  comments     Comment[]  
   followers    Follow[]   @relation("UserFollowers")
   following    Follow[]   @relation("UserFollowing")
 }
@@ -42,6 +43,7 @@ model Post {
   
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   reactions Reaction[]
+  comments  Comment[]  
 }
 
 model Reaction {
@@ -55,6 +57,17 @@ model Reaction {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId, emoji]) 
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  postId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Follow {

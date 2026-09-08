@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import PostControls from "@/components/PostControls";
+import PostComments from "@/components/PostComments"; 
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton"; 
@@ -55,9 +56,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   // 3. FETCH PROFILE POST HISTORY STREAM
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
-    include: { user: true, reactions: true },
-    orderBy: { createdAt: "desc" }
-  });
+    include: { 
+      user: true, 
+      reactions: true,
+      comments: {
+        include: { user: true },
+        orderBy: { createdAt: "asc" }
+      }
+    },
+  orderBy: { createdAt: "desc" }
+});
 
   // 4. CHECK RELATIONSHIP FOLLOW MATRIX
   const isFollowingResult = await prisma.follow.findUnique({
@@ -187,6 +195,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                 )}
                 <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
+                <PostComments 
+                  postId={post.id}
+                  currentUserId={sessionUser.id}
+                  comments={post.comments}
+                />
               </div>
             ))}
           </div>

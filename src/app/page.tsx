@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import FeedForm from "@/components/FeedForm";
 import PostControls from "@/components/PostControls";
+import PostComments from "@/components/PostComments";
 import { getCurrentUser, logoutUser } from "@/app/actions/auth";
 import GlobalHeader from "@/components/GlobalHeader";
 import { redirect } from "next/navigation";
@@ -21,7 +22,15 @@ export default async function Home() {
   const feedPosts = await prisma.post.findMany({
     include: { 
       user: true,
-      reactions: true 
+      reactions: true,
+      comments: {
+        include: {
+          user: true // 👈 Essential to load the author info for comment list tags
+        },
+        orderBy: {
+          createdAt: "asc" // Oldest responses stack at the top first
+        }
+      }
     },
     orderBy: { createdAt: "desc" }
   });
@@ -109,6 +118,11 @@ export default async function Home() {
                     postOwnerId={post.userId}
                     currentUserId={currentUser.id}
                     reactions={post.reactions}
+                  />
+                  <PostComments 
+                    postId={post.id}
+                    currentUserId={currentUser.id}
+                    comments={post.comments}
                   />
                 </div>
               ))
