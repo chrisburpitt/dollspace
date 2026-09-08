@@ -124,7 +124,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Gender Identity</label>
                 <div className="grid grid-cols-3 gap-2">
-                  {["tgirl", "crossdresser", "chaser"].map((g) => (
+                  {["Tgirl", "Crossdresser", "Chaser"].map((g) => (
                     <button
                       key={g}
                       type="button"
