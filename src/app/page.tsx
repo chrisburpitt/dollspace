@@ -1,26 +1,23 @@
 // src/app/page.tsx
+import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import FeedForm from "@/components/FeedForm";
 import PostControls from "@/components/PostControls";
-import { getCurrentUser, logoutUser } from "@/app/actions/auth"; // Ensure imports are current
+import { getCurrentUser, logoutUser } from "@/app/actions/auth";
+import GlobalHeader from "@/components/GlobalHeader";
 import { redirect } from "next/navigation";
-import GlobalHeader from "@/components/GlobalHeader"; 
-import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dollspace | Home Feed",
+  title: "Home Feed | Dollspace",
   description: "See the latest updates from the DOLLS on Dollspace",
 };
 
 export default async function Home() {
-  // 1. SECURE SESSION CHECK: Verify cryptographic token from HTTP-Only cookies
   const currentUser = await getCurrentUser();
-
-  // If session is empty or missing, immediately bounce them to log in
   if (!currentUser) redirect("/login");
 
-  // 2. FIXED PATH HERE: Dropped back in your missing database feed posts query!
+  // 1. FETCH ALL POST UPDATE STREAMS
   const feedPosts = await prisma.post.findMany({
     include: { 
       user: true,
@@ -29,12 +26,13 @@ export default async function Home() {
     orderBy: { createdAt: "desc" }
   });
 
+  // 🚀 2. INJECT THE USER COUNT AGGREGATION LOOK-UP HERE
+  const totalUserCount = await prisma.user.count();
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* 🚀 DROP IN THE NEW INTERACTIVE STATUS HEADER */}
       <GlobalHeader currentUser={currentUser} />
 
-      {/* Responsive Multi-Column Desktop Grid */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* LEFT COLUMN: Profile Sidebar Navigation Layout */}
@@ -64,12 +62,12 @@ export default async function Home() {
               <Link href="/" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
-              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-500 font-semibold rounded-xl text-sm transition">
+              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-500 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                💬 Live Chatrooms
-             </Link>
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💬 Live Chatroom</span>
+              </Link>
             </nav>
           </div>
         </aside>
@@ -123,6 +121,13 @@ export default async function Home() {
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Platform Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
+              
+              {/* 🚀 INJECTED: Live User Platform Metric Counter Badge */}
+              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
+                <span>Registered Users:</span>
+                <span className="text-rose-500 font-black">{totalUserCount}</span>
+              </div>
+
               <div className="flex justify-between">
                 <span>Total Stream Updates:</span>
                 <span className="text-gray-900 font-bold">{feedPosts.length}</span>
