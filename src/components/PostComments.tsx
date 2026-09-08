@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { createComment, deleteComment } from "@/app/actions/comments";
 import Link from "next/link";
+import SubmitButton from "./SubmitButton"; 
 
 interface CommentUser {
   username: string;
@@ -56,23 +57,34 @@ export default function PostComments({ postId, currentUserId, comments }: PostCo
       {/* Sliding Input & Response Drawer */}
       {showComments && (
         <div className="mt-4 space-y-4 animate-fade-in text-left">
-          {/* 1. Comment Submission Form Console */}
-          <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-            <input
-              type="text"
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write a response..."
-              className="flex-1 border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
-            />
-            <button
-              type="submit"
-              disabled={isSubmitting || !commentText.trim()}
-              className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl transition disabled:opacity-40"
-            >
-              Post
-            </button>
-          </form>
+
+      {/* 🚀 2. REFACTORED SECURE COMMENT ACTION SUBMIT FORM */}
+        <form 
+          action={async (formData) => {
+            const text = formData.get("commentContent") as string;
+            if (!text.trim()) return;
+          
+            await createComment(postId, currentUserId, text);
+            setCommentText(""); // Clears active field state text hooks smoothly
+          }}
+          className="flex gap-2 items-center"
+        >
+          <input
+            type="text"
+            name="commentContent"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Write a response..."
+            className="flex-1 border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
+          />
+        
+          {/* 🚀 3. MOUNT SMALL FORM-STATUS COMMENT BUTTON */}
+          <SubmitButton 
+            label="Post" 
+            loadingLabel="Sending" 
+            className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-black px-4 py-2.5 rounded-xl transition"
+          />
+        </form>
 
           {/* 2. List Roster Stream Loop */}
           <div className="space-y-3 pt-2">

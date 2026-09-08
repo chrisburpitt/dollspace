@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { createPost } from "@/app/actions/posts";
+import SubmitButton from "./SubmitButton"; 
 
 interface FeedFormProps {
   currentUser: {
@@ -42,9 +43,12 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
         await createPost(formData, currentUser.id);
         setFileName(null); // Clear file name on success
         setError(null);
-      }} 
-      className="mb-8 bg-white p-5 rounded-2xl border border-gray-200 shadow-sm"
-    >
+        const form = document.getElementById("feed-form") as HTMLFormElement;
+        form?.reset();
+      }}
+    id="feed-form"
+    className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4"
+  >
       <textarea
         name="content"
         placeholder="What's on your mind, Chloe?"
@@ -79,13 +83,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
           />
         </label>
         <span className="text-xs text-gray-400 font-medium">Max size: 3MB</span>
-        <button 
-          type="submit" 
-          disabled={!!error}
-          className="bg-rose-500 text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-rose-600 transition shadow-sm disabled:opacity-50"
-        >
-          Post Update
-        </button>
+        <SubmitButton label="Post Update" loadingLabel="Publishing..." />
       </div>
     </form>
   );
