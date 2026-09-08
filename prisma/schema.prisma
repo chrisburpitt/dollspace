@@ -1,8 +1,9 @@
 // prisma/schema.prisma
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  // 🚀 UPDATE THIS LINE to pull the provider dynamically from your environment string variables!
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
