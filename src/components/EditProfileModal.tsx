@@ -80,6 +80,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              
+              {/* Row 1: Name & Age Grid */}
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Display Name</label>
@@ -102,18 +104,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 </div>
               </div>
 
+              {/* Row 2: Gender & Location Grid (FIXED & COMPLETE) */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Gender</label>
-                    <select
-                      value={genderIdentity}
-                      onChange={(event) => setGenderIdentity(event.target.value)}
-                      className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-bold text-gray-700 cursor-pointer"
-                    >
-                      <option value="TGIRL">Tgirl</option>
-                      <option value="CDT">CD</option>
-                      <option value="CHASER">Dirty Old Man</option>
-                    </select>
+                   setGenderIdentity(event.target.value)}
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800"
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Location</label>
