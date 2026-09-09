@@ -1,4 +1,4 @@
-// src/components/NotificationCenter.tsx
+// src/components/NotificationCenter.tsx (PART 1 - PASTE THIS FIRST)
 "use client";
 
 import { useState } from "react";
@@ -35,16 +35,18 @@ export default function NotificationCenter({ currentUserId, notifications }: Not
     }
   };
 
+
+  // src/components/NotificationCenter.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
     <div className="relative">
-      {/* 🔔 The Notification Bell Button Anchor Icon Element */}
+      {/* The Notification Bell Button Anchor Icon Element */}
       <button
         onClick={handleToggleOpen}
         className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center transition relative"
       >
         <span className="text-lg">🔔</span>
         
-        {/* 🔴 UNREAD INDICATOR DOT FLOATER */}
+        {/* UNREAD INDICATOR DOT FLOATER */}
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[9px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-scale-up">
             {unreadCount}
@@ -64,37 +66,47 @@ export default function NotificationCenter({ currentUserId, notifications }: Not
             {notifications.length === 0 ? (
               <p className="text-gray-400 text-xs text-center py-8 font-medium">Your notification center is clear! 🌸</p>
             ) : (
-              notifications.map((notif) => (
-                <div 
-                  key={notif.id} 
-                  className={`p-3 rounded-xl flex items-start space-x-2.5 transition ${
-                    !notif.isRead ? "bg-rose-50/40" : "hover:bg-gray-50"
-                  }`}
-                >
-                  {notif.issuer.avatarUrl ? (
-                    <img src={notif.issuer.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="w-8 h-8 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">
-                      {notif.issuer.displayName.charAt(0)}
+              notifications.map((notif) => {
+                // 🚀 FIXED: Compute the destination URL link string target dynamically depending on notification types
+                const targetLinkUrl = notif.type === "FOLLOW" 
+                  ? `/${notif.issuer.username}` 
+                  : `/#post-${notif.postId}`; // Pointers hop straight down to that exact post card anchor context hook element
+
+                return (
+                  /* 🚀 FIXED: Swapped out empty static div block container for an active relational router link module */
+                  <Link
+                    key={notif.id} 
+                    href={targetLinkUrl}
+                    onClick={() => setIsOpen(false)} // Closes menu automatically on item route clicks
+                    className={`p-3 rounded-xl flex items-start space-x-2.5 transition block border border-transparent ${
+                      !notif.isRead ? "bg-rose-50/40 hover:bg-rose-50" : "hover:bg-gray-50"
+                    }`}
+                  >
+                    {notif.issuer.avatarUrl ? (
+                      <img src={notif.issuer.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="w-8 h-8 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">
+                        {notif.issuer.displayName.charAt(0)}
+                      </div>
+                    )}
+                    
+                    <div className="flex-1 min-w-0 text-xs">
+                      <p className="text-gray-800 leading-normal font-medium">
+                        <strong className="font-black text-gray-900">
+                          {notif.issuer.displayName}
+                        </strong>{" "}
+                        {notif.type === "FOLLOW" && "started following your profile card."}
+                        {notif.type === "COMMENT" && "replied to one of your timeline updates."}
+                        {notif.type === "LIKE" && "liked your update post."}
+                        {notif.type === "MENTION" && "tagged you inside a timeline discussion comment."}
+                      </p>
+                      <span className="text-[10px] text-gray-400 font-semibold block mt-0.5">
+                        {new Date(notif.createdAt).toLocaleDateString('en-AU', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                  )}
-                  
-                  <div className="flex-1 min-w-0 text-xs">
-                    <p className="text-gray-800 leading-normal font-medium">
-                      <strong className="font-black text-gray-900">
-                        {notif.issuer.displayName}
-                      </strong>{" "}
-                      {notif.type === "FOLLOW" && "started following your profile card."}
-                      {notif.type === "COMMENT" && "replied to one of your timeline updates."}
-                      {notif.type === "LIKE" && "liked your update post."}
-                      {notif.type === "MENTION" && "tagged you inside a timeline discussion comment."}
-                    </p>
-                    <span className="text-[10px] text-gray-400 font-semibold block mt-0.5">
-                      {new Date(notif.createdAt).toLocaleDateString('en-AU', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              ))
+                  </Link>
+                );
+              })
             )}
           </div>
         </div>
