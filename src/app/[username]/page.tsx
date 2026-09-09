@@ -1,4 +1,4 @@
-// src/app/[username]/page.tsx
+// src/app/[username]/page.tsx (PART 1 - PASTE THIS FIRST)
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
@@ -13,11 +13,13 @@ import PostComments from "@/components/PostComments";
 import { getCurrentUser } from "@/app/actions/auth";
 import { Metadata } from "next";
 
-// 🚀 DYNAMIC TAB MANAGER
+interface ProfilePageProps {
+  params: Promise<{ username: string }>;
+}
+
+// 🚀 BRANDED DYNAMIC TAB TITLE GENERATOR
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
-
-  // Look up the database to make sure the target user path exists
   const user = await prisma.user.findUnique({
     where: { username },
     select: { displayName: true }
@@ -28,14 +30,9 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   }
 
   return {
-    // 🎯 UPDATED SYNTAX: Sets your perfect browser tab name format dynamically
     title: `Dollspace | ${user.displayName}'s profile`,
     description: `View ${user.displayName}'s custom profile card on Dollspace.`
   };
-}
-
-interface ProfilePageProps {
-  params: Promise<{ username: string }>;
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
@@ -81,7 +78,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     id: sessionUser.id,
     status: sessionUser.status || "ONLINE"
   };
-
+  // src/app/[username]/page.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
@@ -92,7 +89,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
               <Link 
@@ -103,7 +100,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Live Chatroom</span>
               </Link>
             </nav>
@@ -135,23 +132,22 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   )}
                 </div>
                 
-                {/* 📊 VISUAL BIOGRAPHICAL DATA BADGES DECK */}
+                {/* Visual Biographical Badges Deck */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.age && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">🎂 {user.age} Years Old</span>}
                   {user.genderIdentity && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">⚧️ {user.genderIdentity}</span>}
                   {user.location && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">📍 {user.location}</span>}
                 </div>
 
-                {/* 🚀 CLEAN MATCHING INTERACTIVE LOOKING FOR MULTI-BADGES */}
+                {/* DEDUPLICATED MATCHING BADGES */}
                 {user.lookingFor && user.lookingFor.trim().length > 0 && (
                   <div className="flex flex-wrap gap-1.5 items-center mt-4">
                     <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                    {/* 🚀 SMART DEDUPLICATOR: Splits the values, cleans spaces, and eliminates all duplicates instantly */}
                     {[...new Set(
                       user.lookingFor
                         .split(",")
                         .map(option => option.trim().replace(/_/g, ' '))
-                        .filter(Boolean) // Sweeps out blank empty strings completely
+                        .filter(Boolean)
                     )].map((optionLabel) => (
                       <span 
                         key={optionLabel} 
