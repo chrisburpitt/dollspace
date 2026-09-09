@@ -1,4 +1,4 @@
-// src/components/ProfileAlbums.tsx (PART 1 - PASTE THIS FIRST)
+// src/components/ProfileAlbums.tsx (PART 1 - FIXED SYNTAX)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -43,7 +43,7 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
         )}
       </div>
 
-      {/* 🚀 MODAL WINDOW A: CREATE NEW PHOTO ALBUM CONTAINER */}
+      {/* MODAL WINDOW: CREATE NEW PHOTO ALBUM */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <form
@@ -78,10 +78,7 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
       )}
 
 
-
-  // src/components/ProfileAlbums.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
-  return (
-    <>
+      {/* src/components/ProfileAlbums.tsx (PART 2 - FIXED SYNTAX) */}
       {/* ALBUMS DECK OVERVIEW GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {albums.length === 0 ? (
@@ -104,7 +101,7 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
                     <span className="text-2xl opacity-40">📸</span>
                   )}
 
-                  {/* Privacy Flag Badge Indicator overlay */}
+                  {/* Privacy Flag Badge Indicator */}
                   <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-black uppercase shadow-sm ${
                     album.isPrivate ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-green-100 text-green-700 border border-green-200"
                   }`}>
@@ -118,7 +115,7 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
                   <span className="text-[10px] text-rose-500 font-bold mt-1 block">{album.photos.length} Photos total</span>
                 </div>
 
-                {/* 🚀 PHOTO UPLOADER: Appears inside the card strictly for album owners */}
+                {/* PHOTO UPLOADER TRIGGER (OWNER ONLY) */}
                 {isOwner && (
                   <div className="border-t border-gray-50 pt-2.5 mt-1 flex items-center justify-between">
                     <label className="text-[10px] font-black text-rose-500 uppercase tracking-wider cursor-pointer hover:text-rose-600 transition bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100">
@@ -144,7 +141,7 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
                   </div>
                 )}
 
-                {/* EXPANDED INNER IMAGES DRAWER POP-DOWN WINDOW CARDS */}
+                {/* EXPANDED INNER IMAGES DRAWER POP-DOWN */}
                 {activeAlbumId === album.id && hasPhotos && (
                   <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl p-3 z-30 mt-2 grid grid-cols-4 gap-2 animate-scale-up">
                     {album.photos.map((pic) => (
@@ -158,12 +155,12 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
                     ))}
                   </div>
                 )}
-
               </div>
             );
           })
         )}
       </div>
-    </>
+    </div>
   );
 }
+
