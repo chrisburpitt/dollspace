@@ -6,6 +6,7 @@ import Link from "next/link";
 import FeedTabs from "./FeedTabs";
 import PostControls from "./PostControls";
 import PostComments from "./PostComments";
+import ImageLightbox from "./ImageLightbox"; // 🚀 IMPORT THE LIGHTBOX
 
 interface UserItem {
   id: string;
@@ -32,6 +33,9 @@ interface FeedStreamProps {
 
 export default function FeedStream({ globalPosts, followingPosts, currentUserId }: FeedStreamProps) {
   const [activeTab, setActiveTab] = useState<"global" | "following">("global");
+  
+  // 🚀 ACTIVE STATE: Tracks which image URL token is currently clicked into full preview overlay modal focus hooks
+  const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
 
   const displayPosts = activeTab === "global" ? globalPosts : followingPosts;
 
@@ -51,7 +55,6 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
         </div>
       ) : (
         displayPosts.map((post) => (
-          /* 🚀 FIXED STRUCTURAL TAG: Properly enclosed outer layout frame div handles anchor scrolls smoothly */
           <div 
             key={post.id} 
             id={`post-${post.id}`}
@@ -75,9 +78,21 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
             
             {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
             
+            {/* 🚀 FIXED PHOTO DRAWER CONTAINER: Completely stops cropping, uses max scaling, and adds click triggers */}
             {post.imageUrl && (
-              <div className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-2">
-                <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+              <div 
+                onClick={() => setActiveLightboxUrl(post.imageUrl)}
+                className="rounded-xl overflow-hidden border border-gray-200 bg-gray-50/50 mt-2 mb-4 cursor-zoom-in group max-h-[500px] flex items-center justify-center relative hover:opacity-95 transition"
+                title="Click to view full image resolution"
+              >
+                <img 
+                  src={post.imageUrl} 
+                  alt="Attached post content" 
+                  className="w-full max-h-[500px] object-contain transition-transform duration-300 group-hover:scale-[1.01]" 
+                />
+                <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
+                  🔍 Zoom Photo
+                </span>
               </div>
             )}
 
@@ -96,6 +111,15 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
           </div>
         ))
       )}
+
+      {/* 🚀 GLOBAL LAYER PORTAL TRIGGER MODULE MOUNT POINT */}
+      {activeLightboxUrl && (
+        <ImageLightbox 
+          imageUrl={activeLightboxUrl} 
+          onClose={() => setActiveLightboxUrl(null)} 
+        />
+      )}
+
     </div>
   );
 }
