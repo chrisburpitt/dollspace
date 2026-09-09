@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import usePartySocket from "partysocket/react";
+import PartySocket from "partysocket"; // 🚀 FIXED: Importing raw PartySocket client for dynamic re-connections
 import { saveDirectMessage } from "@/app/actions/messages";
 
 interface Contact {
@@ -36,16 +36,34 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
   const [messages, setMessages] = useState<MessagePacket[]>(initialHistory);
   const [inputText, setInputText] = useState("");
+  
+  const socketRef = useRef<PartySocket | null>(null); // 🚀 FIXED: Holds active socket instance reference
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const activeRoomToken = activeContact ? generateLocalRoomToken(currentUser.id, activeContact.id) : "idle-dm-room";
+  const activeRoomToken = activeContact ? generateLocalRoomToken(currentUser.id, activeContact.id) : null;
 
-  // 🔌 CONNECT TO THE SECURE PRIVATE DIRECT MESSAGE ROUTER WITH FIXED SYNTAX MATCHING
-  const socket = usePartySocket({
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev",
-    room: activeRoomToken,
-    query: { id: currentUser.id, username: currentUser.username, displayName: currentUser.displayName },
-    onMessage(event) {
+  // 🔌 2. LIFECYCLE EFFECT: Destroys and rebuilds socket channels dynamically on contact swap
+  useEffect(() => {
+    if (!activeRoomToken) return;
+
+    // Disconnect the old socket instance instantly if it exists
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+
+    // Spin up a brand new real-time connection mapped exactly to the new private room token channel
+    const socketInstance = new PartySocket({
+      host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev", // ⚠️ Ensure this matches your live host domain exactly!
+      room: activeRoomToken,
+      query: {
+        id: currentUser.id,
+        username: currentUser.username,
+        displayName: currentUser.displayName
+      }
+    });
+
+    // Handle incoming private message streams live
+    socketInstance.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data);
         if (parsed.type === "incoming_direct_message") {
@@ -59,15 +77,23 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
           };
           
           setMessages((prev) => {
+            // Stop duplicate renders from overlapping
             if (prev.some(m => m.id === freshMessage.id)) return prev;
             return [...prev, freshMessage];
           });
         }
       } catch (err) {
-        console.error("Direct message link packet dropped:", err);
+        console.error("Direct message parsing error:", err);
       }
-    }
-  });
+    };
+
+    socketRef.current = socketInstance;
+
+    // Cleanup: Automatically tear down socket connection lines if component unmounts
+    return () => {
+      socketInstance.close();
+    };
+  }, [activeRoomToken, activeContact, currentUser.id]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -75,11 +101,12 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
 
   const handleSendPrivateMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || !activeContact) return;
+    if (!inputText.trim() || !activeContact || !activeRoomToken || !socketRef.current) return;
 
     const currentText = inputText.trim();
     setInputText("");
 
+    // 1. Write the message archive permanently down to Neon PostgreSQL cloud servers
     const savedRow = await saveDirectMessage({
       senderId: currentUser.id,
       recipientId: activeContact.id,
@@ -91,6 +118,7 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
       return;
     }
 
+    // 2. Broadcast the message packet payload across the current active private room socket channel
     const dmPayload = {
       type: "direct_message",
       id: savedRow.id,
@@ -98,13 +126,12 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
       createdAt: savedRow.createdAt.toISOString()
     };
 
-    socket.send(JSON.stringify(dmPayload));
+    socketRef.current.send(JSON.stringify(dmPayload));
   };
 
-  const activeChatFeed = messages.filter(m => m.roomToken === activeRoomToken);
+  const activeChatFeed = activeRoomToken ? messages.filter(m => m.roomToken === activeRoomToken) : [];
 
-
-  // src/app/messages/MessagesClientWrapper.tsx (PART 2 - REAL-TIME FIXED VERSION)
+// src/app/messages/MessagesClientWrapper.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
     <div className="flex h-full divide-x divide-gray-200">
       
@@ -143,7 +170,7 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
 
       {/* PANEL SECTION B: Right Real-Time Conversation Stream Canvas */}
       <div className="w-2/3 flex flex-col bg-gray-50/50">
-        {activeContact ? (
+        {activeContact && activeRoomToken ? (
           <>
             {/* Thread Active Header Banner Bar */}
             <div className="p-4 bg-white border-b border-gray-200 flex items-center space-x-3 text-left">
@@ -172,7 +199,6 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
                   const isMe = msg.senderId === currentUser.id;
                   
                   return (
-                    /* 🚀 FIXED LOGIC LAYER: Toggles direction dynamically between right and left depending on author */
                     <div 
                       key={msg.id} 
                       className={`flex items-end gap-2 max-w-[80%] ${
