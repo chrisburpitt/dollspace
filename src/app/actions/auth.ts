@@ -125,6 +125,23 @@ export async function getCurrentUser() {
   } catch {
     return null;
   }
+  const user = await prisma.user.findUnique({
+    where: { id: decoded.userId },
+    // 🚀 EXPAND USER DEFINITIONS PACKETS TO EXTRACT REAL-TIME ALERTS
+    include: {
+      notificationsReceived: {
+        include: {
+          issuer: true // Fetches avatar profiles and names of the actors instantly
+        },
+        orderBy: {
+          createdAt: "desc" // Display the newest activity popups at the top first
+        },
+        take: 15 // Limit drawer records to top 15 events to lock-in high speed
+      }
+    }
+  });
+
+return user;
 }
 
 // 4. ACTION: Clear cookies and log out instantly
