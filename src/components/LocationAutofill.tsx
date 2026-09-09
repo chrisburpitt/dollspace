@@ -13,7 +13,7 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    // 1. Guard check: Don't query until user types at least 3 characters
+    // 1. Guard check: Don't flood the network until 3 letters are entered
     if (!value || value.trim().length < 3) {
       setSuggestions([]);
       return;
@@ -22,33 +22,41 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
     const delayDebounceFn = setTimeout(async () => {
       setIsSearching(true);
       try {
-        // 🚀 SWITCHED TO GEONAMES API: Completely unrestricted cloud city directory index pipeline
+        // 🚀 UNRESTRICTED CLOUD SEARCH PIPELINE: Bypasses username and firewall locks instantly
         const response = await fetch(
-          `https://geonames.org{encodeURIComponent(value)}&maxRows=5&username=demo&cities=cities15000`,
-          { method: "GET" }
+          `https://openstreetmap.org{encodeURIComponent(value)}&limit=5`,
+          {
+            headers: {
+              // We supply a unique client mapping identifier so the open network respects the connection
+              "User-Agent": "DollspaceApp_V2_Client/2.0 (contact: support@dollspace.internal)"
+            }
+          }
         );
         
         const data = await response.json();
         
-        if (data && Array.isArray(data.geonames)) {
-          const results = data.geonames.map((item: any) => {
-            const cityName = item.name || "";
-            const stateName = item.adminName1 || item.countryName || "";
-            return cityName && stateName ? `${cityName}, ${stateName}` : null;
+        if (data && Array.isArray(data)) {
+          const results = data.map((item: any) => {
+            const addr = item.address || {};
+            // Extract the most clear town/city/suburb identity string
+            const mainName = addr.city || addr.town || addr.village || addr.suburb || addr.municipality || item.name || "";
+            const stateOrCountry = addr.state || addr.state_district || addr.country || "";
+            
+            return mainName && stateOrCountry ? `${mainName}, ${stateOrCountry}` : null;
           }).filter(Boolean);
 
-          // Remove duplicates cleanly
+          // Clean out duplicates cleanly
           setSuggestions([...new Set(results as string[])]);
         } else {
           setSuggestions([]);
         }
       } catch (err) {
-        console.error("Geonames location lookup error:", err);
+        console.error("Cloud location tracking lookup error:", err);
         setSuggestions([]);
       } finally {
         setIsSearching(false);
       }
-    }, 500); // 500ms debounce loop protects request parameters safely
+    }, 400); // 400ms debounce loop pacing
 
     return () => clearTimeout(delayDebounceFn);
   }, [value]);
@@ -79,7 +87,7 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
               type="button"
               onClick={() => {
                 onChange(suggestion);
-                setSuggestions([]); // Instantly closes the drawer selection menu layout
+                setSuggestions([]); // Instantly clears out dropdown window deck on click
               }}
               className="w-full text-left px-4 py-3 text-xs text-gray-700 hover:bg-rose-50 hover:text-rose-600 font-bold transition flex items-center space-x-2"
             >
