@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { getCurrentUser, logoutUser } from "@/app/actions/auth";
 import AvatarUpload from "@/components/AvatarUpload";
 import BannerUpload from "@/components/BannerUpload";
 import PostControls from "@/components/PostControls";
