@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 // 1. UTILITY METHOD: Fire a background notification entry event row
 export async function createNotification(data: {
-  type: "FOLLOW" | "LIKE" | "COMMENT";
+  type: "FOLLOW" | "LIKE" | "COMMENT" | "MENTION";
   recipientId: string;
   issuerId: string;
   postId?: string;
