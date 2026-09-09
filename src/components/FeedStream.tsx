@@ -33,15 +33,12 @@ interface FeedStreamProps {
 export default function FeedStream({ globalPosts, followingPosts, currentUserId }: FeedStreamProps) {
   const [activeTab, setActiveTab] = useState<"global" | "following">("global");
 
-  // Dynamically select which post array dataset to map through
   const displayPosts = activeTab === "global" ? globalPosts : followingPosts;
 
   return (
     <div className="space-y-4">
-      {/* 🚀 Mount our shiny new Blush Pink Tab Switcher */}
       <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Main Filtered Timeline List Loop */}
       {displayPosts.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200 shadow-sm animate-fade-in">
           <span className="text-3xl block mb-2">🌸</span>
@@ -54,9 +51,12 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
         </div>
       ) : (
         displayPosts.map((post) => (
-          <div key={post.id}
-          id={`post-${post.id}`} // 🚀 ADD THIS ID TARGET BLOCK HERE to handle anchor scrolls smoothly
-          className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition animate-fade-in text-left scroll-mt-20"
+          /* 🚀 FIXED STRUCTURAL TAG: Properly enclosed outer layout frame div handles anchor scrolls smoothly */
+          <div 
+            key={post.id} 
+            id={`post-${post.id}`}
+            className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition animate-fade-in text-left scroll-mt-20"
+          >
             <div className="flex items-center space-x-3 mb-4">
               {post.user.avatarUrl ? (
                 <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100" />
@@ -72,6 +72,7 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                 <span className="text-gray-400 text-xs">@{post.user.username}</span>
               </div>
             </div>
+            
             {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
             
             {post.imageUrl && (
