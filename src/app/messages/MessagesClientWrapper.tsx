@@ -1,9 +1,9 @@
-// src/app/messages/MessagesClientWrapper.tsx - TOP SECTION CLEANED UP
+// src/app/messages/MessagesClientWrapper.tsx (PART 1 - PASTE THIS FIRST)
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import usePartySocket from "partysocket/react";
-import { saveDirectMessage } from "@/app/actions/messages"; // 🚀 FIXED: Removed generateRoomToken out of this action import
+import { saveDirectMessage } from "@/app/actions/messages";
 
 interface Contact {
   id: string;
@@ -27,7 +27,6 @@ interface WrapperProps {
   initialHistory: MessagePacket[];
 }
 
-// 🚀 FIXED: Place the mathematical sort function out here so it executes instantly in the browser
 function generateLocalRoomToken(userIdA: string, userIdB: string) {
   return [userIdA, userIdB].sort().join("--");
 }
@@ -39,10 +38,9 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 🚀 FIXED: Point your socket room tracker to our local client function row
   const activeRoomToken = activeContact ? generateLocalRoomToken(currentUser.id, activeContact.id) : "idle-dm-room";
 
-  // Connect to the synchronized private direct message channel path router room
+  // 🔌 CONNECT TO THE SECURE PRIVATE DIRECT MESSAGE ROUTER WITH FIXED SYNTAX MATCHING
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev",
     room: activeRoomToken,
@@ -60,7 +58,6 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
             roomToken: activeRoomToken
           };
           
-          // Only append the live text packet if it belongs to the currently visible chat room layout view
           setMessages((prev) => {
             if (prev.some(m => m.id === freshMessage.id)) return prev;
             return [...prev, freshMessage];
@@ -83,7 +80,6 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
     const currentText = inputText.trim();
     setInputText("");
 
-    // 1. Instantly write record row archive down to Neon PostgreSQL cloud servers
     const savedRow = await saveDirectMessage({
       senderId: currentUser.id,
       recipientId: activeContact.id,
@@ -95,7 +91,6 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
       return;
     }
 
-    // 2. Broadcast the message packet to the private PartyKit room socket channel
     const dmPayload = {
       type: "direct_message",
       id: savedRow.id,
@@ -106,9 +101,10 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
     socket.send(JSON.stringify(dmPayload));
   };
 
-  // Filter messages to display only the conversations tied to the currently selected friend
   const activeChatFeed = messages.filter(m => m.roomToken === activeRoomToken);
 
+
+  // src/app/messages/MessagesClientWrapper.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
     <div className="flex h-full divide-x divide-gray-200">
       
@@ -175,8 +171,8 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
                 activeChatFeed.map((msg) => {
                   const isMe = msg.senderId === currentUser.id;
                   return (
-                    <div key={msg.id} className={`flex items-end gap-2 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"}`}>
-                      <div className="space-y-0.5 text-left">
+                    <div key={msg.id} className="flex items-end gap-2 max-w-[80%] ml-auto flex-row-reverse">
+                      <div className="space-y-0.5 text-left w-full">
                         <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
                           isMe ? "bg-rose-500 text-white rounded-br-none" : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                         }`}>
@@ -219,3 +215,4 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
     </div>
   );
 }
+
