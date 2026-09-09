@@ -3,7 +3,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { getCurrentUser, logoutUser } from "@/app/actions/auth";
 import AvatarUpload from "@/components/AvatarUpload";
 import BannerUpload from "@/components/BannerUpload";
 import PostControls from "@/components/PostControls";
@@ -57,7 +56,11 @@ export default function ProfileClient({
               <Link href="/" className="px-4 py-2.5 bg-rose-50 text-rose-500 hover:bg-gray-50 hover:text-rose-600 font-bold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
-              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 bg-rose-50 text-rose-500 font-semibold rounded-xl text-sm transition">
+              <Link href={`/${sessionUser.username}`} 
+                className={`px-4 py-2.5 font-bold rounded-xl text-sm transition ${
+                  isOwner ? "bg-rose-50 text-rose-500" : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
                 👤 My Profile
               </Link>
               <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
