@@ -3,8 +3,8 @@
 
 import { prisma } from "@/lib/prisma";
 
-// UTILITY: Formats a deterministic, sorted private channel identifier token string
-export function generateRoomToken(userIdA: string, userIdB: string) {
+// FIXED: Removed the standalone 'export' tag to comply with Next.js Server Action guidelines
+function generateRoomToken(userIdA: string, userIdB: string) {
   return [userIdA, userIdB].sort().join("--");
 }
 

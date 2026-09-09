@@ -17,7 +17,7 @@ interface ProfilePageProps {
   params: Promise<{ username: string }>;
 }
 
-// 🚀 BRANDED DYNAMIC TAB TITLE GENERATOR
+// 🚀 PERFECT BRANDED DYNAMIC TAB TITLE GENERATOR
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
   const user = await prisma.user.findUnique({
@@ -78,6 +78,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     id: sessionUser.id,
     status: sessionUser.status || "ONLINE"
   };
+
   // src/app/[username]/page.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -89,7 +90,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
               <Link 
@@ -100,8 +101,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Live Chatroom</span>
+              </Link>
+              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💌 Private Messages</span>
               </Link>
             </nav>
           </div>
@@ -124,19 +128,20 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {isOwner ? (
                     <EditProfileModal user={user} />
                   ) : (
-                    <div className="flex items-center space-x-2 ml-auto">
-                        {/* 🚀 INJECTED: Direct Message Redirect Navigation Link Toggle Button */}
-                        <Link
-                          href="/messages"
-                          className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
-                        >
-                          <span>💌 Chat</span>
-                        </Link>
-                    <FollowButton 
-                      currentUserId={sessionUser.id} 
-                      targetUserId={user.id} 
-                      initialIsFollowing={isFollowing} 
-                    />
+                    <div className="flex items-center space-x-2">
+                      <Link
+                        href="/messages"
+                        className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
+                      >
+                        <span>💌 Chat</span>
+                      </Link>
+                      
+                      <FollowButton 
+                        currentUserId={sessionUser.id} 
+                        targetUserId={user.id} 
+                        initialIsFollowing={isFollowing} 
+                      />
+                    </div>
                   )}
                 </div>
                 
@@ -242,3 +247,4 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     </div>
   );
 }
+
