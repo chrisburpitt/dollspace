@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     select: { displayName: true }
   });
 
-  if (!user) return { title: "User Not Found | Dollspace" };
+  if (!user) return { title: "Dollspace | User Not Found" };
 
   return {
     title: `Dollspace | ${user.displayName}'s profile`,
