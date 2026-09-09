@@ -4,53 +4,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { logoutUser } from "@/app/actions/auth";
-import { updateStatus } from "@/app/actions/profile"; 
+import { updateStatus } from "@/app/actions/profile";
 import NotificationCenter from "./NotificationCenter";
 
 interface GlobalHeaderProps {
   currentUser: {
     id: string;
     status: string;
-    [key: string]: any; // 🚀 ADD THIS LINE to allow any extra user fields to pass safely
-    // 🚀 2. INJECT NOTIFICATIONS SCHEMAS IN PROPS
     notificationsReceived?: any[];
     [key: string]: any;
   };
 }
 
-export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
-  const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Fallback map protects against blank layout loads
-  const activeNotifications = currentUser.notificationsReceived || [];
-
-  // ... keeping click handlers identical ...
-
-  return (
-    <header className="sticky top-0 bg-white border-b border-gray-200 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-black tracking-tight text-rose-500 hover:opacity-90 transition">
-          Dollspace
-        </Link>
-
-        <div className="flex items-center space-x-3 relative">
-          
-          {/* 🚀 3. MOUNT THE SMART NOTIFICATION BELL CENTERS BUTTON ELEMENT */}
-          <NotificationCenter 
-            currentUserId={currentUser.id} 
-            notifications={activeNotifications} 
-          />
-
-          {/* Status Selection Switch Dropdown Toggle remains right here... */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-xs px-4 py-2 rounded-xl border border-gray-200 transition flex items-center space-x-1"
-          >
-  };
-}
-
-// Map status strings to beautiful visual indicators
 const STATUS_OPTIONS = [
   { value: "ONLINE", label: "🟢 Online" },
   { value: "AWAY", label: "🟡 Away" },
@@ -61,6 +26,8 @@ const STATUS_OPTIONS = [
 export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
   const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
   const [isOpen, setIsOpen] = useState(false);
+
+  const activeNotifications = currentUser.notificationsReceived || [];
 
   const handleStatusChange = async (newStatus: string) => {
     setCurrentStatus(newStatus);
@@ -78,7 +45,14 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
         </Link>
 
         <div className="flex items-center space-x-3 relative">
-          {/* Status Selector Dropdown Toggle Button */}
+          
+          {/* 🔔 Dynamic Notification Center Bell Widget */}
+          <NotificationCenter 
+            currentUserId={currentUser.id} 
+            notifications={activeNotifications} 
+          />
+
+          {/* Status Dropdown Trigger Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-xs px-4 py-2 rounded-xl border border-gray-200 transition flex items-center space-x-1"
@@ -89,7 +63,7 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
 
           {/* Floating Dropdown Selector Panel */}
           {isOpen && (
-            <div className="absolute top-11 left-0 bg-white border border-gray-200 p-1.5 rounded-xl shadow-lg flex flex-col min-w-[140px] z-50">
+            <div className="absolute top-11 right-20 bg-white border border-gray-200 p-1.5 rounded-xl shadow-lg flex flex-col min-w-[140px] z-50">
               {STATUS_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
@@ -106,7 +80,7 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
             </div>
           )}
 
-          {/* Secure Logout Trigger Form Button */}
+          {/* Secure Logout Form Button */}
           <form action={logoutUser}>
             <button 
               type="submit" 
