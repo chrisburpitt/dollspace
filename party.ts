@@ -34,6 +34,9 @@ export default class DollspaceSocketServer implements Party.Server {
 
   onMessage(message: string, sender: Party.Connection) {
     const parsedData = JSON.parse(message);
+    
+    // 🚀 EXPLICIT TYPING CAST: Solves the ImmutableObject<unknown> TS2339 property block
+    const senderState = sender.state as ActiveChatter | undefined;
 
     // ROUTER ROUTE A: Standard Global Public Lounge Messages
     if (parsedData.type === "chat_message") {
@@ -42,20 +45,20 @@ export default class DollspaceSocketServer implements Party.Server {
         id: crypto.randomUUID(),
         content: parsedData.content,
         createdAt: new Date().toISOString(),
-        user: sender.state
+        user: senderState
       };
       this.room.broadcast(JSON.stringify(globalPayload));
     }
 
-    // 🚀 ROUTER ROUTE B: Secure Multi-User Direct Private Message Dispatches
+    // ROUTER ROUTE B: Secure Multi-User Direct Private Message Dispatches
     if (parsedData.type === "direct_message") {
       const privatePayload = {
         type: "incoming_direct_message",
         id: parsedData.id || crypto.randomUUID(),
         content: parsedData.content,
         createdAt: parsedData.createdAt || new Date().toISOString(),
-        senderId: sender.state?.id || "",
-        sender: sender.state
+        senderId: senderState?.id || "", // 🎯 FIXED: Correctly reads explicitly typed parameter
+        sender: senderState
       };
       
       // Broadcast strictly bounds traffic inside the isolated unique private room Token channel
