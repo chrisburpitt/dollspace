@@ -11,6 +11,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
+import ProfileAlbums from "@/components/ProfileAlbums"; 
 
 interface ProfileClientProps {
   user: any;
@@ -29,7 +30,12 @@ export default function ProfileClient({
   userPosts, 
   validatedHeaderUser 
 }: ProfileClientProps) {
+  const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED"); 
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
+  const filteredAlbums = (user.albums || []).filter((album: any) => {
+    if (isOwner) return true; // Owners see everything
+    return !album.isPrivate;  // Everyone else only views public albums
+  });
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
@@ -78,11 +84,38 @@ export default function ProfileClient({
                   <div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
                     <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
-                  </div>
-                  
+                  </div>                  
                   {isOwner ? (
                     <EditProfileModal user={user} />
                   ) : (
+
+      {/* 🚀 3. PREMIUM TAB SELECTION SLIDER BAR */}
+      <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
+        <button 
+          onClick={() => setActiveTab("FEED")}
+          className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "FEED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+        >
+          📝 Timeline Updates ({userPosts.length})
+        </button>
+        <button 
+          onClick={() => setActiveTab("ALBUMS")}
+          className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+        >
+          📷 Photo Albums ({filteredAlbums.length})
+        </button>
+      </div>
+
+      {/* 🚀 4. CONDITIONAL SWITCH ROUTER BLOCKS MAPPING VIEWS */}
+      {activeTab === "ALBUMS" ? (
+        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+          <ProfileAlbums 
+            albums={filteredAlbums} 
+            isOwner={isOwner} 
+            onPhotoClick={(url) => setActiveLightboxUrl(url)} // Hooks seamlessly straight into your pristine layout lightbox modal!
+          />
+        </div>
+      ) : (
+
                     <div className="flex items-center space-x-2">
                       {/* 🚀 FIXED REDIRECT NAVIGATION: Links directly into your unified real-time messenger grid */}
                       <Link

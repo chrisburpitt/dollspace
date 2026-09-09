@@ -235,7 +235,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                 <span className="text-2xl">🌍</span>
                 <div>
                   <span className="font-black text-xs text-gray-900 block leading-tight">Public Lounge Chat Room</span>
-                  <span className="text-[10px] text-rose-500 font-bold tracking-wider">● Anything goes! Don't forget to say Hi 👋🏼</span>
+                  <span className="text-[10px] text-rose-500 font-bold tracking-wider">● Anything goes! Don't forget to say HII 👋🏼</span>
                 </div>
               </>
             ) : activeContact ? (
@@ -264,7 +264,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
               <div className="h-full flex flex-col items-center justify-center text-gray-400">
                 <span className="text-4xl mb-2">👋</span>
                 <p className="font-bold text-xs uppercase tracking-wider">Lounge room is quiet</p>
-                <p className="text-[11px] mt-0.5">Be the first to say hello or share a story with the other Dolls!</p>
+                <p className="text-[11px] mt-0.5">Be the first to say hello, or share a story with the other Dolls!</p>
               </div>
             ) : (
               publicMessages.map((msg) => {

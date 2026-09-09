@@ -25,6 +25,7 @@ model User {
   lookingFor   String?
   avatarUrl    String?
   bannerUrl    String?
+  albums       Album[]    @relation("UserAlbums")
   views        Int        @default(0)
 
   createdAt    DateTime   @default(now())
@@ -97,6 +98,25 @@ model DirectMessage {
   roomToken   String
 
   @@index([roomToken])
+}
+
+model Album {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isPrivate   Boolean  @default(false) // 🔒 false = PUBLIC (default), true = PRIVATE
+  createdAt   DateTime @default(now())
+  userId      String
+  user        User     @relation("UserAlbums", fields: [userId], references: [id], onDelete: Cascade)
+  photos      Photo[]  @relation("AlbumPhotos")
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  createdAt DateTime @default(now())
+  albumId   String
+  album     Album    @relation("AlbumPhotos", fields: [albumId], references: [id], onDelete: Cascade)
 }
 
 model Follow {
