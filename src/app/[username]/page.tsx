@@ -16,6 +16,12 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   const user = await prisma.user.findUnique({
     where: { username },
     select: { displayName: true }
+    include: { 
+      _count: { select: { followers: true, following: true } },
+      // 🚀 INJECT ALBUM RELATION SELECTIONS WITH NESTED PHOTOS ARRAY STACKS AT PRE-LOAD PHASE
+      albums: {
+        include: { photos: true },
+        orderBy: { createdAt: "desc" }
   });
 
   if (!user) return { title: "Dollspace | User Not Found" };
