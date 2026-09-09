@@ -6,33 +6,11 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import PostControls from "@/components/PostControls";
-import PostComments from "@/components/PostComments"; 
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
-import FollowButton from "@/components/FollowButton"; 
+import FollowButton from "@/components/FollowButton";
+import PostComments from "@/components/PostComments";
 import { getCurrentUser } from "@/app/actions/auth";
-import { incrementProfileViews } from "@/app/actions/profile";
-import { Metadata } from "next";
-
-// 🚀 DYNAMIC TAB GENERATOR
-export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
-  const { username } = await params;
-
-  // Query your Neon database to grab the true display name for the tab
-  const user = await prisma.user.findUnique({
-    where: { username },
-    select: { displayName: true }
-  });
-
-  if (!user) {
-    return { title: "Dollspace | User Not Found" };
-  }
-
-  return {
-    title: `Dollspace | ${user.displayName} (@${username})`,
-    description: `View ${user.displayName}'s profile on Dollspace.com`
-  };
-}
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
@@ -59,13 +37,10 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     include: { 
       user: true, 
       reactions: true,
-      comments: {
-        include: { user: true },
-        orderBy: { createdAt: "asc" }
-      }
+      comments: { include: { user: true }, orderBy: { createdAt: "asc" } }
     },
-  orderBy: { createdAt: "desc" }
-});
+    orderBy: { createdAt: "desc" }
+  });
 
   // 4. CHECK RELATIONSHIP FOLLOW MATRIX
   const isFollowingResult = await prisma.follow.findUnique({
@@ -106,7 +81,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-blue-50 hover:text-blue-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Live Chatroom</span>
               </Link>
             </nav>
@@ -121,7 +96,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
               <AvatarUpload user={user} />
 
               <div className="flex-1 w-full">
-                {/* 🚀 BOUNDED FLEXBOX PARENT GRID CONTAINER PREVENTS TSX PARSING CRASHES */}
                 <div className="flex items-start justify-between w-full">
                   <div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
@@ -139,35 +113,31 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   )}
                 </div>
                 
-                {/* Visual Biographical Badges Deck */}
+                {/* 📊 VISUAL BIOGRAPHICAL DATA BADGES DECK */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.age && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">🎂 {user.age} Years Old</span>}
                   {user.genderIdentity && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">⚧️ {user.genderIdentity}</span>}
                   {user.location && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">📍 {user.location}</span>}
-                  {user.lookingFor && (
-                    <div className="flex flex-wrap gap-1.5 items-center">
-                      <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                        {user.lookingFor && user.lookingFor.trim().length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 items-center mt-4">
-                            <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                            {user.lookingFor.split(",").map((option) => {
-                              // Clean up string tokens to protect layout keys from rendering blank entries
-                              const optionLabel = option.trim().replace(/_/g, ' ');
-                              if (!optionLabel) return null;
-
-                              return (
-                                <span 
-                                  key={option} 
-                                  className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm"
-                                >
-                                  {optionLabel}
-                                </span>
-                              );
-                            })}
-                          </div>
-                        )}
-                  )}
                 </div>
+
+                {/* 🚀 CLEAN MATCHING INTERACTIVE LOOKING FOR MULTI-BADGES */}
+                {user.lookingFor && user.lookingFor.trim().length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 items-center mt-4">
+                    <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
+                    {user.lookingFor.split(",").map((option) => {
+                      const optionLabel = option.trim().replace(/_/g, ' ');
+                      if (!optionLabel) return null;
+                      return (
+                        <span 
+                          key={option} 
+                          className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm"
+                        >
+                          {optionLabel}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <p className="mt-4 text-gray-600 leading-relaxed font-medium">
                   {user.bio || "Welcome to my Dollspace profile layout!"}
@@ -208,6 +178,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                 )}
                 <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
+                
                 <PostComments 
                   postId={post.id}
                   currentUserId={sessionUser.id}
@@ -223,21 +194,22 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
+              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
+                <span>Profile Views:</span>
+                <span className="text-rose-500 font-black">👀 {user.views}</span>
+              </div>
               <div className="flex justify-between">
                 <span>Account Created:</span>
                 <span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span>
               </div>
               <div className="flex justify-between">
-                <span>Total Posts So Far:</span>
+                <span>Total Posts Stored:</span>
                 <span className="text-gray-900 font-bold">{userPosts.length}</span>
-              </div>
-              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
-                <span>Profile Views:</span>
-                <span className="text-rose-500 font-black">👀 {user.views}</span>
               </div>
             </div>
           </div>
         </aside>
+
       </div>
     </div>
   );
