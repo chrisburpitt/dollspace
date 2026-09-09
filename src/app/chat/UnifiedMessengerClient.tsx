@@ -47,7 +47,8 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
 
   // 🔌 PERSISTENT SINGLE SOCKET HOOK LAYER CONNECTS TO GLOBAL SERVER HUB
   const socket = usePartySocket({
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev",
+    // 🚀 FIXED: Hardcode your exact live PartyKit server URL here so it can connect on Vercel production!
+    host: "my-partykit-app.chrisburpitt.partykit.dev", 
     room: "dollspace-messenger-hub",
     query: {
       id: currentUser.id,

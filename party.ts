@@ -1,4 +1,4 @@
-// party.ts (PartyKit Unified Chat & DM Server Code)
+// party.ts (PartyKit Unified Messenger Server Code)
 import type * as Party from "partykit/server";
 
 interface ActiveChatter {
@@ -20,7 +20,7 @@ export default class DollspaceMessengerServer implements Party.Server {
 
     connection.setState({ id: userId, username, displayName, avatarUrl });
 
-    // Instantly broadcast the live active roster to everyone in the messenger hub
+    // Instantly broadcast the live active presence list to everyone
     this.broadcastActiveRoster();
   }
 
@@ -52,11 +52,10 @@ export default class DollspaceMessengerServer implements Party.Server {
         content: parsedData.content,
         createdAt: parsedData.createdAt || new Date().toISOString(),
         senderId: senderState?.id || "",
-        recipientId: parsedData.recipientId, // Target profile ID passed by client
-        roomToken: parsedData.roomToken
+        recipientId: parsedData.recipientId,
+        roomToken: parsedData.roomToken // Mapped cleanly to filter correctly on the client side
       };
       
-      // Broadcast globally within the hub; the frontend client filters it out instantly based on roomToken context
       this.room.broadcast(JSON.stringify(privatePayload));
     }
   }
