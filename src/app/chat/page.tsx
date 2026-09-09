@@ -30,18 +30,21 @@ export default async function ChatPage() {
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
-              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
+              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
                 👤 My Profile
               </Link>
               <Link href="/chat" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Live Chatroom</span>
               </Link>
-            </nav>
-          </div>
-        </aside>
+              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <span>💌 Private Messages</span>
+            </Link>
+          </nav>
+        </div>
+      </aside>
 
         {/* CENTER COLUMN: The Dynamic Real-Time Chat Frame Component (Takes 9 columns) */}
         <main className="lg:col-span-9">

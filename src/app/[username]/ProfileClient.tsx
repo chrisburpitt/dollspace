@@ -45,7 +45,7 @@ export default function ProfileClient({
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
               <Link 
@@ -56,10 +56,10 @@ export default function ProfileClient({
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Live Chatroom</span>
               </Link>
-              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💌 Private Messages</span>
               </Link>
             </nav>
