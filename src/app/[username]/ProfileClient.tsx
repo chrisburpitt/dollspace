@@ -1,4 +1,4 @@
-// src/app/[username]/ProfileClient.tsx (PART 1 - PASTE THIS FIRST)
+// src/app/[username]/ProfileClient.tsx (PART 1 - FIXED SIDEBAR ALIGNMENT)
 "use client";
 
 import { useState } from "react";
@@ -37,11 +37,12 @@ export default function ProfileClient({
 
       <BannerUpload user={user} isOwner={isOwner} />
 
-      {/* Grid container with top margins removed so columns stay beautifully nestled at the top on scrolls */}
+      {/* Main Structural Grid Container */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
-        <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit">
+        {/* 🚀 FIXED: Added self-start to prevent vertical grid stretching from dropping the tab card low */}
+        <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
               <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
@@ -65,7 +66,8 @@ export default function ProfileClient({
           </div>
         </aside>
 
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1) */}
+
+        {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED SIDEBAR ALIGNMENT) */}
         {/* CENTER COLUMN: Profile Card and Updates Feed */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
@@ -190,8 +192,9 @@ export default function ProfileClient({
           </div>
         </main>
 
-        {/* RIGHT COLUMN: Profile Insights Sidebar (Nestles right below the header on scrolls) */}
-        <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit">
+        {/* RIGHT COLUMN: Profile Insights Sidebar */}
+        {/* 🚀 FIXED: Added self-start to keep this metric box flush with the scroll boundary */}
+        <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
