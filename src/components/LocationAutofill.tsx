@@ -22,46 +22,33 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
     const delayDebounceFn = setTimeout(async () => {
       setIsSearching(true);
       try {
-        // 🚀 BULLETPROOF QUERY ALTERATION: Removed restrictive settlement parameters to allow flexible text parsing
+        // 🚀 SWITCHED TO GEONAMES API: Completely unrestricted cloud city directory index pipeline
         const response = await fetch(
-          `https://openstreetmap.org{encodeURIComponent(value)}&addressdetails=1&limit=5`,
-          {
-            headers: {
-              "User-Agent": "DollspaceSocialApp/1.0 (contact: admin@dollspace.internal)",
-              "Accept": "application/json"
-            }
-          }
+          `https://geonames.org{encodeURIComponent(value)}&maxRows=5&username=demo&cities=cities15000`,
+          { method: "GET" }
         );
         
         const data = await response.json();
         
-        if (Array.isArray(data)) {
-          const results = data.map((item: any) => {
-            const addr = item.address || {};
-            
-            // 🏙️ Extract the best matching town name label variants
-            const townName = addr.city || addr.town || addr.village || addr.suburb || addr.municipality || addr.city_district || "";
-            
-            // 🗺️ Extract state/region data
-            const stateName = addr.state || addr.state_district || addr.region || addr.country || "";
-            
-            if (townName && stateName) {
-              return `${townName}, ${stateName}`;
-            }
-            
-            // Fallback: Grab the first two segments of the long default text node line if parameters are deeply hidden
-            return item.display_name.split(",").slice(0, 2).map((s: string) => s.trim()).join(", ");
+        if (data && Array.isArray(data.geonames)) {
+          const results = data.geonames.map((item: any) => {
+            const cityName = item.name || "";
+            const stateName = item.adminName1 || item.countryName || "";
+            return cityName && stateName ? `${cityName}, ${stateName}` : null;
           }).filter(Boolean);
 
-          // Deduplicate the list cleanly
+          // Remove duplicates cleanly
           setSuggestions([...new Set(results as string[])]);
+        } else {
+          setSuggestions([]);
         }
       } catch (err) {
-        console.error("Location lookup autocomplete error:", err);
+        console.error("Geonames location lookup error:", err);
+        setSuggestions([]);
       } finally {
         setIsSearching(false);
       }
-    }, 400); // Fast 400ms debounce loop protects connection buffers
+    }, 500); // 500ms debounce loop protects request parameters safely
 
     return () => clearTimeout(delayDebounceFn);
   }, [value]);
@@ -78,7 +65,9 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
       />
       
       {isSearching && (
-        <span className="absolute right-4 bottom-3.5 text-[10px] text-rose-400 font-bold animate-pulse">Searching...</span>
+        <span className="absolute right-4 bottom-3.5 text-[10px] text-rose-500 font-black animate-pulse bg-rose-50 px-2 py-0.5 rounded-md shadow-sm z-10">
+          SEARCHING...
+        </span>
       )}
 
       {/* Suggestion Dropdown Panel Canvas Overlay */}
@@ -90,7 +79,7 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
               type="button"
               onClick={() => {
                 onChange(suggestion);
-                setSuggestions([]); // Instantly sweeps out the overlay drawer menu
+                setSuggestions([]); // Instantly closes the drawer selection menu layout
               }}
               className="w-full text-left px-4 py-3 text-xs text-gray-700 hover:bg-rose-50 hover:text-rose-600 font-bold transition flex items-center space-x-2"
             >
