@@ -1,8 +1,8 @@
-// src/app/messages/MessagesClientWrapper.tsx (PART 1 - PASTE THIS FIRST)
+// src/app/messages/MessagesClientWrapper.tsx (PART 1 - REAL-TIME FIX)
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import PartySocket from "partysocket"; // 🚀 FIXED: Importing raw PartySocket client for dynamic re-connections
+import PartySocket from "partysocket";
 import { saveDirectMessage } from "@/app/actions/messages";
 
 interface Contact {
@@ -37,23 +37,22 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
   const [messages, setMessages] = useState<MessagePacket[]>(initialHistory);
   const [inputText, setInputText] = useState("");
   
-  const socketRef = useRef<PartySocket | null>(null); // 🚀 FIXED: Holds active socket instance reference
+  const socketRef = useRef<PartySocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeRoomToken = activeContact ? generateLocalRoomToken(currentUser.id, activeContact.id) : null;
 
-  // 🔌 2. LIFECYCLE EFFECT: Destroys and rebuilds socket channels dynamically on contact swap
+  // 🔌 CONNECT AND LISTEN TO REAL-TIME CHANNELS AUTOMATICALLY ON CONTACT SELECTION
   useEffect(() => {
     if (!activeRoomToken) return;
 
-    // Disconnect the old socket instance instantly if it exists
     if (socketRef.current) {
       socketRef.current.close();
     }
 
-    // Spin up a brand new real-time connection mapped exactly to the new private room token channel
     const socketInstance = new PartySocket({
-      host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev", // ⚠️ Ensure this matches your live host domain exactly!
+      // 🎯 Automatically reads your live server variable out of Vercel configs safely
+      host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev", 
       room: activeRoomToken,
       query: {
         id: currentUser.id,
@@ -62,10 +61,11 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
       }
     });
 
-    // Handle incoming private message streams live
     socketInstance.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data);
+        
+        // 🚀 CATCH INCOMING LIVE PRIVATE CHAT PACKETS Snappily
         if (parsed.type === "incoming_direct_message") {
           const freshMessage: MessagePacket = {
             id: parsed.id,
@@ -77,19 +77,17 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
           };
           
           setMessages((prev) => {
-            // Stop duplicate renders from overlapping
             if (prev.some(m => m.id === freshMessage.id)) return prev;
             return [...prev, freshMessage];
           });
         }
       } catch (err) {
-        console.error("Direct message parsing error:", err);
+        console.error("Direct message link packet parsing dropped:", err);
       }
     };
 
     socketRef.current = socketInstance;
 
-    // Cleanup: Automatically tear down socket connection lines if component unmounts
     return () => {
       socketInstance.close();
     };
@@ -106,7 +104,7 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
     const currentText = inputText.trim();
     setInputText("");
 
-    // 1. Write the message archive permanently down to Neon PostgreSQL cloud servers
+    // 1. Permanently record your text conversation down into Neon PostgreSQL cloud tables
     const savedRow = await saveDirectMessage({
       senderId: currentUser.id,
       recipientId: activeContact.id,
@@ -118,7 +116,7 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
       return;
     }
 
-    // 2. Broadcast the message packet payload across the current active private room socket channel
+    // 2. Broadcast the message packet payload directly up across our live PartyKit server channels
     const dmPayload = {
       type: "direct_message",
       id: savedRow.id,
@@ -131,7 +129,8 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
 
   const activeChatFeed = activeRoomToken ? messages.filter(m => m.roomToken === activeRoomToken) : [];
 
-// src/app/messages/MessagesClientWrapper.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
+
+  // src/app/messages/MessagesClientWrapper.tsx (PART 2 - REAL-TIME FIX)
   return (
     <div className="flex h-full divide-x divide-gray-200">
       
