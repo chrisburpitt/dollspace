@@ -1,67 +1,80 @@
-// party.ts
+// party.ts (PartyKit Backend Operational Server Code)
 import type * as Party from "partykit/server";
 
-export default class ChatParty implements Party.Server {
+interface ActiveChatter {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+}
+
+export default class ChatroomServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
+  // 1. WebSocket Connection Lifecycle Entry Trigger
   async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext) {
-    const cookieHeader = ctx.request.headers.get("cookie") || "";
-    
-    // Switch explicitly to standard fallback checking
-    const host = ctx.request.headers.get("host")?.includes("localhost") 
-      ? "http://localhost:3000" 
-      : "http://127.0.0.1:3000";
-    
-    try {
-      const response = await fetch(`${host}/api/auth/verify-session`, {
-        headers: { 
-          cookie: cookieHeader,
-          "Accept": "application/json"
-        }
-      });
-      
-      const session = await response.json();
+    // Extract user tracking metadata parameters safely out of the handshake query connection string
+    const url = new URL(ctx.request.url);
+    const userId = url.searchParams.get("id") || connection.id;
+    const username = url.searchParams.get("username") || "anonymous";
+    const displayName = url.searchParams.get("displayName") || "Guest Doll";
+    const avatarUrl = url.searchParams.get("avatarUrl") || null;
 
-      if (!session || !session.valid) {
-        console.log("🔒 Connection refused: Unauthorized socket token.");
-        // Force an immediate explicit close with a status code
-        connection.close(4001, "Unauthorized");
-        return;
-      }
+    // Save these credentials straight onto the specific live socket socket state memory block
+    connection.setState({
+      id: userId,
+      username,
+      displayName,
+      avatarUrl
+    });
 
-      // Securely bind verified session details
-      connection.setState({ 
-        username: session.user.username, 
-        displayName: session.user.displayName 
-      });
-      console.log(`📡 WebSocket Authenticated: @${session.user.username}`);
+    // 🚀 BROADCAST THE RE-COMPLED PRESENCE ROSTER TO EVERYONE IN THE LOUNGE
+    this.broadcastActiveRoster();
+  }
 
-    } catch (err) {
-      console.log("⚠️ Auth Fetch Failed, closing connection.");
-      connection.close(4002, "Auth Fetch Failed");
+  // 2. WebSocket Disconnection Lifecycle Trigger
+  async onClose(connection: Party.Connection) {
+    // Whenever a socket connection terminates or drops out, re-broadcast the active roster instantly
+    this.broadcastActiveRoster();
+  }
+
+  // 3. Operational Message Dispatch Router Engine
+  onMessage(message: string, sender: Party.Connection) {
+    const parsedMessage = JSON.parse(message);
+
+    // If it's a message stream dispatch payload, attach the sender metadata profiles and broadcast it
+    if (parsedMessage.type === "chat_message") {
+      const chatPayload = {
+        type: "incoming_message",
+        id: crypto.randomUUID(),
+        content: parsedMessage.content,
+        createdAt: new Date().toISOString(),
+        user: sender.state // Injects who typed the update straight out of state verification blocks
+      };
+
+      this.room.broadcast(JSON.stringify(chatPayload));
     }
   }
 
-  async onMessage(message: string, sender: Party.Connection) {
-    // Engine defense guard clause
-    if (!sender.state || !this.room) {
-      console.log("🛑 Blocked unauthenticated message send attempt.");
-      return;
+  // 🚀 UTILITY: Gathers all connected sockets, pulls their profiles, and fires an asset dictionary state
+  private broadcastActiveRoster() {
+    const activeUsers: ActiveChatter[] = [];
+    const absoluteIds = new Set<string>();
+
+    for (const client of this.room.getConnections()) {
+      const state = client.state as ActiveChatter | undefined;
+      if (state && !absoluteIds.has(state.id)) {
+        absoluteIds.add(state.id);
+        activeUsers.push(state);
+      }
     }
 
-    const { username, displayName } = sender.state as { username: string; displayName: string };
-
-    // 🚀 MATCH THE OBJECT STRUCT EXACTLY TO YOUR NEXT.JS CLIENT APP
-    const payload = {
-      id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generates a unique key id natively
-      text: message,
-      senderId: username,      // 👈 Change senderUsername to senderId
-      senderName: displayName,
-      avatar: "💬",            // 👈 Fallback placeholder string symbol matching msg.avatar loops
-      timestamp: new Date().toISOString()
+    const presencePayload = {
+      type: "presence_update",
+      users: activeUsers
     };
 
-    // Broadcast the correctly formatted payload out to the listening client sockets
-    this.room.broadcast(JSON.stringify(payload));
+    // Broadcast the full live active list up to everyone currently rendering the page
+    this.room.broadcast(JSON.stringify(presencePayload));
   }
 }

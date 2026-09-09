@@ -4,63 +4,18 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import FullScreenChat from "./ChatStatus"; // Imports your interactive client chat wrapper
 import { Metadata } from "next";
-import LivePresenceRoster from "./LivePresenceRoster"; 
 
 export const metadata: Metadata = {
   title: "Dollspace | Live Chatroom",
   description: "Chat in real-time with the DOLLS",
 };
 
-export default function ChatRoom({ currentUser }: ChatRoomProps) {
-  const [messages, setMessages] = useState<any[]>([]);
-  const [inputText, setCommentText] = useState("");
-  
-  // 🚀 2. STATE HOOK: Track the real-time active users array list
-  const [activeUsers, setActiveUsers] = useState<any[]>([]);
+export default async function ChatPage() {
+  // 1. SECURE SESSION CHECK: Verify cryptographic token from HTTP-Only cookies
+  const currentUser = await getCurrentUser();
 
-  const socket = usePartySocket({
-    host: "your-partykit-host-url.partykit.dev", // Your partykit domain configuration identifier string
-    room: "dollspace-lounge",
-    
-    // 🚀 3. ENFORCE SECURE METADATA PASSING WITHIN PROTOCOL HANDSHAKE QUERY LINES:
-    query: {
-      id: currentUser.id,
-      username: currentUser.username,
-      displayName: currentUser.displayName,
-      avatarUrl: currentUser.avatarUrl || ""
-    },
-
-    onMessage(event) {
-      const parsedData = JSON.parse(event.data);
-
-      // 🚀 4. MATRIX EVENT ROUTER SWITCH: Captures incoming presence list packages
-      if (parsedData.type === "presence_update") {
-        setActiveUsers(parsedData.users);
-      } else if (parsedData.type === "incoming_message") {
-        setMessages((prev) => [...prev, parsedData]);
-      }
-    }
-  });
-
-  // ... keeping message dispatch submit forms identical ...
-
-  return (
-    <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-      {/* Left Sidebar navigation link column deck follows standard here... */}
-      
-      {/* CENTER COLUMN: Existing Chat Message Stream Box */}
-      <main className="lg:col-span-6 space-y-4">
-        {/* Your message tracking canvas frame lists container markup goes here... */}
-      </main>
-
-      {/* RIGHT COLUMN: Sidebar Insights */}
-      <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-        {/* 🚀 5. MOUNT OUR SHINY LIVE ROSTER COMPONENT IN THE SIDEBAR GRID COLUMNS */}
-        <LivePresenceRoster activeUsers={activeUsers} />
-      </aside>
-    </div>
-  );
-}
+  // If session is empty, immediately bounce them to log in
+  if (!currentUser) redirect("/login");
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">

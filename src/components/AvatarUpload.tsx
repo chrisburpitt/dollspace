@@ -1,5 +1,5 @@
 // src/components/AvatarUpload.tsx
-"use client"; // 👈 Tells Next.js this file runs in the browser
+"use client";
 
 import { updateAvatar } from "@/app/actions/posts";
 
