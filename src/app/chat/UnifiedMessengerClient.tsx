@@ -1,4 +1,4 @@
-// src/app/chat/UnifiedMessengerClient.tsx (PART 1 - OPTIMISTIC INSTANT DM UPGRADE)
+// src/app/chat/UnifiedMessengerClient.tsx (PART 1 - LIGHTNING FAST PUBLIC & PRIVATE FIX)
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -62,7 +62,11 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         if (parsedData.type === "presence_update") {
           setActivePresence(parsedData.users);
         } else if (parsedData.type === "incoming_message") {
-          setPublicMessages((prev) => [...prev, parsedData]);
+          setPublicMessages((prev) => {
+            // 🚀 Prevent duplicate text bubbles if it was already added optimistically by the sender
+            if (prev.some(m => m.id === parsedData.id)) return prev;
+            return [...prev, parsedData];
+          });
         } else if (parsedData.type === "incoming_direct_message") {
           const incomingDM: DirectMessageItem = {
             id: parsedData.id,
@@ -74,7 +78,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           };
           
           setPrivateMessages((prev) => {
-            // 🚀 Prevent duplicate text bubbles if it was already added optimistically by the sender
             if (prev.some(m => m.id === incomingDM.id)) return prev;
             return [...prev, incomingDM];
           });
@@ -89,21 +92,40 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [publicMessages, privateMessages, selectedChannel]);
 
-  // 🚀 UPGRADED DISPATCHER: MOVES WEBSOCKET DISPATCH BEFORE THE DATABASE AWAIT HOOKS FOR 0MS LATENCY
+  // 🚀 DISPATCHER ENGINE: Handles instant multi-channel optimistic rendering updates
   const handleSendMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
     const cleanText = inputText.trim();
     setInputText("");
 
-    if (selectedChannel === "PUBLIC_LOUNGE") {
-      socket.send(JSON.stringify({ type: "chat_message", content: cleanText }));
-    } else if (activeContact) {
-      // Create a unique temporary client ID for this message packet block
-      const clientMessageId = `msg-opt-${crypto.randomUUID()}`;
-      const timestampString = new Date().toISOString();
+    const clientMessageId = `msg-opt-${crypto.randomUUID()}`;
+    const timestampString = new Date().toISOString();
 
-      // 🌟 OPTIMISTIC UI FLASH: Inject the message directly into the local state array IMMEDIATELY
+    if (selectedChannel === "PUBLIC_LOUNGE") {
+      // 🌟 PUBLIC OPTIMISTIC UPDATE: Inject straight onto the screen instantly!
+      const optimisticPublicMsg = {
+        id: clientMessageId,
+        content: cleanText,
+        createdAt: timestampString,
+        user: {
+          id: currentUser.id,
+          username: currentUser.username,
+          displayName: currentUser.displayName,
+          avatarUrl: currentUser.avatarUrl
+        }
+      };
+      setPublicMessages((prev) => [...prev, optimisticPublicMsg]);
+
+      // 🌍 Send to public chatroom stream channels over global server
+      socket.send(JSON.stringify({ 
+        type: "chat_message", 
+        id: clientMessageId, 
+        content: cleanText 
+      }));
+
+    } else if (activeContact) {
+      // 🌟 PRIVATE OPTIMISTIC UPDATE: Inject straight onto the screen instantly!
       const optimisticDM: DirectMessageItem = {
         id: clientMessageId,
         content: cleanText,
@@ -114,7 +136,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
       };
       setPrivateMessages((prev) => [...prev, optimisticDM]);
 
-      // 🌟 WEBSOCKET FAST-TRACK: Fire across the live socket to your chat partner instantly
+      // 💌 Send to private PartyKit room socket channel
       socket.send(JSON.stringify({
         type: "direct_message",
         id: clientMessageId,
@@ -124,7 +146,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         roomToken: currentRoomToken
       }));
 
-      // 🌟 BACKGROUND SAVE: Quietly log the row down into the cloud Neon database tables
+      // Background permanent database archival logging row save
       saveDirectMessage({
         senderId: currentUser.id,
         recipientId: activeContact.id,
