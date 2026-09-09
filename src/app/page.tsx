@@ -9,7 +9,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Home Feed | Dollspace",
+  title: "Dollspace | Home Feed",
   description: "See the latest updates from the DOLLS on Dollspace",
 };
 
