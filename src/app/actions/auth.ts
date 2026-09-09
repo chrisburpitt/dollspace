@@ -115,33 +115,38 @@ export async function loginUser(prevState: any, formData: FormData) {
 
 }// 3. UTILITY: Retrieve the currently validated user session from server components
 export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("auth_token")?.value;
-  if (!token) return null;
-
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth_token")?.value;
+
+    if (!token) return null;
+
+    // 🚀 FIX: Decrypt and extract user parameters from payload string cleanly
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
-    return await prisma.user.findUnique({ where: { id: decoded.userId } });
-  } catch {
+
+    if (!decoded || !decoded.userId) return null;
+
+    // Fetch account attributes from Neon with recent notification arrays pre-loaded
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId }, // 🎯 FIXED: Correctly targets 'decoded' variable
+      include: {
+        notificationsReceived: {
+          include: {
+            issuer: true // Automatically bundles author profile cards and avatar images
+          },
+          orderBy: {
+            createdAt: "desc" // Display the newest alerts at the very top of the drawer first
+          },
+          take: 15 // Limits response payloads to lock-in lightning-fast load times
+        }
+      }
+    });
+
+    return user;
+  } catch (error) {
+    console.error("Session verification token crashed:", error);
     return null;
   }
-  const user = await prisma.user.findUnique({
-    where: { id: decoded.userId },
-    // 🚀 EXPAND USER DEFINITIONS PACKETS TO EXTRACT REAL-TIME ALERTS
-    include: {
-      notificationsReceived: {
-        include: {
-          issuer: true // Fetches avatar profiles and names of the actors instantly
-        },
-        orderBy: {
-          createdAt: "desc" // Display the newest activity popups at the top first
-        },
-        take: 15 // Limit drawer records to top 15 events to lock-in high speed
-      }
-    }
-  });
-
-return user;
 }
 
 // 4. ACTION: Clear cookies and log out instantly
