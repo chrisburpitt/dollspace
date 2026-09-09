@@ -13,7 +13,7 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    // Block lookup queries if string length is too short to protect API limits
+    // 1. Guard check: Don't query until user types at least 3 characters
     if (!value || value.trim().length < 3) {
       setSuggestions([]);
       return;
@@ -22,12 +22,11 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
     const delayDebounceFn = setTimeout(async () => {
       setIsSearching(true);
       try {
-        // 🚀 CRITICAL UPDATE: Fetch town suggestions using standard parameters
+        // 🚀 BULLETPROOF QUERY ALTERATION: Removed restrictive settlement parameters to allow flexible text parsing
         const response = await fetch(
-          `https://openstreetmap.org{encodeURIComponent(value)}&featuretype=settlement&addressdetails=1&limit=5`,
+          `https://openstreetmap.org{encodeURIComponent(value)}&addressdetails=1&limit=5`,
           {
             headers: {
-              // 🛡️ IDENTIFICATION HEADERS: Directs the network loop past firewall blockers safely
               "User-Agent": "DollspaceSocialApp/1.0 (contact: admin@dollspace.internal)",
               "Accept": "application/json"
             }
@@ -39,22 +38,30 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
         if (Array.isArray(data)) {
           const results = data.map((item: any) => {
             const addr = item.address || {};
-            // Extract the most distinct settlement identifier name
-            const townName = addr.city || addr.town || addr.village || addr.suburb || addr.municipality || item.name || "";
-            const stateName = addr.state || addr.region || addr.country || "";
             
-            return townName && stateName ? `${townName}, ${stateName}` : item.display_name.split(",").slice(0, 2).join(",");
+            // 🏙️ Extract the best matching town name label variants
+            const townName = addr.city || addr.town || addr.village || addr.suburb || addr.municipality || addr.city_district || "";
+            
+            // 🗺️ Extract state/region data
+            const stateName = addr.state || addr.state_district || addr.region || addr.country || "";
+            
+            if (townName && stateName) {
+              return `${townName}, ${stateName}`;
+            }
+            
+            // Fallback: Grab the first two segments of the long default text node line if parameters are deeply hidden
+            return item.display_name.split(",").slice(0, 2).map((s: string) => s.trim()).join(", ");
           }).filter(Boolean);
 
-          // Clean out duplicates cleanly
+          // Deduplicate the list cleanly
           setSuggestions([...new Set(results as string[])]);
         }
       } catch (err) {
-        console.error("Location lookup network error:", err);
+        console.error("Location lookup autocomplete error:", err);
       } finally {
         setIsSearching(false);
       }
-    }, 500); // 500ms debounce loop protects connection buffers
+    }, 400); // Fast 400ms debounce loop protects connection buffers
 
     return () => clearTimeout(delayDebounceFn);
   }, [value]);
@@ -66,15 +73,15 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Start typing your town..."
-        className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
+        placeholder="Start typing your town or state..."
+        className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition"
       />
       
       {isSearching && (
-        <span className="absolute right-4 bottom-3 text-xs text-gray-400 font-bold animate-pulse">Searching...</span>
+        <span className="absolute right-4 bottom-3.5 text-[10px] text-rose-400 font-bold animate-pulse">Searching...</span>
       )}
 
-      {/* Suggestion Dropdown List Panel Frame Overlay */}
+      {/* Suggestion Dropdown Panel Canvas Overlay */}
       {suggestions.length > 0 && (
         <div className="absolute top-16 left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-50 divide-y divide-gray-100 max-h-60 overflow-y-auto">
           {suggestions.map((suggestion, idx) => (
@@ -83,9 +90,9 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
               type="button"
               onClick={() => {
                 onChange(suggestion);
-                setSuggestions([]);
+                setSuggestions([]); // Instantly sweeps out the overlay drawer menu
               }}
-              className="w-full text-left px-4 py-3 text-xs text-gray-700 hover:bg-rose-50 hover:text-rose-600 font-bold transition flex items-center space-x-1.5"
+              className="w-full text-left px-4 py-3 text-xs text-gray-700 hover:bg-rose-50 hover:text-rose-600 font-bold transition flex items-center space-x-2"
             >
               <span>📍</span>
               <span className="truncate">{suggestion}</span>
