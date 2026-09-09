@@ -24,6 +24,7 @@ model User {
   bio          String?
   lookingFor   String?
   avatarUrl    String?
+  bannerUrl    String?
   views        Int        @default(0)
 
   createdAt    DateTime   @default(now())

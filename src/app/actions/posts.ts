@@ -148,3 +148,38 @@ export async function toggleReaction(postId: string, userId: string, emoji: stri
   revalidatePath("/");
 }
 
+// ACTION: Securely update profile landscape banner images
+export async function updateBanner(formData: FormData, targetUserId: string) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) {
+    return { error: "Unauthorized: Please log in first." };
+  }
+
+  // Security checkpoint ownership validation
+  if (sessionUser.id !== targetUserId) {
+    return { error: "Unauthorized: You do not have permission to modify this banner image." };
+  }
+
+  const bannerFile = formData.get("banner") as File | null;
+  if (!bannerFile || bannerFile.size === 0) {
+    return { error: "No image file provided." };
+  }
+
+  // Pass file down into your permanent UploadThing cloud pipeline helper
+  const uploadedUrl = await saveImage(bannerFile, "banners");
+  if (!uploadedUrl) {
+    // Falls back seamlessly to a solid error log description if connection breaks
+    return { error: "Failed to upload image to cloud vault." };
+  }
+
+  // Safe Write: Bound strictly to the verified session token identity
+  await prisma.user.update({
+    where: { id: sessionUser.id },
+    data: { bannerUrl: uploadedUrl },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/[username]", "layout");
+  
+  return { success: true };
+}

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
+import BannerUpload from "@/components/BannerUpload"; // 🚀 IMPORT THE NEW BANNER
 import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
@@ -17,7 +18,6 @@ interface ProfilePageProps {
   params: Promise<{ username: string }>;
 }
 
-// 🚀 PERFECT BRANDED DYNAMIC TAB TITLE GENERATOR
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
   const user = await prisma.user.findUnique({
@@ -38,11 +38,9 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
 
-  // 1. SECURE VISITOR SESSION CHECK
   const sessionUser = await getCurrentUser();
   if (!sessionUser) redirect("/login"); 
 
-  // 2. FETCH PROFILE PAGE TARGET DATA
   const user = await prisma.user.findUnique({
     where: { username },
     include: { _count: { select: { followers: true, following: true } } }
@@ -50,7 +48,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (!user) notFound();
 
-  // 3. FETCH PROFILE POST HISTORY STREAM
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: { 
@@ -61,7 +58,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     orderBy: { createdAt: "desc" }
   });
 
-  // 4. CHECK RELATIONSHIP FOLLOW MATRIX
   const isFollowingResult = await prisma.follow.findUnique({
     where: {
       followerId_followingId: {
@@ -84,11 +80,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      {/* 🚀 MOUNT THE LIVE LANDSCAPE BANNER COVER AT THE TOP FRAME LAYER */}
+      <BannerUpload user={user} isOwner={isOwner} />
+
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 -mt-20 sm:-mt-24 relative z-10">
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm mt-20 sm:mt-24">
             <nav className="flex flex-col space-y-1">
               <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
@@ -113,11 +112,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         {/* CENTER COLUMN: Profile Deck Layout Canvas */}
         <main className="lg:col-span-6 space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left">
-              
+          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-24 sm:pt-24 relative">
+            
+            {/* Absolute floating wrap frames your circular avatar beautifully on top of the banner cut-line line */}
+            <div className="absolute -top-12 left-8 border-4 border-white rounded-full bg-white shadow-md">
               <AvatarUpload user={user} />
+            </div>
 
+            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left mt-4">
               <div className="flex-1 w-full">
                 <div className="flex items-start justify-between w-full">
                   <div>
@@ -135,7 +137,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                       >
                         <span>💌 Chat</span>
                       </Link>
-                      
                       <FollowButton 
                         currentUserId={sessionUser.id} 
                         targetUserId={user.id} 
@@ -224,7 +225,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
         {/* RIGHT COLUMN: Profile Insights Sidebar */}
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm mt-20 sm:mt-24">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
               <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
@@ -247,4 +248,3 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     </div>
   );
 }
-
