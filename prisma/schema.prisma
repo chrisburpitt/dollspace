@@ -35,6 +35,8 @@ model User {
 
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsSent     Notification[] @relation("NotificationTrigger")
+  messagesSent      DirectMessage[] @relation("MessageSender")
+  messagesReceived  DirectMessage[] @relation("MessageRecipient")
 }
 
 model Post {
@@ -74,6 +76,26 @@ model Comment {
   parentId  String?
   parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("CommentReplies")
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  content     String
+  createdAt   DateTime @default(now())
+  isRead      Boolean  @default(false)
+
+  // Account sending the message text string
+  senderId    String
+  sender      User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+
+  // Account receiving the private message
+  recipientId String
+  recipient   User     @relation("MessageRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+
+  // Unique composite string token used to pool private room channels (e.g. "userA-userB")
+  roomToken   String
+
+  @@index([roomToken])
 }
 
 model Follow {

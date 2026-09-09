@@ -1,4 +1,4 @@
-// party.ts (PartyKit Backend Operational Server Code)
+// party.ts (PartyKit Backend Router Engine)
 import type * as Party from "partykit/server";
 
 interface ActiveChatter {
@@ -8,55 +8,61 @@ interface ActiveChatter {
   avatarUrl: string | null;
 }
 
-export default class ChatroomServer implements Party.Server {
+export default class DollspaceSocketServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
-  // 1. WebSocket Connection Lifecycle Entry Trigger
   async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext) {
-    // Extract user tracking metadata parameters safely out of the handshake query connection string
     const url = new URL(ctx.request.url);
     const userId = url.searchParams.get("id") || connection.id;
     const username = url.searchParams.get("username") || "anonymous";
     const displayName = url.searchParams.get("displayName") || "Guest Doll";
     const avatarUrl = url.searchParams.get("avatarUrl") || null;
 
-    // Save these credentials straight onto the specific live socket socket state memory block
-    connection.setState({
-      id: userId,
-      username,
-      displayName,
-      avatarUrl
-    });
+    connection.setState({ id: userId, username, displayName, avatarUrl });
 
-    // 🚀 BROADCAST THE RE-COMPLED PRESENCE ROSTER TO EVERYONE IN THE LOUNGE
-    this.broadcastActiveRoster();
-  }
-
-  // 2. WebSocket Disconnection Lifecycle Trigger
-  async onClose(connection: Party.Connection) {
-    // Whenever a socket connection terminates or drops out, re-broadcast the active roster instantly
-    this.broadcastActiveRoster();
-  }
-
-  // 3. Operational Message Dispatch Router Engine
-  onMessage(message: string, sender: Party.Connection) {
-    const parsedMessage = JSON.parse(message);
-
-    // If it's a message stream dispatch payload, attach the sender metadata profiles and broadcast it
-    if (parsedMessage.type === "chat_message") {
-      const chatPayload = {
-        type: "incoming_message",
-        id: crypto.randomUUID(),
-        content: parsedMessage.content,
-        createdAt: new Date().toISOString(),
-        user: sender.state // Injects who typed the update straight out of state verification blocks
-      };
-
-      this.room.broadcast(JSON.stringify(chatPayload));
+    // Only broadcast system presence lists if users are in the main public lounge channel room
+    if (!this.room.id.includes("--")) {
+      this.broadcastActiveRoster();
     }
   }
 
-  // 🚀 UTILITY: Gathers all connected sockets, pulls their profiles, and fires an asset dictionary state
+  async onClose() {
+    if (!this.room.id.includes("--")) {
+      this.broadcastActiveRoster();
+    }
+  }
+
+  onMessage(message: string, sender: Party.Connection) {
+    const parsedData = JSON.parse(message);
+
+    // ROUTER ROUTE A: Standard Global Public Lounge Messages
+    if (parsedData.type === "chat_message") {
+      const globalPayload = {
+        type: "incoming_message",
+        id: crypto.randomUUID(),
+        content: parsedData.content,
+        createdAt: new Date().toISOString(),
+        user: sender.state
+      };
+      this.room.broadcast(JSON.stringify(globalPayload));
+    }
+
+    // 🚀 ROUTER ROUTE B: Secure Multi-User Direct Private Message Dispatches
+    if (parsedData.type === "direct_message") {
+      const privatePayload = {
+        type: "incoming_direct_message",
+        id: parsedData.id || crypto.randomUUID(),
+        content: parsedData.content,
+        createdAt: parsedData.createdAt || new Date().toISOString(),
+        senderId: sender.state?.id || "",
+        sender: sender.state
+      };
+      
+      // Broadcast strictly bounds traffic inside the isolated unique private room Token channel
+      this.room.broadcast(JSON.stringify(privatePayload));
+    }
+  }
+
   private broadcastActiveRoster() {
     const activeUsers: ActiveChatter[] = [];
     const absoluteIds = new Set<string>();
@@ -69,12 +75,6 @@ export default class ChatroomServer implements Party.Server {
       }
     }
 
-    const presencePayload = {
-      type: "presence_update",
-      users: activeUsers
-    };
-
-    // Broadcast the full live active list up to everyone currently rendering the page
-    this.room.broadcast(JSON.stringify(presencePayload));
+    this.room.broadcast(JSON.stringify({ type: "presence_update", users: activeUsers }));
   }
 }

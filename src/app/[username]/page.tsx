@@ -124,6 +124,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {isOwner ? (
                     <EditProfileModal user={user} />
                   ) : (
+                    <div className="flex items-center space-x-2 ml-auto">
+                        {/* 🚀 INJECTED: Direct Message Redirect Navigation Link Toggle Button */}
+                        <Link
+                          href="/messages"
+                          className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
+                        >
+                          <span>💌 Chat</span>
+                        </Link>
                     <FollowButton 
                       currentUserId={sessionUser.id} 
                       targetUserId={user.id} 
