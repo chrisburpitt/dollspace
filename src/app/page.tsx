@@ -83,10 +83,10 @@ export default async function Home() {
               <Link href="/" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
-              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
+              <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Live Chatroom</span>
               </Link>
             </nav>
