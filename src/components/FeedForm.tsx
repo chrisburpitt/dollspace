@@ -17,7 +17,7 @@ interface FeedFormProps {
 export default function FeedForm({ currentUser }: FeedFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setError(null);
@@ -46,16 +46,19 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
         const form = document.getElementById("feed-form") as HTMLFormElement;
         form?.reset();
       }}
-    id="feed-form"
-    className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4"
-  >
-      <textarea
-        name="content"
-        placeholder="What's on your mind, Chloe?"
-        className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400 bg-gray-50 resize-none text-gray-800"
-        rows={3}
-      />
-      
+      id="feed-form"
+      className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-4 text-left"
+    >
+      <div className="space-y-2">
+        <textarea
+          name="content"
+          // 🚀 DYNAMIC PLACEHOLDER INJECTED HERE:
+          placeholder={`What's on your mind, ${currentUser.displayName}?`}
+          rows={3}
+          className="w-full resize-none bg-gray-50 text-sm font-medium p-4 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition text-gray-800"
+        />
+      </div>
+
       {/* File Size Error Box Layout */}
       {error && (
         <div className="mt-3 p-3 bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-xl">
