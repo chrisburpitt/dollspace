@@ -4,27 +4,22 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
-import ProfileClient from "./ProfileClient"; // 🚀 IMPORTS THE EXTRACTED CLIENT VISUALS
+import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
 }
 
+// 🎯 GENERATE METADATA: Stays completely clean, selecting only the display name
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
   const user = await prisma.user.findUnique({
     where: { username },
     select: { displayName: true }
-    include: { 
-      _count: { select: { followers: true, following: true } },
-      // 🚀 INJECT ALBUM RELATION SELECTIONS WITH NESTED PHOTOS ARRAY STACKS AT PRE-LOAD PHASE
-      albums: {
-        include: { photos: true },
-        orderBy: { createdAt: "desc" }
   });
 
-  if (!user) return { title: "Dollspace | User Not Found" };
+  if (!user) return { title: "User Not Found | Dollspace" };
 
   return {
     title: `Dollspace | ${user.displayName}'s profile`,
@@ -35,19 +30,26 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
 
-  // 1. Secure Server-Side Cookie Session Lookup
+  // 1. Secure Server-Side Session Lookup
   const sessionUser = await getCurrentUser();
   if (!sessionUser) redirect("/login"); 
 
-  // 2. Fetch User Relations Profile Matrix from Neon
+  // 2. FETCH MAIN PROFILE DETAILS: 🚀 This is where the albums pre-loading lives!
   const user = await prisma.user.findUnique({
     where: { username },
-    include: { _count: { select: { followers: true, following: true } } }
+    include: { 
+      _count: { select: { followers: true, following: true } },
+      // Includes your beautiful custom photo album data parameters
+      albums: {
+        include: { photos: true },
+        orderBy: { createdAt: "desc" }
+      }
+    }
   });
 
   if (!user) notFound();
 
-  // 3. Fetch Posts Stream History
+  // 3. Fetch Posts history stream
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: { 
@@ -76,7 +78,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     notificationsReceived: sessionUser.notificationsReceived || []
   };
 
-  // 🚀 HANDS THE PROPS SAFELY OVER the network boundary straight down into your client file
   return (
     <ProfileClient 
       user={user} 
