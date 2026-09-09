@@ -4,17 +4,46 @@
 import { useActionState, Suspense } from "react"; // 🚀 1. IMPORT SUSPENSE NATIVELY
 import { loginUser, registerUser } from "@/app/actions/auth";
 import SubmitButton from "@/components/SubmitButton";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
-// 🚀 2. EXTRACT THE INTERACTIVE CONTENT INTO A SUB-COMPONENT
 function AuthFormContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const isRegisterMode = searchParams.get("mode") === "register";
 
   const [state, formAction] = useActionState(
     isRegisterMode ? registerUser : loginUser,
     null
   );
+
+  if (state?.success && isRegisterMode) {
+    return (
+      <div className="max-w-md w-full bg-white border border-rose-100 p-8 rounded-3xl shadow-xl text-center animate-scale-up">
+        {/* Celebration Graphic Icon */}
+        <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+          🌸
+        </div>
+        
+        <h1 className="text-2xl font-black text-gray-900 tracking-tight mb-2">
+          Registration Successful!
+        </h1>
+        <p className="text-sm font-medium text-gray-500 leading-relaxed mb-6">
+          Your account has been securely created in the lounge. We have sent a welcome message straight to your inbox.
+        </p>
+
+        {/* Dynamic Forwarding Continue Button Trigger */}
+        <button
+          onClick={() => {
+            // Smoothly takes them back to the login view card frame and drops the query flags
+            router.push("/login");
+          }}
+          className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold p-3 rounded-xl transition shadow-sm text-sm"
+        >
+          Continue to Login
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-md w-full bg-white border border-rose-100 p-8 rounded-3xl shadow-md hover:shadow-lg transition duration-300">
@@ -116,7 +145,6 @@ function AuthFormContent() {
   );
 }
 
-// 🚀 3. THE MAIN EXPORT WRAPS THE COMPONENT SAFELY IN SUSPENSE
 export default function AuthPage() {
   return (
     <div className="min-h-screen bg-rose-50/30 flex items-center justify-center p-6 text-gray-900">

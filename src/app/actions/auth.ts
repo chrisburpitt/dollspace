@@ -73,12 +73,9 @@ export async function registerUser(prevState: any, formData: FormData) {
       `,
     });
   } catch (emailError) {
-    // If an email delivery block happens, console log it but DO NOT crash the registration flow
     console.error("Resend delivery engine paused:", emailError);
   }
-
-  // Bounce them smoothly to the fresh, beautiful pink login page layout to sign in
-  redirect("/login");
+  return { success: true };
 }
 
 // 2. Update loginUser to also use loose return mapping for the form action type bypass
