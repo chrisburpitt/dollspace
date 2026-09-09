@@ -11,6 +11,28 @@ import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
 import PostComments from "@/components/PostComments";
 import { getCurrentUser } from "@/app/actions/auth";
+import { Metadata } from "next";
+
+// 🚀 DYNAMIC TAB MANAGER
+export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+  const { username } = await params;
+
+  // Look up the database to make sure the target user path exists
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { displayName: true }
+  });
+
+  if (!user) {
+    return { title: "User Not Found | Dollspace" };
+  }
+
+  return {
+    // 🎯 UPDATED SYNTAX: Sets your perfect browser tab name format dynamically
+    title: `Dollspace | ${user.displayName}'s profile`,
+    description: `View ${user.displayName}'s custom profile card on Dollspace.`
+  };
+}
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
