@@ -37,7 +37,7 @@ export default function FullScreenChat({ currentUser, roomId }: ChatStatusProps)
 
   // 1. Hook up the Real-Time PartyKit Socket with complete credentials routing
   const socket = usePartySocket({
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "dollspace-party.partykit.dev", // Maps your host live
+    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "localhost:1999",
     room: roomId,
     
     // 🚀 FIXED: Pass queries so the backend server can track presence counters!
