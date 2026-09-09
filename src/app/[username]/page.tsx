@@ -1,17 +1,10 @@
-// src/app/[username]/page.tsx (PART 1 - PASTE THIS FIRST)
+// src/app/[username]/page.tsx
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
-import AvatarUpload from "@/components/AvatarUpload";
-import BannerUpload from "@/components/BannerUpload";
-import PostControls from "@/components/PostControls";
-import EditProfileModal from "@/components/EditProfileModal";
-import GlobalHeader from "@/components/GlobalHeader";
-import FollowButton from "@/components/FollowButton";
-import PostComments from "@/components/PostComments";
 import { getCurrentUser } from "@/app/actions/auth";
+import ProfileClient from "./ProfileClient"; // 🚀 IMPORTS THE EXTRACTED CLIENT VISUALS
 import { Metadata } from "next";
 
 interface ProfilePageProps {
@@ -25,9 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     select: { displayName: true }
   });
 
-  if (!user) {
-    return { title: "User Not Found | Dollspace" };
-  }
+  if (!user) return { title: "User Not Found | Dollspace" };
 
   return {
     title: `Dollspace | ${user.displayName}'s profile`,
@@ -38,9 +29,11 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
 export default async function ProfilePage({ params }: ProfilePageProps) {
   const { username } = await params;
 
+  // 1. Secure Server-Side Cookie Session Lookup
   const sessionUser = await getCurrentUser();
   if (!sessionUser) redirect("/login"); 
 
+  // 2. Fetch User Relations Profile Matrix from Neon
   const user = await prisma.user.findUnique({
     where: { username },
     include: { _count: { select: { followers: true, following: true } } }
@@ -48,6 +41,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   if (!user) notFound();
 
+  // 3. Fetch Posts Stream History
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: { 
@@ -72,12 +66,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const validatedHeaderUser = {
     id: sessionUser.id,
-    status: sessionUser.status || "ONLINE"
+    status: sessionUser.status || "ONLINE",
+    notificationsReceived: sessionUser.notificationsReceived || []
   };
 
-  // src/app/[username]/page.tsx (PART 2 - STICKY FIXED LAYOUT)
+  // 🚀 HANDS THE PROPS SAFELY OVER the network boundary straight down into your client file
   return (
-    <ProfileContent 
+    <ProfileClient 
       user={user} 
       isOwner={isOwner} 
       isFollowing={isFollowing} 
@@ -85,207 +80,5 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       userPosts={userPosts} 
       validatedHeaderUser={validatedHeaderUser} 
     />
-  );
-}
-
-import ImageLightbox from "@/components/ImageLightbox";
-import { useState } from "react";
-
-function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, validatedHeaderUser }: any) {
-  const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
-
-  return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <GlobalHeader currentUser={validatedHeaderUser} />
-
-      <BannerUpload user={user} isOwner={isOwner} />
-
-      {/* 🚀 FIXED: Grid offset margins removed to stop sidebar floating drop blocks */}
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
-        
-        {/* LEFT COLUMN: Sidebar Navigation Panel (Nestles perfectly at top-20 offset on scrolls) */}
-        <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit">
-          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
-            <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
-                🏠 Home Feed
-              </Link>
-              <Link 
-                href={`/${sessionUser.username}`} 
-                className={`px-4 py-2.5 font-bold rounded-xl text-sm transition ${
-                  isOwner ? "bg-rose-50 text-rose-500" : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                👤 My Profile
-              </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                <span>💬 Live Chatroom</span>
-              </Link>
-              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                <span>💌 Private Messages</span>
-              </Link>
-            </nav>
-          </div>
-        </aside>
-
-        {/* CENTER COLUMN: Profile Deck Layout Canvas */}
-        <main className="lg:col-span-6 space-y-6">
-          {/* 🚀 FIXED: Adjusted padding offset to space out central content under the avatar banner line cleanly */}
-          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
-            
-            <div className="absolute -top-14 left-8 border-4 border-white rounded-full bg-white shadow-md">
-              <AvatarUpload user={user} />
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left mt-4">
-              <div className="flex-1 w-full">
-                <div className="flex items-start justify-between w-full">
-                  <div>
-                    <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
-                    <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
-                  </div>
-                  
-                  {isOwner ? (
-                    <EditProfileModal user={user} />
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <Link
-                        href="/messages"
-                        className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
-                      >
-                        <span>💌 Chat</span>
-                      </Link>
-                      <FollowButton 
-                        currentUserId={sessionUser.id} 
-                        targetUserId={user.id} 
-                        initialIsFollowing={isFollowing} 
-                      />
-                    </div>
-                  )}
-                </div>
-                
-                {/* Visual Biographical Badges Deck */}
-                <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                  {user.age && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">🎂 {user.age} Years Old</span>}
-                  {user.genderIdentity && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">⚧️ {user.genderIdentity}</span>}
-                  {user.location && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">📍 {user.location}</span>}
-                </div>
-
-                {/* DEDUPLICATED MATCHING BADGES */}
-                {user.lookingFor && user.lookingFor.trim().length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 items-center mt-4">
-                    <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                    {[...new Set(
-                      user.lookingFor
-                        .split(",")
-                        .map((option: string) => option.trim().replace(/_/g, ' '))
-                        .filter(Boolean)
-                    )].map((optionLabel: any) => (
-                      <span 
-                        key={optionLabel} 
-                        className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm animate-fade-in"
-                      >
-                        {optionLabel}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <p className="mt-4 text-gray-600 leading-relaxed font-medium">
-                  {user.bio || "Welcome to my Dollspace profile layout!"}
-                </p>
-                
-                <div className="flex justify-center sm:justify-start space-x-6 mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500 font-medium">
-                  <div><strong className="text-gray-900 font-bold">{user._count.following}</strong> Following</div>
-                  <div><strong className="text-gray-900 font-bold">{user._count.followers}</strong> Followers</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-  // src/app/[username]/page.tsx (PART 3 - STICKY FIXED LAYOUT)
-          <div className="flex items-center space-x-2 px-1 mt-6">
-            <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
-            <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
-          </div>
-
-          {/* Timeline Loop Stream */}
-          <div className="space-y-4 mt-2">
-            {userPosts.map((post: any) => (
-              <div key={post.id} className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
-                <div className="flex items-center space-x-3 mb-4">
-                  {post.user.avatarUrl ? (
-                    <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
-                  )}
-                  <div>
-                    <span className="font-bold text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
-                    <span className="text-gray-400 text-xs">@{post.user.username}</span>
-                  </div>
-                </div>
-                {post.content && <p className="text-gray-800 text-base mb-4">{post.content}</p>}
-                
-                {post.imageUrl && (
-                  <div 
-                    onClick={() => setActiveLightboxUrl(post.imageUrl)}
-                    className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
-                    title="Click to zoom image"
-                  >
-                    <img 
-                      src={post.imageUrl} 
-                      alt="Attached post content" 
-                      className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" 
-                    />
-                    <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
-                      🔍 Zoom Photo
-                    </span>
-                  </div>
-                )}
-
-                <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
-                
-                <PostComments 
-                  postId={post.id}
-                  currentUserId={sessionUser.id}
-                  comments={post.comments}
-                />
-              </div>
-            ))}
-          </div>
-        </main>
-
-        {/* RIGHT COLUMN: Profile Insights Sidebar (🚀 FIXED: Nestles perfectly at top-20 offset alongside your feed) */}
-        <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit">
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
-            <div className="text-xs space-y-2 text-gray-600 font-semibold">
-              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
-                <span>Profile Views:</span>
-                <span className="text-rose-500 font-black">👀 {user.views}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Account Created:</span>
-                <span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Posts Stored:</span>
-                <span className="text-gray-900 font-bold">{userPosts.length}</span>
-              </div>
-            </div>
-          </div>
-        </aside>
-
-      </div>
-
-      {/* GLOBAL LAYER PORTAL PREVIEW LIGHTBOX */}
-      {activeLightboxUrl && (
-        <ImageLightbox 
-          imageUrl={activeLightboxUrl} 
-          onClose={() => setActiveLightboxUrl(null)} 
-        />
-      )}
-
-    </div>
   );
 }
