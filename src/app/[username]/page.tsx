@@ -75,7 +75,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     status: sessionUser.status || "ONLINE"
   };
 
-  // src/app/[username]/page.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
+  // src/app/[username]/page.tsx (PART 2 - STICKY FIXED LAYOUT)
   return (
     <ProfileContent 
       user={user} 
@@ -100,11 +100,12 @@ function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, va
 
       <BannerUpload user={user} isOwner={isOwner} />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 -mt-20 sm:-mt-24 relative z-10">
+      {/* 🚀 FIXED: Grid offset margins removed to stop sidebar floating drop blocks */}
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
-        {/* LEFT COLUMN: Sidebar Navigation Panel */}
-        <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm mt-20 sm:mt-24">
+        {/* LEFT COLUMN: Sidebar Navigation Panel (Nestles perfectly at top-20 offset on scrolls) */}
+        <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit">
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
               <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
@@ -129,9 +130,10 @@ function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, va
 
         {/* CENTER COLUMN: Profile Deck Layout Canvas */}
         <main className="lg:col-span-6 space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-24 sm:pt-24 relative">
+          {/* 🚀 FIXED: Adjusted padding offset to space out central content under the avatar banner line cleanly */}
+          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
             
-            <div className="absolute -top-12 left-8 border-4 border-white rounded-full bg-white shadow-md">
+            <div className="absolute -top-14 left-8 border-4 border-white rounded-full bg-white shadow-md">
               <AvatarUpload user={user} />
             </div>
 
@@ -201,8 +203,7 @@ function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, va
             </div>
           </div>
 
-
-  // src/app/[username]/page.tsx (PART 3 - PASTE THIS DIRECTLY UNDERNEATH PART 2)
+  // src/app/[username]/page.tsx (PART 3 - STICKY FIXED LAYOUT)
           <div className="flex items-center space-x-2 px-1 mt-6">
             <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
             <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
@@ -225,7 +226,6 @@ function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, va
                 </div>
                 {post.content && <p className="text-gray-800 text-base mb-4">{post.content}</p>}
                 
-                {/* 🚀 PHOTO DRAWER: Clean uniform cover cropping + interactive lightboxes zoom popups */}
                 {post.imageUrl && (
                   <div 
                     onClick={() => setActiveLightboxUrl(post.imageUrl)}
@@ -255,9 +255,9 @@ function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, va
           </div>
         </main>
 
-        {/* RIGHT COLUMN: Profile Insights Sidebar */}
-        <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-24 h-fit">
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm mt-20 sm:mt-24">
+        {/* RIGHT COLUMN: Profile Insights Sidebar (🚀 FIXED: Nestles perfectly at top-20 offset alongside your feed) */}
+        <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit">
+          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
               <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5">
@@ -278,7 +278,7 @@ function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, va
 
       </div>
 
-      {/* 🚀 GLOBAL LAYER PORTAL PREVIEW LIGHTBOX ON PROFILES */}
+      {/* GLOBAL LAYER PORTAL PREVIEW LIGHTBOX */}
       {activeLightboxUrl && (
         <ImageLightbox 
           imageUrl={activeLightboxUrl} 
