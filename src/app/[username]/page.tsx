@@ -147,12 +147,25 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   {user.lookingFor && (
                     <div className="flex flex-wrap gap-1.5 items-center">
                       <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                      {user.lookingFor.split(",").map((option) => (
-                        <span key={option} className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm">
-                          {option.replace(/_/g, ' ')}
-                        </span>
-                      ))}
-                    </div>
+                        {user.lookingFor && user.lookingFor.trim().length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 items-center mt-4">
+                            <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
+                            {user.lookingFor.split(",").map((option) => {
+                              // Clean up string tokens to protect layout keys from rendering blank entries
+                              const optionLabel = option.trim().replace(/_/g, ' ');
+                              if (!optionLabel) return null;
+
+                              return (
+                                <span 
+                                  key={option} 
+                                  className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm"
+                                >
+                                  {optionLabel}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
                   )}
                 </div>
 
