@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
-import BannerUpload from "@/components/BannerUpload"; // 🚀 IMPORT THE NEW BANNER
+import BannerUpload from "@/components/BannerUpload";
 import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
@@ -77,10 +77,27 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   // src/app/[username]/page.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
+    <ProfileContent 
+      user={user} 
+      isOwner={isOwner} 
+      isFollowing={isFollowing} 
+      sessionUser={sessionUser} 
+      userPosts={userPosts} 
+      validatedHeaderUser={validatedHeaderUser} 
+    />
+  );
+}
+
+import ImageLightbox from "@/components/ImageLightbox";
+import { useState } from "react";
+
+function ProfileContent({ user, isOwner, isFollowing, sessionUser, userPosts, validatedHeaderUser }: any) {
+  const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
+
+  return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
 
-      {/* 🚀 MOUNT THE LIVE LANDSCAPE BANNER COVER AT THE TOP FRAME LAYER */}
       <BannerUpload user={user} isOwner={isOwner} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 -mt-20 sm:-mt-24 relative z-10">
@@ -114,7 +131,6 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-24 sm:pt-24 relative">
             
-            {/* Absolute floating wrap frames your circular avatar beautifully on top of the banner cut-line line */}
             <div className="absolute -top-12 left-8 border-4 border-white rounded-full bg-white shadow-md">
               <AvatarUpload user={user} />
             </div>
@@ -160,9 +176,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     {[...new Set(
                       user.lookingFor
                         .split(",")
-                        .map(option => option.trim().replace(/_/g, ' '))
+                        .map((option: string) => option.trim().replace(/_/g, ' '))
                         .filter(Boolean)
-                    )].map((optionLabel) => (
+                    )].map((optionLabel: any) => (
                       <span 
                         key={optionLabel} 
                         className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm animate-fade-in"
@@ -185,14 +201,16 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 px-1">
+
+  // src/app/[username]/page.tsx (PART 3 - PASTE THIS DIRECTLY UNDERNEATH PART 2)
+          <div className="flex items-center space-x-2 px-1 mt-6">
             <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
             <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
           </div>
 
           {/* Timeline Loop Stream */}
-          <div className="space-y-4">
-            {userPosts.map((post) => (
+          <div className="space-y-4 mt-2">
+            {userPosts.map((post: any) => (
               <div key={post.id} className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
                 <div className="flex items-center space-x-3 mb-4">
                   {post.user.avatarUrl ? (
@@ -206,11 +224,25 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                 </div>
                 {post.content && <p className="text-gray-800 text-base mb-4">{post.content}</p>}
+                
+                {/* 🚀 PHOTO DRAWER: Clean uniform cover cropping + interactive lightboxes zoom popups */}
                 {post.imageUrl && (
-                  <div className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mb-2">
-                    <img src={post.imageUrl} alt="" className="w-full h-full object-cover" />
+                  <div 
+                    onClick={() => setActiveLightboxUrl(post.imageUrl)}
+                    className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
+                    title="Click to zoom image"
+                  >
+                    <img 
+                      src={post.imageUrl} 
+                      alt="Attached post content" 
+                      className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" 
+                    />
+                    <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
+                      🔍 Zoom Photo
+                    </span>
                   </div>
                 )}
+
                 <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
                 
                 <PostComments 
@@ -245,6 +277,15 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         </aside>
 
       </div>
+
+      {/* 🚀 GLOBAL LAYER PORTAL PREVIEW LIGHTBOX ON PROFILES */}
+      {activeLightboxUrl && (
+        <ImageLightbox 
+          imageUrl={activeLightboxUrl} 
+          onClose={() => setActiveLightboxUrl(null)} 
+        />
+      )}
+
     </div>
   );
 }
