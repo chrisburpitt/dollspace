@@ -1,4 +1,4 @@
-// party.ts (PartyKit Backend Router Engine)
+// party.ts (PartyKit Unified Chat & DM Server Code)
 import type * as Party from "partykit/server";
 
 interface ActiveChatter {
@@ -8,7 +8,7 @@ interface ActiveChatter {
   avatarUrl: string | null;
 }
 
-export default class DollspaceSocketServer implements Party.Server {
+export default class DollspaceMessengerServer implements Party.Server {
   constructor(readonly room: Party.Room) {}
 
   async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext) {
@@ -20,25 +20,19 @@ export default class DollspaceSocketServer implements Party.Server {
 
     connection.setState({ id: userId, username, displayName, avatarUrl });
 
-    // Only broadcast system presence lists if users are in the main public lounge channel room
-    if (!this.room.id.includes("--")) {
-      this.broadcastActiveRoster();
-    }
+    // Instantly broadcast the live active roster to everyone in the messenger hub
+    this.broadcastActiveRoster();
   }
 
   async onClose() {
-    if (!this.room.id.includes("--")) {
-      this.broadcastActiveRoster();
-    }
+    this.broadcastActiveRoster();
   }
 
   onMessage(message: string, sender: Party.Connection) {
     const parsedData = JSON.parse(message);
-    
-    // 🚀 EXPLICIT TYPING CAST: Solves the ImmutableObject<unknown> TS2339 property block
     const senderState = sender.state as ActiveChatter | undefined;
 
-    // ROUTER ROUTE A: Standard Global Public Lounge Messages
+    // 🌍 ROUTE A: Public Group Chatroom Messages
     if (parsedData.type === "chat_message") {
       const globalPayload = {
         type: "incoming_message",
@@ -50,18 +44,19 @@ export default class DollspaceSocketServer implements Party.Server {
       this.room.broadcast(JSON.stringify(globalPayload));
     }
 
-    // ROUTER ROUTE B: Secure Multi-User Direct Private Message Dispatches
+    // 💌 ROUTE B: Real-Time Direct Private Messages
     if (parsedData.type === "direct_message") {
       const privatePayload = {
         type: "incoming_direct_message",
         id: parsedData.id || crypto.randomUUID(),
         content: parsedData.content,
         createdAt: parsedData.createdAt || new Date().toISOString(),
-        senderId: senderState?.id || "", // 🎯 FIXED: Correctly reads explicitly typed parameter
-        sender: senderState
+        senderId: senderState?.id || "",
+        recipientId: parsedData.recipientId, // Target profile ID passed by client
+        roomToken: parsedData.roomToken
       };
       
-      // Broadcast strictly bounds traffic inside the isolated unique private room Token channel
+      // Broadcast globally within the hub; the frontend client filters it out instantly based on roomToken context
       this.room.broadcast(JSON.stringify(privatePayload));
     }
   }

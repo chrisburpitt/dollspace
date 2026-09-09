@@ -1,4 +1,4 @@
-// src/app/[username]/ProfileClient.tsx (PART 1 - FIXED SIDEBAR ALIGNMENT)
+// src/app/[username]/ProfileClient.tsx (PART 1 - FIXED CHAT ROUTING)
 "use client";
 
 import { useState } from "react";
@@ -41,11 +41,10 @@ export default function ProfileClient({
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
-        {/* 🚀 FIXED: Added self-start to prevent vertical grid stretching from dropping the tab card low */}
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
               <Link 
@@ -56,18 +55,15 @@ export default function ProfileClient({
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                <span>💬 Live Chatroom</span>
-              </Link>
-              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                <span>💌 Private Messages</span>
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💬 Messenger Lounge</span>
               </Link>
             </nav>
           </div>
         </aside>
 
 
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED SIDEBAR ALIGNMENT) */}
+        {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED CHAT ROUTING) */}
         {/* CENTER COLUMN: Profile Card and Updates Feed */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
@@ -88,8 +84,9 @@ export default function ProfileClient({
                     <EditProfileModal user={user} />
                   ) : (
                     <div className="flex items-center space-x-2">
+                      {/* 🚀 FIXED REDIRECT NAVIGATION: Links directly into your unified real-time messenger grid */}
                       <Link
-                        href="/messages"
+                        href="/chat"
                         className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
                       >
                         <span>💌 Chat</span>
@@ -193,7 +190,6 @@ export default function ProfileClient({
         </main>
 
         {/* RIGHT COLUMN: Profile Insights Sidebar */}
-        {/* 🚀 FIXED: Added self-start to keep this metric box flush with the scroll boundary */}
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
