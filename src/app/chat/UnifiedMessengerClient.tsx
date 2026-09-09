@@ -1,4 +1,4 @@
-// src/app/chat/UnifiedMessengerClient.tsx (PART 1 - PASTE THIS FIRST)
+// src/app/chat/UnifiedMessengerClient.tsx (PART 1 - OPTIMISTIC INSTANT DM UPGRADE)
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -47,8 +47,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
 
   // 🔌 PERSISTENT SINGLE SOCKET HOOK LAYER CONNECTS TO GLOBAL SERVER HUB
   const socket = usePartySocket({
-    // 🚀 FIXED: Hardcode your exact live PartyKit server URL here so it can connect on Vercel production!
-    host: "my-partykit-app.chrisburpitt.partykit.dev", 
+    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev", // Ensure this matches your live PartyKit host URL!
     room: "dollspace-messenger-hub",
     query: {
       id: currentUser.id,
@@ -75,6 +74,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           };
           
           setPrivateMessages((prev) => {
+            // 🚀 Prevent duplicate text bubbles if it was already added optimistically by the sender
             if (prev.some(m => m.id === incomingDM.id)) return prev;
             return [...prev, incomingDM];
           });
@@ -89,6 +89,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [publicMessages, privateMessages, selectedChannel]);
 
+  // 🚀 UPGRADED DISPATCHER: MOVES WEBSOCKET DISPATCH BEFORE THE DATABASE AWAIT HOOKS FOR 0MS LATENCY
   const handleSendMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -98,26 +99,42 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
     if (selectedChannel === "PUBLIC_LOUNGE") {
       socket.send(JSON.stringify({ type: "chat_message", content: cleanText }));
     } else if (activeContact) {
-      const savedRow = await saveDirectMessage({
+      // Create a unique temporary client ID for this message packet block
+      const clientMessageId = `msg-opt-${crypto.randomUUID()}`;
+      const timestampString = new Date().toISOString();
+
+      // 🌟 OPTIMISTIC UI FLASH: Inject the message directly into the local state array IMMEDIATELY
+      const optimisticDM: DirectMessageItem = {
+        id: clientMessageId,
+        content: cleanText,
+        createdAt: timestampString,
         senderId: currentUser.id,
         recipientId: activeContact.id,
-        content: cleanText
-      });
+        roomToken: currentRoomToken
+      };
+      setPrivateMessages((prev) => [...prev, optimisticDM]);
 
-      if ("error" in savedRow) return;
-
+      // 🌟 WEBSOCKET FAST-TRACK: Fire across the live socket to your chat partner instantly
       socket.send(JSON.stringify({
         type: "direct_message",
-        id: savedRow.id,
-        content: savedRow.content,
-        createdAt: savedRow.createdAt.toISOString(),
+        id: clientMessageId,
+        content: cleanText,
+        createdAt: timestampString,
         recipientId: activeContact.id,
         roomToken: currentRoomToken
       }));
+
+      // 🌟 BACKGROUND SAVE: Quietly log the row down into the cloud Neon database tables
+      saveDirectMessage({
+        senderId: currentUser.id,
+        recipientId: activeContact.id,
+        content: cleanText
+      }).catch((err) => console.error("Background message archival save paused:", err));
     }
   };
 
   const activeChatFeedDMs = privateMessages.filter(m => m.roomToken === currentRoomToken);
+
 
 
   // src/app/chat/UnifiedMessengerClient.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
