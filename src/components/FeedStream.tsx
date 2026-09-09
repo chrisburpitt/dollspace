@@ -54,7 +54,9 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
         </div>
       ) : (
         displayPosts.map((post) => (
-          <div key={post.id} className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition animate-fade-in text-left">
+          <div key={post.id}
+          id={`post-${post.id}`} // 🚀 ADD THIS ID TARGET BLOCK HERE to handle anchor scrolls smoothly
+          className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition animate-fade-in text-left scroll-mt-20"
             <div className="flex items-center space-x-3 mb-4">
               {post.user.avatarUrl ? (
                 <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100" />
