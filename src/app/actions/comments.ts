@@ -3,6 +3,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "./notifications"; 
 
 // 1. ACTION: Post a new comment onto a feed card
 export async function createComment(postId: string, userId: string, content: string) {
@@ -15,6 +16,18 @@ export async function createComment(postId: string, userId: string, content: str
       userId,
     },
   });
+
+// Look up the post owner target so we know who to alert
+const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (post) {
+    // 🚀 TRIGGER NOTIFICATION: Sarah commented on Chloe's update post
+    await createNotification({
+      type: "COMMENT",
+      recipientId: post.userId,
+      issuerId: userId,
+      postId: postId,
+    });
+  }
 
   revalidatePath("/");
   revalidatePath("/[username]", "layout");

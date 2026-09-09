@@ -5,12 +5,48 @@ import { useState } from "react";
 import Link from "next/link";
 import { logoutUser } from "@/app/actions/auth";
 import { updateStatus } from "@/app/actions/profile"; 
+import NotificationCenter from "./NotificationCenter";
 
 interface GlobalHeaderProps {
   currentUser: {
     id: string;
     status: string;
     [key: string]: any; // 🚀 ADD THIS LINE to allow any extra user fields to pass safely
+    // 🚀 2. INJECT NOTIFICATIONS SCHEMAS IN PROPS
+    notificationsReceived?: any[];
+    [key: string]: any;
+  };
+}
+
+export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
+  const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Fallback map protects against blank layout loads
+  const activeNotifications = currentUser.notificationsReceived || [];
+
+  // ... keeping click handlers identical ...
+
+  return (
+    <header className="sticky top-0 bg-white border-b border-gray-200 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="text-2xl font-black tracking-tight text-rose-500 hover:opacity-90 transition">
+          Dollspace
+        </Link>
+
+        <div className="flex items-center space-x-3 relative">
+          
+          {/* 🚀 3. MOUNT THE SMART NOTIFICATION BELL CENTERS BUTTON ELEMENT */}
+          <NotificationCenter 
+            currentUserId={currentUser.id} 
+            notifications={activeNotifications} 
+          />
+
+          {/* Status Selection Switch Dropdown Toggle remains right here... */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold text-xs px-4 py-2 rounded-xl border border-gray-200 transition flex items-center space-x-1"
+          >
   };
 }
 

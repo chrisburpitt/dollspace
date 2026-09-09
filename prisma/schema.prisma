@@ -32,6 +32,9 @@ model User {
   comments     Comment[]  
   followers    Follow[]   @relation("UserFollowers")
   following    Follow[]   @relation("UserFollowing")
+
+  notificationsReceived Notification[] @relation("NotificationRecipient")
+  notificationsSent     Notification[] @relation("NotificationTrigger")
 }
 
 model Post {
@@ -78,4 +81,22 @@ model Follow {
   following   User   @relation("UserFollowers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@id([followerId, followingId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  type        String   // FOLLOW, LIKE, COMMENT
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  
+  // The account receiving the notification banner alert
+  recipientId String
+  recipient   User     @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  
+  // The account that caused the action (e.g. who clicked follow)
+  issuerId    String
+  issuer      User     @relation("NotificationTrigger", fields: [issuerId], references: [id], onDelete: Cascade)
+  
+  // Optional pointer fields depending on the event context
+  postId      String?
 }

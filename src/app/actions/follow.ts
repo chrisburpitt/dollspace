@@ -3,6 +3,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createNotification } from "./notifications"; 
 
 export async function toggleFollow(currentUserId: string, targetUserId: string) {
   if (currentUserId === targetUserId) return { error: "You cannot follow your own profile!" };
@@ -36,6 +37,14 @@ export async function toggleFollow(currentUserId: string, targetUserId: string) 
       }
     });
   }
+
+// 🚀 TRIGGER NOTIFICATION: Sarah followed Chloe
+  await createNotification({
+    type: "FOLLOW",
+    recipientId: targetUserId,
+    issuerId: currentUserId,
+  });
+}
 
   // Flush view caches instantly across feed streams and profile pages
   revalidatePath("/");
