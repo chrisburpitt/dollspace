@@ -1,4 +1,4 @@
-// src/app/[username]/ProfileClient.tsx (PART 1 - FIXED CHAT ROUTING)
+// src/app/[username]/ProfileClient.tsx (PART 1 - TEXT LENGTH PROTECTED)
 "use client";
 
 import { useState } from "react";
@@ -11,7 +11,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
-import ProfileAlbums from "@/components/ProfileAlbums"; 
+import ProfileAlbums from "@/components/ProfileAlbums";
 
 interface ProfileClientProps {
   user: any;
@@ -30,11 +30,14 @@ export default function ProfileClient({
   userPosts, 
   validatedHeaderUser 
 }: ProfileClientProps) {
-  const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED"); 
+  // 🌟 INITIALIZE CLIENT VIEW TABS MATRICES
+  const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
+
+  // Security gate filter: Guest dolls can only see albums marked as public
   const filteredAlbums = (user.albums || []).filter((album: any) => {
-    if (isOwner) return true; // Owners see everything
-    return !album.isPrivate;  // Everyone else only views public albums
+    if (isOwner) return true;
+    return !album.isPrivate;
   });
 
   return (
@@ -43,14 +46,14 @@ export default function ProfileClient({
 
       <BannerUpload user={user} isOwner={isOwner} />
 
-      {/* Main Structural Grid Container */}
+      {/* Main Grid Wrapper */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
               <Link 
@@ -61,16 +64,19 @@ export default function ProfileClient({
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                💬 Messenger Lounge
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💬 Messenger Lounge</span>
+              </Link>
+              <Link href="/messages" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💌 Private Messages</span>
               </Link>
             </nav>
           </div>
         </aside>
 
 
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED CHAT ROUTING) */}
-        {/* CENTER COLUMN: Profile Card and Updates Feed */}
+        {/* src/app/[username]/ProfileClient.tsx (PART 2 - TEXT LENGTH PROTECTED) */}
+        {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
             
@@ -84,40 +90,12 @@ export default function ProfileClient({
                   <div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
                     <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
-                  </div>                  
+                  </div>
+                  
                   {isOwner ? (
                     <EditProfileModal user={user} />
                   ) : (
-
-      {/* 🚀 3. PREMIUM TAB SELECTION SLIDER BAR */}
-      <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
-        <button 
-          onClick={() => setActiveTab("FEED")}
-          className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "FEED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
-        >
-          📝 Timeline Updates ({userPosts.length})
-        </button>
-        <button 
-          onClick={() => setActiveTab("ALBUMS")}
-          className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
-        >
-          📷 Photo Albums ({filteredAlbums.length})
-        </button>
-      </div>
-
-      {/* 🚀 4. CONDITIONAL SWITCH ROUTER BLOCKS MAPPING VIEWS */}
-      {activeTab === "ALBUMS" ? (
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-          <ProfileAlbums 
-            albums={filteredAlbums} 
-            isOwner={isOwner} 
-            onPhotoClick={(url) => setActiveLightboxUrl(url)} // Hooks seamlessly straight into your pristine layout lightbox modal!
-          />
-        </div>
-      ) : (
-
                     <div className="flex items-center space-x-2">
-                      {/* 🚀 FIXED REDIRECT NAVIGATION: Links directly into your unified real-time messenger grid */}
                       <Link
                         href="/chat"
                         className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
@@ -172,54 +150,76 @@ export default function ProfileClient({
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 px-1 mt-6">
-            <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
-            <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
+          {/* 🚀 PREMIUM TAB SELECTION SLIDER BAR (Perfect layout tag alignment) */}
+          <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
+            <button 
+              onClick={() => setActiveTab("FEED")}
+              className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "FEED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              📝 Updates Feed ({userPosts.length})
+            </button>
+            <button 
+              onClick={() => setActiveTab("ALBUMS")}
+              className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              📸 Photo Albums ({filteredAlbums.length})
+            </button>
           </div>
 
-          {/* Timeline Posts Stream Loop */}
-          <div className="space-y-4 mt-2">
-            {userPosts.map((post: any) => (
-              <div key={post.id} className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
-                <div className="flex items-center space-x-3 mb-4">
-                  {post.user.avatarUrl ? (
-                    <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
-                  )}
-                  <div>
-                    <span className="font-bold text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
-                    <span className="text-gray-400 text-xs">@{post.user.username}</span>
-                  </div>
-                </div>
-                {post.content && <p className="text-gray-800 text-base mb-4">{post.content}</p>}
-                
-                {post.imageUrl && (
-                  <div 
-                    onClick={() => setActiveLightboxUrl(post.imageUrl)}
-                    className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
-                  >
-                    <img 
-                      src={post.imageUrl} 
-                      alt="" 
-                      className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" 
-                    />
-                    <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
-                      🔍 Zoom Photo
-                    </span>
-                  </div>
-                )}
-
-                <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
-                
-                <PostComments 
-                  postId={post.id}
-                  currentUserId={sessionUser.id}
-                  comments={post.comments}
-                />
+          {/* CONDITIONAL TAB SWITCH ROUTER ROUTE MAPPING CHANNELS */}
+          {activeTab === "ALBUMS" ? (
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+              <ProfileAlbums 
+                albums={filteredAlbums} 
+                isOwner={isOwner} 
+                onPhotoClick={(url) => setActiveLightboxUrl(url)} 
+              />
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center space-x-2 px-1">
+                <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
+                <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
               </div>
-            ))}
-          </div>
+
+              {/* Timeline Updates Stream Container List */}
+              <div className="space-y-4 mt-2">
+                {userPosts.map((post: any) => (
+                  <div key={post.id} className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
+                    <div className="flex items-center space-x-3 mb-4">
+                      {post.user.avatarUrl ? (
+                        <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
+                      )}
+                      <div>
+                        <span className="font-bold text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
+                        <span className="text-gray-400 text-xs">@{post.user.username}</span>
+                      </div>
+                    </div>
+                    {post.content && <p className="text-gray-800 text-base mb-4">{post.content}</p>}
+                    
+                    {post.imageUrl && (
+                      <div 
+                        onClick={() => setActiveLightboxUrl(post.imageUrl)}
+                        className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
+                      >
+                        <img src={post.imageUrl} alt="" className="w-full h-full max-h-[450px] object-cover" />
+                      </div>
+                    )}
+
+                    <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
+                    
+                    <PostComments 
+                      postId={post.id}
+                      currentUserId={sessionUser.id}
+                      comments={post.comments}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </main>
 
         {/* RIGHT COLUMN: Profile Insights Sidebar */}
@@ -245,7 +245,7 @@ export default function ProfileClient({
 
       </div>
 
-      {/* Full-screen Lightbox Overlay */}
+      {/* Full-screen Lightbox Portal Media Preview Overlay Canvas */}
       {activeLightboxUrl && (
         <ImageLightbox 
           imageUrl={activeLightboxUrl} 
