@@ -44,7 +44,7 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
 
   // Connect to the synchronized private direct message channel path router room
   const socket = usePartySocket({
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev"
+    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev",
     room: activeRoomToken,
     query: { id: currentUser.id, username: currentUser.username, displayName: currentUser.displayName },
     onMessage(event) {
