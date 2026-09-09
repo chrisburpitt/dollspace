@@ -1,9 +1,9 @@
-// src/app/messages/MessagesClientWrapper.tsx
+// src/app/messages/MessagesClientWrapper.tsx - TOP SECTION CLEANED UP
 "use client";
 
 import { useState, useRef, useEffect } from "react";
 import usePartySocket from "partysocket/react";
-import { saveDirectMessage, generateRoomToken } from "@/app/actions/messages";
+import { saveDirectMessage } from "@/app/actions/messages"; // 🚀 FIXED: Removed generateRoomToken out of this action import
 
 interface Contact {
   id: string;
@@ -27,6 +27,11 @@ interface WrapperProps {
   initialHistory: MessagePacket[];
 }
 
+// 🚀 FIXED: Place the mathematical sort function out here so it executes instantly in the browser
+function generateLocalRoomToken(userIdA: string, userIdB: string) {
+  return [userIdA, userIdB].sort().join("--");
+}
+
 export default function MessagesClientWrapper({ currentUser, availableContacts, initialHistory }: WrapperProps) {
   const [contacts] = useState<Contact[]>(availableContacts);
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
@@ -34,12 +39,12 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
   const [inputText, setInputText] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Computes the active room token context dynamically
-  const activeRoomToken = activeContact ? generateRoomToken(currentUser.id, activeContact.id) : "idle-dm-room";
+  // 🚀 FIXED: Point your socket room tracker to our local client function row
+  const activeRoomToken = activeContact ? generateLocalRoomToken(currentUser.id, activeContact.id) : "idle-dm-room";
 
   // Connect to the synchronized private direct message channel path router room
   const socket = usePartySocket({
-    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "dollspace-partykit.your-username.partykit.dev",
+    host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "dollspace-main-lounge.your-github-username.partykit.dev", // ⚠️ Double check your hardcoded string here matches your live url!
     room: activeRoomToken,
     query: { id: currentUser.id, username: currentUser.username, displayName: currentUser.displayName },
     onMessage(event) {
