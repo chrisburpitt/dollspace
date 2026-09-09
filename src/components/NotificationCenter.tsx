@@ -87,6 +87,7 @@ export default function NotificationCenter({ currentUserId, notifications }: Not
                       {notif.type === "FOLLOW" && "started following your profile card."}
                       {notif.type === "COMMENT" && "replied to one of your timeline updates."}
                       {notif.type === "LIKE" && "liked your update post."}
+                      {notif.type === "MENTION" && "tagged you inside a timeline discussion comment."}
                     </p>
                     <span className="text-[10px] text-gray-400 font-semibold block mt-0.5">
                       {new Date(notif.createdAt).toLocaleDateString('en-AU', { hour: '2-digit', minute: '2-digit' })}

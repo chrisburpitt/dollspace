@@ -3,49 +3,79 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { createNotification } from "./notifications"; 
+import { createNotification } from "./notifications";
 
-// 1. ACTION: Post a new comment onto a feed card
-export async function createComment(postId: string, userId: string, content: string) {
+// ACTION: Create a comment or nested reply with active tagging/mentions tracking
+export async function createComment(
+  postId: string, 
+  userId: string, 
+  content: string, 
+  parentId: string | null = null
+) {
   if (!content.trim()) return { error: "Comment text cannot be empty." };
 
-  await prisma.comment.create({
+  // 1. Create the base comment record row
+  const newComment = await prisma.comment.create({
     data: {
       content: content.trim(),
       postId,
       userId,
+      parentId,
     },
+    include: { user: true }
   });
 
-// Look up the post owner target so we know who to alert
-const post = await prisma.post.findUnique({ where: { id: postId } });
-  if (post) {
-    // 🚀 TRIGGER NOTIFICATION: Sarah commented on Chloe's update post
-    await createNotification({
-      type: "COMMENT",
-      recipientId: post.userId,
-      issuerId: userId,
-      postId: postId,
+  // 2. PARSE MENTIONS ENGINE: Find all '@username' strings in text
+  // Matches words starting with @ followed by numbers, letters, underscores
+  const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+  const matches = content.match(mentionRegex);
+
+  if (matches) {
+    // Extract unique usernames without the '@' symbol
+    const usernames = [...new Set(matches.map(m => m.substring(1)))];
+
+    // Find matched profiles inside our database rows
+    const taggedUsers = await prisma.user.findMany({
+      where: { username: { in: usernames } }
     });
+
+    // Fire off an alert notification string to each tagged creator row
+    for (const taggedUser of taggedUsers) {
+      if (taggedUser.id !== userId) {
+        await createNotification({
+          type: "MENTION", // Make sure your Notification UI layout accepts this string
+          recipientId: taggedUser.id,
+          issuerId: userId,
+          postId,
+        });
+      }
+    }
+  }
+
+  // 3. REGULAR BASE NOTIFICATION (Only triggers if it's a top-level comment, not a reply tag)
+  if (!parentId) {
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (post && post.userId !== userId) {
+      await createNotification({
+        type: "COMMENT",
+        recipientId: post.userId,
+        issuerId: userId,
+        postId,
+      });
+    }
   }
 
   revalidatePath("/");
   revalidatePath("/[username]", "layout");
+  return { success: true };
 }
 
-// 2. ACTION: Delete an existing comment entry row
+// ACTION: Remove comment row paths safely
 export async function deleteComment(commentId: string, currentUserId: string) {
-  const comment = await prisma.comment.findUnique({
-    where: { id: commentId },
-  });
+  const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+  if (!comment || comment.userId !== currentUserId) return { error: "Unauthorised." };
 
-  if (!comment || comment.userId !== currentUserId) {
-    return { error: "Unauthorised deletion attempt." };
-  }
-
-  await prisma.comment.delete({
-    where: { id: commentId },
-  });
+  await prisma.comment.delete({ where: { id: commentId } });
 
   revalidatePath("/");
   revalidatePath("/[username]", "layout");
