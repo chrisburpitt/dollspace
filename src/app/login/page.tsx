@@ -1,20 +1,27 @@
 // src/app/login/page.tsx
-import { loginUser, registerUser } from "@/app/actions/auth";
+"use client";
+
+import { useActionState } from "react";
+import { loginUser } from "@/app/actions/auth";
+import { registerUser } from "@/app/actions/auth"; // If you have register actions bundled
 import SubmitButton from "@/components/SubmitButton";
+import { useSearchParams } from "next/navigation";
 
-interface Props {
-  searchParams: Promise<{ mode?: string; error?: string }>;
-}
+export default function AuthPage() {
+  const searchParams = useSearchParams();
+  const isRegisterMode = searchParams.get("mode") === "register";
 
-export default async function AuthPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const isRegisterMode = params.mode === "register";
+  // 🚀 HOOK UP THE NATIVE NEXT.JS ACTION STATE LISTENER
+  // This automatically captures the { error: "..." } returned from auth.ts
+  const [state, formAction] = useActionState(
+    isRegisterMode ? registerUser : loginUser,
+    null
+  );
 
   return (
     <div className="min-h-screen bg-rose-50/30 flex items-center justify-center p-6 text-gray-900">
       <div className="max-w-md w-full bg-white border border-rose-100 p-8 rounded-3xl shadow-md hover:shadow-lg transition duration-300">
         
-        {/* Core Branded Title */}
         <h1 className="text-4xl font-black tracking-tight text-rose-500 text-center mb-1">
           Dollspace
         </h1>
@@ -22,14 +29,14 @@ export default async function AuthPage({ searchParams }: Props) {
           {isRegisterMode ? "Create your unique profile" : "Log into your account"}
         </h2>
 
-        {/* Dynamic Error Status Banner Box */}
-        {params.error && (
-          <div className="p-3 bg-red-50 text-red-700 font-semibold text-xs rounded-xl mb-4 border border-red-100 animate-fade-in">
-            {decodeURIComponent(params.error)}
+        {/* 🚀 LIVE DYNAMIC AUTH ERROR BANNER BOX */}
+        {state?.error && (
+          <div className="p-3 bg-red-50 text-red-700 font-semibold text-xs rounded-xl mb-4 border border-red-100 animate-fade-in text-center">
+            ❌ {state.error}
           </div>
         )}
 
-        <form action={isRegisterMode ? registerUser : loginUser} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
               Username
@@ -86,7 +93,6 @@ export default async function AuthPage({ searchParams }: Props) {
             />
           </div>
 
-          {/* 🚀 ANIMATED SUBMIT ACTION BUTTON MOUNT POINT */}
           <SubmitButton 
             label={isRegisterMode ? "Sign Up" : "Log In"} 
             loadingLabel={isRegisterMode ? "Creating Account..." : "Verifying Secure Token..."}
@@ -94,7 +100,6 @@ export default async function AuthPage({ searchParams }: Props) {
           />
         </form>
 
-        {/* Toggle Mode Footer Panels */}
         <div className="mt-6 text-center text-xs font-bold border-t border-gray-100 pt-4">
           {isRegisterMode ? (
             <p className="text-gray-400">

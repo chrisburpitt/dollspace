@@ -45,18 +45,26 @@ export async function registerUser(formData: FormData): Promise<any> {
 }
 
 // 2. Update loginUser to also use loose return mapping for the form action type bypass
-export async function loginUser(formData: FormData): Promise<any> {
+export async function loginUser(prevState: any, formData: FormData) {
   const username = (formData.get("username") as string)?.trim();
   const password = formData.get("password") as string;
 
-  if (!username || !password) return { error: "Missing username or password." };
+  // 🚀 RETURN PLAIN ERROR OBJECTS INSTEAD OF BREAKING THE ROUTER REDIRECT
+  if (!username || !password) {
+    return { error: "Missing username or password fields." };
+  }
 
   const user = await prisma.user.findUnique({ where: { username } });
-  if (!user) return { error: "Invalid username or password credentials." };
+  if (!user) {
+    return { error: "Invalid username or password credentials." };
+  }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-  if (!isValidPassword) return { error: "Invalid username or password credentials." };
+  if (!isValidPassword) {
+    return { error: "Invalid username or password credentials." };
+  }
 
+  // Generate cryptographic token
   const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "7d" });
 
   const cookieStore = await cookies();
@@ -68,10 +76,9 @@ export async function loginUser(formData: FormData): Promise<any> {
     path: "/",
   });
 
+  // Successful logins redirect smoothly straight to the feed
   redirect("/");
-}
-
-// 3. UTILITY: Retrieve the currently validated user session from server components
+}// 3. UTILITY: Retrieve the currently validated user session from server components
 export async function getCurrentUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get("auth_token")?.value;
