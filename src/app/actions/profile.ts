@@ -21,23 +21,28 @@ export async function updateProfileDetails(
     age: number | null;
     genderIdentity: string;
     location: string;
+    lookingFor: string; // Receives the comma string from the client form
     bio: string;
-    lookingFor: string;
   }
 ) {
   if (!data.displayName.trim()) {
     return { error: "Display name cannot be empty." };
   }
 
+  // 🚀 CLEAN UP CHECK: If the list is empty or just commas, force it to null
+  const cleanedLookingFor = data.lookingFor.trim() && data.lookingFor !== "," 
+    ? data.lookingFor 
+    : null;
+
   await prisma.user.update({
     where: { id: userId },
     data: {
       displayName: data.displayName.trim(),
       age: data.age,
-      genderIdentity: data.genderIdentity.trim() || null,
+      genderIdentity: data.genderIdentity,
       location: data.location.trim() || null,
+      lookingFor: cleanedLookingFor, // 👈 SAVE THE SAFELY CLEANED VALUE
       bio: data.bio.trim() || null,
-      lookingFor: data.lookingFor || null,
     },
   });
 

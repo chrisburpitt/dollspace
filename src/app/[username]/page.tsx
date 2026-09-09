@@ -124,18 +124,20 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                 {user.lookingFor && user.lookingFor.trim().length > 0 && (
                   <div className="flex flex-wrap gap-1.5 items-center mt-4">
                     <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                    {user.lookingFor.split(",").map((option) => {
-                      const optionLabel = option.trim().replace(/_/g, ' ');
-                      if (!optionLabel) return null;
-                      return (
-                        <span 
-                          key={option} 
-                          className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm"
-                        >
-                          {optionLabel}
-                        </span>
-                      );
-                    })}
+                    {/* 🚀 SMART DEDUPLICATOR: Splits the values, cleans spaces, and eliminates all duplicates instantly */}
+                    {[...new Set(
+                      user.lookingFor
+                        .split(",")
+                        .map(option => option.trim().replace(/_/g, ' '))
+                        .filter(Boolean) // Sweeps out blank empty strings completely
+                    )].map((optionLabel) => (
+                      <span 
+                        key={optionLabel} 
+                        className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm animate-fade-in"
+                      >
+                        {optionLabel}
+                      </span>
+                    ))}
                   </div>
                 )}
 
