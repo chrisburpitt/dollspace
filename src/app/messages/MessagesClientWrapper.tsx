@@ -104,7 +104,7 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
   const activeChatFeed = messages.filter(m => m.roomToken === activeRoomToken);
 
 
-  // src/app/messages/MessagesClientWrapper.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
+  // src/app/messages/MessagesClientWrapper.tsx (PART 2 - REAL-TIME FIXED VERSION)
   return (
     <div className="flex h-full divide-x divide-gray-200">
       
@@ -170,11 +170,20 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
               ) : (
                 activeChatFeed.map((msg) => {
                   const isMe = msg.senderId === currentUser.id;
+                  
                   return (
-                    <div key={msg.id} className="flex items-end gap-2 max-w-[80%] ml-auto flex-row-reverse">
-                      <div className="space-y-0.5 text-left w-full">
+                    /* 🚀 FIXED LOGIC LAYER: Toggles direction dynamically between right and left depending on author */
+                    <div 
+                      key={msg.id} 
+                      className={`flex items-end gap-2 max-w-[80%] ${
+                        isMe ? "ml-auto flex-row-reverse" : "mr-auto"
+                      } animate-fade-in`}
+                    >
+                      <div className="space-y-0.5 text-left max-w-full">
                         <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
-                          isMe ? "bg-rose-500 text-white rounded-br-none" : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
+                          isMe 
+                            ? "bg-rose-500 text-white rounded-br-none" 
+                            : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                         }`}>
                           {msg.content}
                         </div>
@@ -215,4 +224,3 @@ export default function MessagesClientWrapper({ currentUser, availableContacts, 
     </div>
   );
 }
-
