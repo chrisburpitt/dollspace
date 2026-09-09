@@ -10,8 +10,8 @@ import UnifiedMessengerClient from "./UnifiedMessengerClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dollspace | Messenger Hub",
-  description: "Chat in public or send private direct messages to other DOLLS in real-time.",
+  title: "Dollspace | Messenger Lounge",
+  description: "Kick off your heels and have a chat - in public or send direct messages to others in real-time.",
 };
 
 export default async function ChatPage() {
