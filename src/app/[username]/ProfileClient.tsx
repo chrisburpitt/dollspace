@@ -1,5 +1,4 @@
-// src/app/[username]/ProfileClient.tsx (PART 1 - TEXT LENGTH PROTECTED)
-// src/app/[username]/ProfileClient.tsx - TOP CHUNK
+// src/app/[username]/ProfileClient.tsx (PART 1 - FIXED CAROUSEL HOOK TYPING)
 "use client";
 
 import { useState } from "react";
@@ -7,15 +6,12 @@ import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import BannerUpload from "@/components/BannerUpload";
 import PostControls from "@/components/PostControls";
+import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
+import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
-
-// 🚀 LAZY-LOADING: Defer compiling these heavy parts until clicked to make page transitions near-instant!
-import dynamic from "next/dynamic";
-const EditProfileModal = dynamic(() => import("@/components/EditProfileModal"), { ssr: false });
-const PostComments = dynamic(() => import("@/components/PostComments"), { ssr: false });
 
 interface ProfileClientProps {
   user: any;
@@ -34,11 +30,11 @@ export default function ProfileClient({
   userPosts, 
   validatedHeaderUser 
 }: ProfileClientProps) {
-  // 🌟 INITIALIZE CLIENT VIEW TABS MATRICES
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
-  const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
+  
+  // 🚀 FIXED TYPE DEFINITION: Explicitly allows string arrays to power the upgraded lightbox carousels
+  const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
 
-  // Security gate filter: Guest dolls can only see albums marked as public
   const filteredAlbums = (user.albums || []).filter((album: any) => {
     if (isOwner) return true;
     return !album.isPrivate;
@@ -50,31 +46,31 @@ export default function ProfileClient({
 
       <BannerUpload user={user} isOwner={isOwner} />
 
-      {/* Main Grid Wrapper */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
-              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-bold rounded-xl text-sm transition">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
               </Link>
-              <Link href={`/${sessionUser.username}`} 
+              <Link 
+                href={`/${sessionUser.username}`} 
                 className={`px-4 py-2.5 font-bold rounded-xl text-sm transition ${
                   isOwner ? "bg-rose-50 text-rose-500" : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
                 👤 My Profile
               </Link>
-              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                💬 Messenger Lounge
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-rose-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💬 Messenger Lounge</span>
               </Link>
             </nav>
           </div>
         </aside>
 
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - BALANCED TAG FIXED VERSION) */}
+        {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED CAROUSEL HOOK TYPING) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
@@ -165,13 +161,13 @@ export default function ProfileClient({
             </button>
           </div>
 
-          {/* CONDITIONAL TAB SWITCH ROUTER ROUTE MAPPING CHANNELS */}
+          {/* CONDITIONAL TAB SWITCH ROUTER */}
           {activeTab === "ALBUMS" ? (
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
               <ProfileAlbums 
                 albums={filteredAlbums} 
                 isOwner={isOwner} 
-                onPhotoClick={(url) => setActiveLightboxUrl([url])} 
+                onPhotoClick={(url) => setActiveLightboxUrl([url])} // 🚀 FIXED: Assigns array parameter safely
               />
             </div>
           ) : (
@@ -200,7 +196,7 @@ export default function ProfileClient({
                     
                     {post.imageUrl && (
                       <div 
-                        onClick={() => setActiveLightboxUrl([post.imageUrl])}
+                        onClick={() => setActiveLightboxUrl([post.imageUrl])} // 🚀 FIXED: Assigns array parameter safely
                         className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
                       >
                         <img src={post.imageUrl} alt="" className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" />
@@ -247,7 +243,7 @@ export default function ProfileClient({
 
       </div>
 
-      {/* Full-screen Lightbox Portal Media Preview Overlay Canvas */}
+      {/* Full-screen Lightbox Portal Media Preview Overlay */}
       {activeLightboxUrl && (
         <ImageLightbox 
           imageUrls={activeLightboxUrl} 
