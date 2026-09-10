@@ -148,4 +148,7 @@ model Notification {
   
   // Optional pointer fields depending on the event context
   postId      String?
+
+  @@index([recipientId])
+  @@index([issuerId])
 }

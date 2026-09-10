@@ -177,10 +177,15 @@ export default function ProfileClient({
             </div>
           ) : (
             <>
-              <div className="flex items-center space-x-2 px-1">
-                <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
-                <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
-              </div>
+
+<div className="flex items-center space-x-2 px-1 mt-6">
+  <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
+  {/* 🚀 FIXED: Read the raw native number directly instead of evaluating array lengths */}
+  <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">
+    {user._count?.posts || 0}
+  </span>
+</div>
+
 
               {/* Timeline Updates Stream Container List */}
               <div className="space-y-4 mt-2">
