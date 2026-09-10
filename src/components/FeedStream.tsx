@@ -121,18 +121,29 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                   href={post.linkUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="mb-4 rounded-2xl border bg-gray-50/50 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50 transition block border-gray-200 shadow-sm"
+                  className="mb-4 rounded-2xl border border-gray-200 bg-gray-50/30 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50/80 transition block shadow-sm"
                 >
                   {post.linkImage && (
-                    <div className="sm:w-1/3 h-32 sm:h-auto bg-gray-200 relative shrink-0 border-r border-gray-100">
-                      <img src={post.linkImage} alt="" className="w-full h-full object-cover" />
+                    /* 🚀 FIXED: Robust frame styling constraints guarantee thumbnails present perfectly without collapsing */
+                    <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200/60 flex items-center justify-center p-2">
+                      <img 
+                        src={post.linkImage} 
+                        alt="" 
+                        className="w-full h-full object-contain rounded-lg" 
+                        onError={(e) => {
+                          // Safe inline backup image if source completely blocks hotlinking
+                          (e.target as HTMLImageElement).src = `https://google.com{new URL(post.linkUrl!).hostname}`;
+                        }}
+                      />
                     </div>
                   )}
-                  <div className="p-4 flex flex-col justify-center min-w-0 flex-1">
-                    <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-1">🔗 External Link</span>
+                  <div className="p-4 flex flex-col justify-center min-w-0 flex-1 text-left">
+                    <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-0.5">🔗 External Link</span>
                     <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">{post.linkTitle || post.linkUrl}</h4>
-                    {post.linkDesc && <p className="text-gray-400 font-semibold text-[11px] mt-0.5 line-clamp-2 leading-relaxed">{post.linkDesc}</p>}
-                    <span className="text-[10px] text-gray-400 font-bold block mt-1.5 truncate">{new URL(post.linkUrl).hostname}</span>
+                    {post.linkDesc && <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1 leading-relaxed">{post.linkDesc}</p>}
+                    <span className="text-[10px] text-gray-400 font-bold block mt-1 truncate">
+                      {new URL(post.linkUrl).hostname.replace("www.", "")}
+                    </span>
                   </div>
                 </a>
               )}

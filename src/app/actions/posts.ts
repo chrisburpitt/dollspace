@@ -19,23 +19,34 @@ export async function saveImage(file: File): Promise<string | null> {
   }
 }
 
-// UTILITY: Scrapes open-graph metadata headers out of a detected hyperlink string - Upgraded
+// UTILITY: Scrapes open-graph metadata headers of a detected hyperlink string - Upgraded firewall bypass helper
 async function scrapeUrlMetadata(url: string) {
   try {
-    const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, next: { revalidate: 3600 } });
-    const html = await response.text();
     const baseUrl = new URL(url);
+    
+    // 🚀 FIREWALL BYPASS: Emulate a genuine browser visit precisely to stop bot blockers
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache"
+      },
+      cache: "no-store"
+    });
 
-    // 🚀 IMPROVED STRIPPER FUNCTION: Extracts and cleans absolute URLs from meta tags
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    const html = await response.text();
+
     const getMetaTag = (prop: string): string | null => {
       const regex = new RegExp(`<meta[^>]*?(?:property|name)=["']${prop}["'][^>]*?content=["']([^"']*)["']`, "i");
       const match = html.match(regex);
       if (!match) {
-        // Double pass fallback check for reversed attribute orders
         const reversedRegex = new RegExp(`<meta[^>]*?content=["']([^"']*)["'][^>]*?(?:property|name)=["']${prop}["']`, "i");
         const revMatch = html.match(reversedRegex);
-        if (!revMatch) return null;
-        return revMatch[1];
+        return revMatch ? revMatch[1] : null;
       }
       return match[1];
     };
@@ -43,9 +54,10 @@ async function scrapeUrlMetadata(url: string) {
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
     let rawTitle = getMetaTag("og:title") || (titleMatch ? titleMatch[1] : baseUrl.hostname);
     let rawDesc = getMetaTag("og:description") || getMetaTag("description") || "";
-    let rawImage = getMetaTag("og:image");
+    
+    // 🚀 FALLBACK FALLBACK: If og:image is missing or blocked, fetch their high-res favicon!
+    let rawImage = getMetaTag("og:image") || `https://google.com{baseUrl.hostname}`;
 
-    // 🎯 CLEANUP ENGINE A: Convert HTML entities (like &#039; to true clean apostrophes)
     const decodeEntities = (str: string) => {
       return str
         .replace(/&#039;/g, "'")
@@ -55,7 +67,6 @@ async function scrapeUrlMetadata(url: string) {
         .replace(/&gt;/g, ">");
     };
 
-    // 🎯 CLEANUP ENGINE B: Convert relative image paths into absolute high-res URLs
     if (rawImage && !rawImage.startsWith("http")) {
       if (rawImage.startsWith("//")) {
         rawImage = `${baseUrl.protocol}${rawImage}`;
@@ -72,8 +83,17 @@ async function scrapeUrlMetadata(url: string) {
       image: rawImage ? rawImage.trim() : null,
     };
   } catch (err) {
-    console.error("Link scraper failed cleanly:", err);
-    return null;
+    console.error("Link scraper bypass failed, triggering Google icon fallback:", err);
+    try {
+      const fallbackUrl = new URL(url);
+      return {
+        title: fallbackUrl.hostname,
+        desc: "Click to open external web link safely inside a new tab space.",
+        image: `https://google.com{fallbackUrl.hostname}`
+      };
+    } catch {
+      return null;
+    }
   }
 }
 
