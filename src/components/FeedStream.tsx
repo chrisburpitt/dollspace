@@ -26,6 +26,7 @@ interface PostItem {
   userId: string;
   user: UserItem;
   images: PostImageItem[]; // Upgraded to array selection collection
+  imageUrl?: string | null; // 🚀 ADDED BACKWARD COMPATIBLE FIELD
   linkUrl: string | null;
   linkTitle: string | null;
   linkDesc: string | null;
@@ -60,8 +61,13 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
         </div>
       ) : (
         displayPosts.map((post) => {
-          const hasImages = post.images && post.images.length > 0;
-          const imageListUrls = hasImages ? post.images.map(img => img.url) : [];
+          // 🚀 FIXED: Combines new child relation array paths with your single historical image columns seamlessly!
+          const combinedImages = [
+            ...(post.images && post.images.length > 0 ? post.images.map(img => img.url) : []),
+            ...(post.imageUrl ? [post.imageUrl] : [])
+          ];
+  
+          const hasImages = combinedImages.length > 0;
 
           return (
             <div 
@@ -86,29 +92,29 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                 </div>
               </div>
               
-              {/* Main Content Body */}
-              {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
-              
-              {/* 🚀 UPGRADED: ADAPTIVE RESPONSIVE MULTI-IMAGE GALLERY GRID */}
-              {hasImages && (
-                <div className={`grid gap-2 mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 max-h-[400px] ${
-                  post.images.length === 2 ? "grid-cols-2" : post.images.length === 3 ? "grid-cols-3" : "grid-cols-1"
-                }`}>
-                  {post.images.map((img, idx) => (
-                    <div 
-                      key={img.id}
-                      onClick={() => setLightboxUrlState({ urls: imageListUrls, index: idx })}
-                      className="w-full h-full min-h-[220px] max-h-[400px] cursor-zoom-in relative overflow-hidden group flex items-center justify-center"
-                    >
-                      <img 
-                        src={img.url} 
-                        alt="" 
-                        className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" 
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
+             /* Main Content text content view box */
+             {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
+    
+             {/* 🚀 UPGRADED MAPPING LAYER: Adaptive responsive grid loops over combined images instantly */}
+             {hasImages && (
+               <div className={`grid gap-2 mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 max-h-[400px] ${
+                 combinedImages.length === 2 ? "grid-cols-2" : combinedImages.length >= 3 ? "grid-cols-3" : "grid-cols-1"
+               }`}>
+                 {combinedImages.map((imgUrl, idx) => (
+                   <div 
+                     key={`${post.id}-img-${idx}`}
+                     onClick={() => setLightboxUrlState({ urls: combinedImages, index: idx })}
+                     className="w-full h-full min-h-[220px] max-h-[400px] cursor-zoom-in relative overflow-hidden group flex items-center justify-center"
+                   >
+                     <img 
+                       src={imgUrl} 
+                       alt="" 
+                       className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" 
+                     />
+                   </div>
+                 ))}
+               </div>
+            )}
 
               {/* 🚀 NEW: EMBEDDED DYNAMIC HYPERLINK RICH PREVIEW CARD */}
               {post.linkUrl && (

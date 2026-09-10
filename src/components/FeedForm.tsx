@@ -65,22 +65,23 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
             </label>
             <input
               type="file"
-              name="images"
+              /* 🚀 FIXED: Pluralized attribute name string perfectly matches the Server Action query loop parameter! */
+              name="images" 
               accept="image/*"
-              multiple // Allows multi-selection natively
+              multiple // Allows selecting up to 3 gorgeous photos natively
               disabled={isPending}
               onChange={(e) => {
                 const files = e.target.files;
                 if (files) {
-                  if (files.length > 3) {
+                   if (files.length > 3) {
                     alert("🌸 You can select a maximum of 3 gorgeous photos at a time!");
                     e.target.value = "";
                     setSelectedCount(0);
                   } else {
                     setSelectedCount(files.length);
                   }
-                }
-              }}
+                 }
+               }}
               className="hidden"
               id="feed-photo-upload"
             />
