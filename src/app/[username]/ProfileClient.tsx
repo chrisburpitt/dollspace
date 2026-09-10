@@ -74,8 +74,7 @@ export default function ProfileClient({
           </div>
         </aside>
 
-
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - TEXT LENGTH PROTECTED) */}
+        {/* src/app/[username]/ProfileClient.tsx (PART 2 - BALANCED TAG FIXED VERSION) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
@@ -150,7 +149,7 @@ export default function ProfileClient({
             </div>
           </div>
 
-          {/* 🚀 PREMIUM TAB SELECTION SLIDER BAR (Perfect layout tag alignment) */}
+          {/* PREMIUM TAB SELECTION SLIDER BAR */}
           <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
             <button 
               onClick={() => setActiveTab("FEED")}
@@ -172,20 +171,15 @@ export default function ProfileClient({
               <ProfileAlbums 
                 albums={filteredAlbums} 
                 isOwner={isOwner} 
-                onPhotoClick={(url) => setActiveLightboxUrl(url)} 
+                onPhotoClick={(url) => setActiveLightboxUrl([url])} 
               />
             </div>
           ) : (
             <>
-
-<div className="flex items-center space-x-2 px-1 mt-6">
-  <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
-  {/* 🚀 FIXED: Read the raw native number directly instead of evaluating array lengths */}
-  <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">
-    {user._count?.posts || 0}
-  </span>
-</div>
-
+              <div className="flex items-center space-x-2 px-1">
+                <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
+                <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
+              </div>
 
               {/* Timeline Updates Stream Container List */}
               <div className="space-y-4 mt-2">
@@ -206,15 +200,10 @@ export default function ProfileClient({
                     
                     {post.imageUrl && (
                       <div 
-                        /* 🚀 FIXED: Pass the url wrapped inside an array brackets block to satisfy the updated carousel types */
                         onClick={() => setActiveLightboxUrl([post.imageUrl])}
                         className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
                       >
-                        <img 
-                          src={post.imageUrl} 
-                          alt="" 
-                          className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" 
-                        />
+                        <img src={post.imageUrl} alt="" className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" />
                         <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
                           🔍 Zoom Photo
                         </span>
@@ -265,4 +254,7 @@ export default function ProfileClient({
           initialIndex={0}
           onClose={() => setActiveLightboxUrl(null)} 
         />
-)}
+      )}
+    </div>
+  );
+}
