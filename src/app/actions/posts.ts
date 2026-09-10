@@ -183,3 +183,36 @@ export async function toggleReaction(postId: string, type: string = "LIKE") {
   revalidatePath("/[username]", "layout");
   return { success: true };
 }
+
+// ACTION: Securely update a user's circular profile avatar image asset link
+export async function updateAvatar(formData: FormData, targetUserId: string) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized: Please log in first." };
+
+  // Security checkpoint ownership validation
+  if (sessionUser.id !== targetUserId) {
+    return { error: "Unauthorized: You do not have permission to modify this avatar." };
+  }
+
+  const avatarFile = formData.get("avatar") as File | null;
+  if (!avatarFile || avatarFile.size === 0) {
+    return { error: "No image file provided." };
+  }
+
+  // Pass file down into your permanent UploadThing cloud pipeline helper
+  const uploadedUrl = await saveImage(avatarFile, "avatars");
+  if (!uploadedUrl) {
+    return { error: "Failed to upload image to cloud vault." };
+  }
+
+  // Safe Write: Bound strictly to the verified session token identity
+  await prisma.user.update({
+    where: { id: sessionUser.id },
+    data: { avatarUrl: uploadedUrl },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/[username]", "layout");
+  
+  return { success: true };
+}
