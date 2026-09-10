@@ -4,26 +4,19 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
+import { UTApi } from "uploadthing/server";
 
-// FIXED: Standardized single file cloud writer
+// 🚀 INITIALIZE OFFICIAL UT BACKEND ENGINE (Reads your secret cloud key automatically)
+const utapi = new UTApi();
+
+// Standardized single file uploader utility
 export async function saveImage(file: File): Promise<string | null> {
   try {
-    const uploadRes = await fetch("https://uploadthing.com", {
-      method: "POST",
-      headers: {
-        "X-Uploadthing-Api-Key": process.env.UPLOADTHING_SECRET || "",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ files: [{ name: file.name, size: file.size, type: file.type }] })
-    });
-
-    if (!uploadRes.ok) return null;
-    const data = await uploadRes.json();
-    
-    // 🎯 FIXED KEY PATHWAY: UploadThing returns a direct array pool configuration object
-    return data[0]?.url || data.files?.[0]?.url || null;
+    // 🎯 TYPESAFE CLOUD PIPE: Uses official binary stream writers to bypass form constraints
+    const response = await utapi.uploadFiles(file);
+    return response.data?.url || null;
   } catch (error) {
-    console.error("Image upload failed:", error);
+    console.error("UploadThing SDK pipeline crash:", error);
     return null;
   }
 }
@@ -37,11 +30,11 @@ async function scrapeUrlMetadata(url: string) {
     const getMetaTag = (prop: string) => {
       const match = html.match(new RegExp(`<meta[^>]*property=["']${prop}["'][^>]*content=["']([^"']*)["']`, "i")) ||
                     html.match(new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*property=["']${prop}["']`, "i"));
-      return match ? match[1] : null;
+      return match ? match : null;
     };
 
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-    const fallbackTitle = titleMatch ? titleMatch[1] : new URL(url).hostname;
+    const fallbackTitle = titleMatch ? titleMatch : new URL(url).hostname;
 
     return {
       title: getMetaTag("og:title") || fallbackTitle,
@@ -67,11 +60,11 @@ export async function createPost(formData: FormData) {
 
   // Regex Link Detection System
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const detectedUrl = content.match(urlRegex)?.[0];
+  const detectedUrl = content.match(urlRegex)?.;
   let metaData = null;
 
   if (detectedUrl) {
-    metaData = await scrapeUrlMetadata(detectedUrl);
+    metaData = await scrapeUrlMetadata(detectedUrl[0]);
   }
 
   // Save base records down to Neon transaction matrices
@@ -79,20 +72,34 @@ export async function createPost(formData: FormData) {
     data: {
       content,
       userId: sessionUser.id,
-      linkUrl: detectedUrl || null,
+      linkUrl: detectedUrl ? detectedUrl[0] : null,
       linkTitle: metaData?.title || null,
       linkDesc: metaData?.desc || null,
       linkImage: metaData?.image || null,
     }
   });
 
-  // Multi-Photo Storage Loop Block
-  for (const file of validFiles) {
-    const fileUrl = await saveImage(file);
-    if (fileUrl) {
-      await prisma.postImage.create({
-        data: { url: fileUrl, postId: newPost.id }
-      });
+  // 🚀 HIGH-SPEED MULTI-PHOTO UPLOAD GRID LOOP
+  if (validFiles.length > 0) {
+    try {
+      // Stream files simultaneously using the official backend array runner
+      const uploadResponses = await utapi.uploadFiles(validFiles);
+      
+      // Ensure we map responses correctly whether it returns an array or single item
+      const responsesArray = Array.isArray(uploadResponses) ? uploadResponses : [uploadResponses];
+
+      for (const res of responsesArray) {
+        if (res.data?.url) {
+          await prisma.postImage.create({
+            data: { 
+              url: res.data.url, 
+              postId: newPost.id 
+            }
+          });
+        }
+      }
+    } catch (utErr) {
+      console.error("Batch media stream processing error:", utErr);
     }
   }
 
@@ -116,7 +123,7 @@ export async function deletePost(postId: string) {
   return { success: true };
 }
 
-// ACTION: 🚀 FIXED: Included the required emoji field attribute mapping to satisfy table parameters
+// ACTION: Standardized reactions query to match native Neon columns
 export async function toggleReaction(postId: string) {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized: Please log in first." };
@@ -135,7 +142,7 @@ export async function toggleReaction(postId: string) {
       data: {
         postId,
         userId: sessionUser.id,
-        emoji: "❤️" // 🎯 FIXED: Satisfies your database validation constraint
+        emoji: "❤️"
       }
     });
 
