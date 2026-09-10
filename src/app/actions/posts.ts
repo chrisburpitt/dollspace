@@ -19,20 +19,18 @@ export async function saveImage(file: File): Promise<string | null> {
   }
 }
 
-// UTILITY: Scrapes open-graph metadata headers of a detected hyperlink string - Upgraded firewall bypass helper
+// UTILITY: Hotlink-Proof Scraper Helper
 async function scrapeUrlMetadata(url: string) {
   try {
     const baseUrl = new URL(url);
     
-    // 🚀 FIREWALL BYPASS: Emulate a genuine browser visit precisely to stop bot blockers
+    // Emulate a genuine browser visit precisely to stop bot blockers
     const response = await fetch(url, {
       method: "GET",
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache"
+        "Accept-Language": "en-US,en;q=0.9"
       },
       cache: "no-store"
     });
@@ -54,9 +52,7 @@ async function scrapeUrlMetadata(url: string) {
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
     let rawTitle = getMetaTag("og:title") || (titleMatch ? titleMatch[1] : baseUrl.hostname);
     let rawDesc = getMetaTag("og:description") || getMetaTag("description") || "";
-    
-    // 🚀 FALLBACK FALLBACK: If og:image is missing or blocked, fetch their high-res favicon!
-    let rawImage = getMetaTag("og:image") || `https://google.com{baseUrl.hostname}`;
+    let rawImage = getMetaTag("og:image");
 
     const decodeEntities = (str: string) => {
       return str
@@ -67,6 +63,7 @@ async function scrapeUrlMetadata(url: string) {
         .replace(/&gt;/g, ">");
     };
 
+    // Format relative paths to absolute URLs immediately
     if (rawImage && !rawImage.startsWith("http")) {
       if (rawImage.startsWith("//")) {
         rawImage = `${baseUrl.protocol}${rawImage}`;
@@ -77,13 +74,47 @@ async function scrapeUrlMetadata(url: string) {
       }
     }
 
+    let finalCloudImageUrl: string | null = null;
+
+    // 🚀 THE HOTLINK FIX: Download the image server-side and upload it to your own UploadThing storage!
+    if (rawImage) {
+      try {
+        const imgResponse = await fetch(rawImage, {
+          headers: { "User-Agent": "Mozilla/5.0" },
+          cache: "no-store"
+        });
+        
+        if (imgResponse.ok) {
+          const contentType = imgResponse.headers.get("content-type") || "image/jpeg";
+          const blob = await imgResponse.blob();
+          
+          // Reconstruct as a secure file handle
+          const extension = contentType.split("/")[1] || "jpg";
+          const parsedFile = new File([blob], `preview-thumb-${Date.now()}.${extension}`, { type: contentType });
+          
+          // Push it straight into your official UTApi instance
+          const cloudUpload = await utapi.uploadFiles(parsedFile);
+          if (cloudUpload.data?.url) {
+            finalCloudImageUrl = cloudUpload.data.url;
+          }
+        }
+      } catch (imgErr) {
+        console.error("Server-side thumbnail download failed, falling back to favicon:", imgErr);
+      }
+    }
+
+    // High-resolution Google Favicon Engine Fallback if all else fails
+    if (!finalCloudImageUrl) {
+      finalCloudImageUrl = `https://google.com{baseUrl.hostname}`;
+    }
+
     return {
       title: decodeEntities(rawTitle).trim(),
       desc: decodeEntities(rawDesc).trim(),
-      image: rawImage ? rawImage.trim() : null,
+      image: finalCloudImageUrl,
     };
   } catch (err) {
-    console.error("Link scraper bypass failed, triggering Google icon fallback:", err);
+    console.error("Link scraper fallback triggered:", err);
     try {
       const fallbackUrl = new URL(url);
       return {
@@ -95,7 +126,6 @@ async function scrapeUrlMetadata(url: string) {
       return null;
     }
   }
-}
 
 // ACTION: Main upgraded post processor procedure controller loop
 export async function createPost(formData: FormData) {
