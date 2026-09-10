@@ -19,28 +19,60 @@ export async function saveImage(file: File): Promise<string | null> {
   }
 }
 
-// UTILITY: Scrapes open-graph metadata headers out of a detected hyperlink string
+// UTILITY: Scrapes open-graph metadata headers out of a detected hyperlink string - Upgraded
 async function scrapeUrlMetadata(url: string) {
   try {
-    const response = await fetch(url, { next: { revalidate: 3600 } });
+    const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, next: { revalidate: 3600 } });
     const html = await response.text();
+    const baseUrl = new URL(url);
 
-    const getMetaTag = (prop: string) => {
-      const match = html.match(new RegExp(`<meta[^>]*property=["']${prop}["'][^>]*content=["']([^"']*)["']`, "i")) ||
-                    html.match(new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*property=["']${prop}["']`, "i"));
-      return match ? match[1] : null;
+    // 🚀 IMPROVED STRIPPER FUNCTION: Extracts and cleans absolute URLs from meta tags
+    const getMetaTag = (prop: string): string | null => {
+      const regex = new RegExp(`<meta[^>]*?(?:property|name)=["']${prop}["'][^>]*?content=["']([^"']*)["']`, "i");
+      const match = html.match(regex);
+      if (!match) {
+        // Double pass fallback check for reversed attribute orders
+        const reversedRegex = new RegExp(`<meta[^>]*?content=["']([^"']*)["'][^>]*?(?:property|name)=["']${prop}["']`, "i");
+        const revMatch = html.match(reversedRegex);
+        if (!revMatch) return null;
+        return revMatch[1];
+      }
+      return match[1];
     };
 
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-    const fallbackTitle = titleMatch ? titleMatch[1] : new URL(url).hostname;
+    let rawTitle = getMetaTag("og:title") || (titleMatch ? titleMatch[1] : baseUrl.hostname);
+    let rawDesc = getMetaTag("og:description") || getMetaTag("description") || "";
+    let rawImage = getMetaTag("og:image");
+
+    // 🎯 CLEANUP ENGINE A: Convert HTML entities (like &#039; to true clean apostrophes)
+    const decodeEntities = (str: string) => {
+      return str
+        .replace(/&#039;/g, "'")
+        .replace(/&amp;/g, "&")
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">");
+    };
+
+    // 🎯 CLEANUP ENGINE B: Convert relative image paths into absolute high-res URLs
+    if (rawImage && !rawImage.startsWith("http")) {
+      if (rawImage.startsWith("//")) {
+        rawImage = `${baseUrl.protocol}${rawImage}`;
+      } else if (rawImage.startsWith("/")) {
+        rawImage = `${baseUrl.origin}${rawImage}`;
+      } else {
+        rawImage = `${baseUrl.origin}/${rawImage}`;
+      }
+    }
 
     return {
-      title: getMetaTag("og:title") || fallbackTitle,
-      desc: getMetaTag("og:description") || "",
-      image: getMetaTag("og:image") || null,
+      title: decodeEntities(rawTitle).trim(),
+      desc: decodeEntities(rawDesc).trim(),
+      image: rawImage ? rawImage.trim() : null,
     };
   } catch (err) {
-    console.error("Link scraper failed:", err);
+    console.error("Link scraper failed cleanly:", err);
     return null;
   }
 }
