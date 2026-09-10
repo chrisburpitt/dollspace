@@ -19,7 +19,9 @@ export async function saveImage(file: File): Promise<string | null> {
 
     if (!uploadRes.ok) return null;
     const data = await uploadRes.json();
-    return data.files?.[0]?.url || null;
+    
+    // 🎯 FIXED KEY PATHWAY: UploadThing returns a direct array pool configuration object
+    return data[0]?.url || data.files?.[0]?.url || null;
   } catch (error) {
     console.error("Image upload failed:", error);
     return null;
