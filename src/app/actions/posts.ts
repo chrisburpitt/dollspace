@@ -126,6 +126,7 @@ async function scrapeUrlMetadata(url: string) {
       return null;
     }
   }
+}
 
 // ACTION: Main upgraded post processor procedure controller loop
 export async function createPost(formData: FormData) {
