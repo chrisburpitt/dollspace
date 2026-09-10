@@ -119,3 +119,67 @@ export async function updateBanner(formData: FormData, targetUserId: string) {
   revalidatePath("/[username]", "layout");
   return { success: true };
 }
+
+// ACTION: Securely delete a post if the session user is the true creator
+export async function deletePost(postId: string) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized: Please log in first." };
+
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post) return { error: "Post not found." };
+  if (post.userId !== sessionUser.id) return { error: "Unauthorized: You do not own this post." };
+
+  await prisma.post.delete({ where: { id: postId } });
+
+  revalidatePath("/");
+  revalidatePath("/[username]", "layout");
+  return { success: true };
+}
+
+// ACTION: Seamlessly toggle likes/reactions on timeline updates
+export async function toggleReaction(postId: string, type: string = "LIKE") {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized: Please log in first." };
+
+  // Check if this specific reaction parameter already exists from the user
+  const existingReaction = await prisma.reaction.findFirst({
+    where: {
+      postId,
+      userId: sessionUser.id,
+      type
+    }
+  });
+
+  if (existingReaction) {
+    // If they click it again, remove it cleanly
+    await prisma.reaction.delete({
+      where: { id: existingReaction.id }
+    });
+  } else {
+    // Otherwise, log a fresh record down to Neon tables
+    await prisma.reaction.create({
+      data: {
+        postId,
+        userId: sessionUser.id,
+        type
+      }
+    });
+
+    // Optional: Log an automated trigger notification alert down to the post owner's bell drawer
+    const postOwner = await prisma.post.findUnique({ where: { id: postId }, select: { userId: true } });
+    if (postOwner && postOwner.userId !== sessionUser.id) {
+      await prisma.notification.create({
+        data: {
+          type,
+          recipientId: postOwner.userId,
+          issuerId: sessionUser.id,
+          postId
+        }
+      });
+    }
+  }
+
+  revalidatePath("/");
+  revalidatePath("/[username]", "layout");
+  return { success: true };
+}
