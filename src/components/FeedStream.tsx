@@ -92,7 +92,6 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                 </div>
               </div>
               
-             /* Main Content text content view box */
              {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
     
              {/* 🚀 UPGRADED MAPPING LAYER: Adaptive responsive grid loops over combined images instantly */}
