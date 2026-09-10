@@ -98,6 +98,44 @@ export async function createPost(formData: FormData) {
   return { success: true };
 }
 
+// 2. ACTION: Update a user's avatar image
+export async function updateAvatar(formData: FormData, targetUserId: string) {
+  // 🚀 2. SECURITY CHECK A: Fetch the true cryptographically secure logged-in user
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) {
+    return { error: "Unauthorized: Please log in first." };
+  }
+
+  // 🚀 3. SECURITY CHECK B: Block the request if they are trying to edit someone else's ID
+  if (sessionUser.id !== targetUserId) {
+    console.warn(`🚨 Security Warning: User @${sessionUser.username} tried to override target ID ${targetUserId}`);
+    return { error: "Unauthorized: You do not have permission to modify this avatar image." };
+  }
+
+  const avatarFile = formData.get("avatar") as File | null;
+  if (!avatarFile || avatarFile.size === 0) {
+    return { error: "No image file provided." };
+  }
+
+  // Use your existing permanent cloud image pipeline helper (UploadThing API)
+  const uploadedUrl = await saveImage(avatarFile, "avatars");
+  if (!uploadedUrl) {
+    return { error: "Failed to upload image to cloud vault." };
+  }
+
+  // 🚀 4. SAFE WRITE: Update the row, strictly bound to the verified session identity
+  await prisma.user.update({
+    where: { id: sessionUser.id },
+    data: { avatarUrl: uploadedUrl },
+  });
+
+  // Revalidate cache graphs instantly to flash changes across headers and cards
+  revalidatePath("/");
+  revalidatePath("/[username]", "layout");
+  
+  return { success: true };
+}
+
 // 3. ACTION: Delete a post and remove its file asset if it exists
 export async function deletePost(postId: string, currentUserId: string) {
   // Fetch post to confirm ownership and see if it contains an image file asset
