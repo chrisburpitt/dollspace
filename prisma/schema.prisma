@@ -10,48 +10,71 @@ generator client {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  username     String     @unique
-  email        String     @unique 
-  displayName  String
-  passwordHash String
-  status       String     @default("ONLINE")
+  id                String     @id @default(cuid())
+  username          String     @unique
+  email             String     @unique 
+  displayName       String
+  passwordHash      String
+  status            String     @default("ONLINE")
 
 // Custom fields
-  age          Int?
-  genderIdentity String?
-  location     String?
-  bio          String?
-  lookingFor   String?
-  avatarUrl    String?
-  bannerUrl    String?
-  albums       Album[]    @relation("UserAlbums")
-  views        Int        @default(0)
+  age               Int?
+  genderIdentity    String?    
+  location          String?
+  lookingFor        String?
+  bio               String?
+  avatarUrl         String?
+  bannerUrl         String?
+  createdAt         DateTime   @default(now())
+  views             Int        @default(0)
 
-  createdAt    DateTime   @default(now())
-  posts        Post[]
-  reactions    Reaction[]
-  comments     Comment[]  
-  followers    Follow[]   @relation("UserFollowers")
-  following    Follow[]   @relation("UserFollowing")
+  posts             Post[]
+  comments          Comment[]  
+  reactions         Reaction[]
+  albums            Album[]    @relation("UserAlbums")
+  followers         Follow[]   @relation("UserFollowers")
+  following         Follow[]   @relation("UserFollowing")
 
+  messagesReceived  DirectMessage[] @relation("MessageRecipient")
+  messagesSent      DirectMessage[] @relation("MessageSender")
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsSent     Notification[] @relation("NotificationTrigger")
-  messagesSent      DirectMessage[] @relation("MessageSender")
-  messagesReceived  DirectMessage[] @relation("MessageRecipient")
+  
+  latitude          Float?
+  longitude         Float?
+  lastActive        DateTime       @default(now())
 }
 
 model Post {
   id        String     @id @default(cuid())
   content   String
+  createdAt DateTime   @default(now())
   imageUrl  String?
   userId    String
-  createdAt DateTime   @default(now())
-  
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   reactions Reaction[]
   comments  Comment[]  
-  @@index([userId]) // 🚀 INDEX: Speeds up "Updates by Chloe" profile timeline queries by 500%
+
+  images    PostImage[] @relation("PostImages")
+
+  linkUrl        String?
+  linkTitle      String?
+  linkDesc       String?
+  linkImage      String?
+
+  @@index([userId])
+}
+
+model PostImage {
+  id        String   @id @default(cuid())
+  url       String
+  createdAt DateTime @default(now())
+  
+  postId    String
+  post      Post     @relation("PostImages", fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
 }
 
 model Reaction {

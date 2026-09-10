@@ -1,4 +1,4 @@
-// src/components/FeedStream.tsx
+// src/components/FeedStream.tsx (PART 1 - MULTI-IMAGE & RICH LINK PREVIEW EXTENSION)
 "use client";
 
 import { useState } from "react";
@@ -15,12 +15,21 @@ interface UserItem {
   avatarUrl: string | null;
 }
 
+interface PostImageItem {
+  id: string;
+  url: string;
+}
+
 interface PostItem {
   id: string;
   content: string;
-  imageUrl: string | null;
   userId: string;
   user: UserItem;
+  images: PostImageItem[]; // Upgraded to array selection collection
+  linkUrl: string | null;
+  linkTitle: string | null;
+  linkDesc: string | null;
+  linkImage: string | null;
   reactions: any[];
   comments: any[];
 }
@@ -33,10 +42,13 @@ interface FeedStreamProps {
 
 export default function FeedStream({ globalPosts, followingPosts, currentUserId }: FeedStreamProps) {
   const [activeTab, setActiveTab] = useState<"global" | "following">("global");
-  const [activeLightboxUrl, setActiveLightboxUrl] = useState<string | null>(null);
+  
+  // Carousel State Trackers
+  const [lightboxState, setLightboxUrlState] = useState<{ urls: string[]; index: number } | null>(null);
 
   const displayPosts = activeTab === "global" ? globalPosts : followingPosts;
 
+  // src/components/FeedStream.tsx (PART 2 - MULTI-IMAGE & RICH LINK PREVIEW EXTENSION)
   return (
     <div className="space-y-4">
       <FeedTabs activeTab={activeTab} onTabChange={setActiveTab} />
@@ -45,79 +57,96 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
         <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200 shadow-sm animate-fade-in">
           <span className="text-3xl block mb-2">🌸</span>
           <p className="text-gray-400 font-bold text-sm">No updates to show here.</p>
-          <p className="text-gray-400 text-xs mt-1">
-            {activeTab === "following" 
-              ? "Follow some other creators to light up this stream!" 
-              : "Write your very first post above!"}
-          </p>
         </div>
       ) : (
-        displayPosts.map((post) => (
-          <div 
-            key={post.id} 
-            id={`post-${post.id}`}
-            className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition animate-fade-in text-left scroll-mt-20"
-          >
-            <div className="flex items-center space-x-3 mb-4">
-              {post.user.avatarUrl ? (
-                <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100" />
-              ) : (
-                <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">
-                  {post.user.displayName.charAt(0)}
+        displayPosts.map((post) => {
+          const hasImages = post.images && post.images.length > 0;
+          const imageListUrls = hasImages ? post.images.map(img => img.url) : [];
+
+          return (
+            <div 
+              key={post.id} 
+              id={`post-${post.id}`}
+              className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm hover:shadow-md transition animate-fade-in text-left scroll-mt-20"
+            >
+              {/* Creator Card Heading Header Section */}
+              <div className="flex items-center space-x-3 mb-4">
+                {post.user.avatarUrl ? (
+                  <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100" />
+                ) : (
+                  <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">
+                    {post.user.displayName.charAt(0)}
+                  </div>
+                )}
+                <div>
+                  <Link href={`/${post.user.username}`} className="font-bold text-gray-900 hover:underline block text-sm leading-tight">
+                    {post.user.displayName}
+                  </Link>
+                  <span className="text-gray-400 text-xs">@{post.user.username}</span>
+                </div>
+              </div>
+              
+              {/* Main Content Body */}
+              {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
+              
+              {/* 🚀 UPGRADED: ADAPTIVE RESPONSIVE MULTI-IMAGE GALLERY GRID */}
+              {hasImages && (
+                <div className={`grid gap-2 mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 max-h-[400px] ${
+                  post.images.length === 2 ? "grid-cols-2" : post.images.length === 3 ? "grid-cols-3" : "grid-cols-1"
+                }`}>
+                  {post.images.map((img, idx) => (
+                    <div 
+                      key={img.id}
+                      onClick={() => setLightboxUrlState({ urls: imageListUrls, index: idx })}
+                      className="w-full h-full min-h-[220px] max-h-[400px] cursor-zoom-in relative overflow-hidden group flex items-center justify-center"
+                    >
+                      <img 
+                        src={img.url} 
+                        alt="" 
+                        className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" 
+                      />
+                    </div>
+                  ))}
                 </div>
               )}
-              <div>
-                <Link href={`/${post.user.username}`} className="font-bold text-gray-900 hover:underline block text-sm leading-tight">
-                  {post.user.displayName}
-                </Link>
-                <span className="text-gray-400 text-xs">@{post.user.username}</span>
-              </div>
+
+              {/* 🚀 NEW: EMBEDDED DYNAMIC HYPERLINK RICH PREVIEW CARD */}
+              {post.linkUrl && (
+                <a 
+                  href={post.linkUrl} 
+                  target="_blank" // 🎯 Opens inside a new tab by default
+                  rel="noopener noreferrer"
+                  className="mb-4 rounded-2xl border border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50 transition block shadow-sm border border-gray-200"
+                >
+                  {post.linkImage && (
+                    <div className="sm:w-1/3 h-32 sm:h-auto bg-gray-200 relative shrink-0 border-r border-gray-100">
+                      <img src={post.linkImage} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-4 flex flex-col justify-center min-w-0 flex-1">
+                    <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-1">🔗 External Link</span>
+                    <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">{post.linkTitle || post.linkUrl}</h4>
+                    {notif.linkDesc && <p className="text-gray-400 font-semibold text-[11px] mt-0.5 line-clamp-2 leading-relaxed">{post.linkDesc}</p>}
+                    <span className="text-[10px] text-gray-400 font-bold block mt-1.5 truncate">{new URL(post.linkUrl).hostname}</span>
+                  </div>
+                </a>
+              )}
+
+              <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={currentUserId} reactions={post.reactions} />
+              <PostComments postId={post.id} currentUserId={currentUserId} comments={post.comments} />
             </div>
-            
-            {post.content && <p className="text-gray-800 text-base whitespace-pre-wrap mb-4 leading-relaxed">{post.content}</p>}
-            
-            {/* 🚀 RESTORED ORIGINAL CROP LAYOUT + KEEPING ACTIVE LIGHTBOX TRIGGER */}
-            {post.imageUrl && (
-              <div 
-                onClick={() => setActiveLightboxUrl(post.imageUrl)}
-                className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
-                title="Click to zoom image"
-              >
-                <img 
-                  src={post.imageUrl} 
-                  alt="Attached post content" 
-                  className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" 
-                />
-                <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
-                  🔍 Zoom Photo
-                </span>
-              </div>
-            )}
-
-            <PostControls 
-              postId={post.id}
-              postOwnerId={post.userId}
-              currentUserId={currentUserId}
-              reactions={post.reactions}
-            />
-
-            <PostComments 
-              postId={post.id}
-              currentUserId={currentUserId}
-              comments={post.comments}
-            />
-          </div>
-        ))
+          );
+        })
       )}
 
-      {/* GLOBAL LIGHTBOX LAYER */}
-      {activeLightboxUrl && (
+      {/* MODAL LIGHTBOX WORKSPACE CAROUSEL */}
+      {lightboxState && (
         <ImageLightbox 
-          imageUrl={activeLightboxUrl} 
-          onClose={() => setActiveLightboxUrl(null)} 
+          imageUrls={lightboxState.urls}
+          initialIndex={lightboxState.index}
+          onClose={() => setLightboxUrlState(null)}
         />
       )}
-
     </div>
   );
 }

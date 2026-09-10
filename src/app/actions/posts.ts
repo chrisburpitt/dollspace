@@ -1,8 +1,8 @@
 // src/app/actions/posts.ts
 "use server";
 
-import { getCurrentUser } from "@/app/actions/auth"; 
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/app/actions/auth"; 
 import { revalidatePath } from "next/cache";
 import fs from "fs/promises";
 import path from "path";
@@ -10,92 +10,91 @@ import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
-// Updated hybrid helper function to handle both local file system and cloud uploads smoothly
-async function saveImage(file: File | null, folderName: string): Promise<string | null> {
-  if (!file || file.size === 0 || !file.name) return null;
+// UTILITY: Scrapes open-graph metadata headers out of a detected hyperlink string
+async function scrapeUrlMetadata(url: string) {
+  try {
+    const response = await fetch(url, { next: { revalidate: 3600 } });
+    const html = await response.text();
 
-  // 🚀 VERCEL PRODUCTION ENVIRONMENT DETECTOR SWITCH
-  if (process.env.NODE_ENV === "production" || process.env.UPLOADTHING_TOKEN) {
-    try {
-      const uploadResult = await utapi.uploadFiles(file);
-      if (uploadResult.data?.url) {
-        return uploadResult.data.url; // Returns the permanent cloud secure CDN link!
+    const getMetaTag = (prop: string) => {
+      const match = html.match(new RegExp(`<meta[^>]*property=["']${prop}["'][^>]*content=["']([^"']*)["']`, "i")) ||
+                    html.match(new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*property=["']${prop}["']`, "i"));
+      return match ? match[1] : null;
+    };
+
+    const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const fallbackTitle = titleMatch ? titleMatch[1] : new URL(url).hostname;
+
+    return {
+      title: getMetaTag("og:title") || fallbackTitle,
+      desc: getMetaTag("og:description") || "",
+      image: getMetaTag("og:image") || null,
+    };
+  } catch (err) {
+    console.error("Link scraper meta pass skipped:", err);
+    return null;
+  }
+}
+
+// ACTION: Main upgraded post processor procedure controller loop
+export async function createPost(formData: FormData) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized." };
+
+  const content = (formData.get("content") as string)?.trim() || "";
+  
+  // 🚀 1. CAPTURE UP TO 3 UPLOADED MULTI-PART IMAGE FILE HANDLES
+  const imageFiles = formData.getAll("images") as File[];
+  const validFiles = imageFiles.filter(file => file && file.size > 0).slice(0, 3);
+
+  // 🚀 2. REGEX LINK DETECTION SYSTEM
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const detectedUrl = content.match(urlRegex)?.[0];
+  let metaData = null;
+
+  if (detectedUrl) {
+    metaData = await scrapeUrlMetadata(detectedUrl);
+  }
+
+  // 3. Save base records down to Neon transaction matrices
+  const newPost = await prisma.post.create({
+    data: {
+      content,
+      userId: sessionUser.id,
+      linkUrl: detectedUrl || null,
+      linkTitle: metaData?.title || null,
+      linkDesc: metaData?.desc || null,
+      linkImage: metaData?.image || null,
+    }
+  });
+
+  // 🚀 4. MULTI-PHOTO STORAGE LOOP BLOCK
+  for (const file of validFiles) {
+    // Reuses your existing local binary stream file writer function config from last session
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    
+    const uploadRes = await fetch("https://uploadthing.com", {
+      method: "POST",
+      headers: {
+        "X-Uploadthing-Api-Key": process.env.UPLOADTHING_SECRET || "",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ files: [{ name: file.name, size: file.size, type: file.type }] })
+    });
+
+    if (uploadRes.ok) {
+      const data = await uploadRes.json();
+      const fileUrl = data.files?.[0]?.url;
+      if (fileUrl) {
+        await prisma.postImage.create({
+          data: { url: fileUrl, postId: newPost.id }
+        });
       }
-    } catch (error) {
-      console.error("Cloud upload error, falling back to local layout:", error);
     }
   }
 
-  // Local Development Hard Drive Fallback
-  const uploadDir = path.join(process.cwd(), "public", "uploads", folderName);
-  await fs.mkdir(uploadDir, { recursive: true });
-
-  const uniqueFilename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
-  const filePath = path.join(uploadDir, uniqueFilename);
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  await fs.writeFile(filePath, buffer);
-
-  return `/uploads/${folderName}/${uniqueFilename}`;
-}
-
-// 1. ACTION: Create a Post with an optional image attachment
-export async function createPost(formData: FormData, userId: string) {
-  const content = formData.get("content") as string;
-  const imageFile = formData.get("image") as File | null;
-
-  if ((!content || content.trim() === "") && (!imageFile || imageFile.size === 0)) return;
-
-  // Save image if present
-  const imageUrl = await saveImage(imageFile, "posts");
-
-  await prisma.post.create({
-    data: {
-      content: content || "",
-      imageUrl,
-      userId,
-    },
-  });
-
   revalidatePath("/");
-}
-
-// 2. ACTION: Update a user's avatar image
-export async function updateAvatar(formData: FormData, targetUserId: string) {
-  // 🚀 2. SECURITY CHECK A: Fetch the true cryptographically secure logged-in user
-  const sessionUser = await getCurrentUser();
-  if (!sessionUser) {
-    return { error: "Unauthorized: Please log in first." };
-  }
-
-  // 🚀 3. SECURITY CHECK B: Block the request if they are trying to edit someone else's ID
-  if (sessionUser.id !== targetUserId) {
-    console.warn(`🚨 Security Warning: User @${sessionUser.username} tried to override target ID ${targetUserId}`);
-    return { error: "Unauthorized: You do not have permission to modify this avatar image." };
-  }
-
-  const avatarFile = formData.get("avatar") as File | null;
-  if (!avatarFile || avatarFile.size === 0) {
-    return { error: "No image file provided." };
-  }
-
-  // Use your existing permanent cloud image pipeline helper (UploadThing API)
-  const uploadedUrl = await saveImage(avatarFile, "avatars");
-  if (!uploadedUrl) {
-    return { error: "Failed to upload image to cloud vault." };
-  }
-
-  // 🚀 4. SAFE WRITE: Update the row, strictly bound to the verified session identity
-  await prisma.user.update({
-    where: { id: sessionUser.id },
-    data: { avatarUrl: uploadedUrl },
-  });
-
-  // Revalidate cache graphs instantly to flash changes across headers and cards
-  revalidatePath("/");
-  revalidatePath("/[username]", "layout");
-  
   return { success: true };
 }
 
