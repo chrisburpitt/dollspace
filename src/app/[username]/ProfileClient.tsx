@@ -1,4 +1,5 @@
 // src/app/[username]/ProfileClient.tsx (PART 1 - TEXT LENGTH PROTECTED)
+// src/app/[username]/ProfileClient.tsx - TOP CHUNK
 "use client";
 
 import { useState } from "react";
@@ -6,12 +7,15 @@ import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import BannerUpload from "@/components/BannerUpload";
 import PostControls from "@/components/PostControls";
-import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
-import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
+
+// 🚀 LAZY-LOADING: Defer compiling these heavy parts until clicked to make page transitions near-instant!
+import dynamic from "next/dynamic";
+const EditProfileModal = dynamic(() => import("@/components/EditProfileModal"), { ssr: false });
+const PostComments = dynamic(() => import("@/components/PostComments"), { ssr: false });
 
 interface ProfileClientProps {
   user: any;
