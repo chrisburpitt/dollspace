@@ -6,13 +6,11 @@ import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
 import { UTApi } from "uploadthing/server";
 
-// 🚀 INITIALIZE OFFICIAL UT BACKEND ENGINE (Reads your secret cloud key automatically)
 const utapi = new UTApi();
 
 // Standardized single file uploader utility
 export async function saveImage(file: File): Promise<string | null> {
   try {
-    // 🎯 TYPESAFE CLOUD PIPE: Uses official binary stream writers to bypass form constraints
     const response = await utapi.uploadFiles(file);
     return response.data?.url || null;
   } catch (error) {
@@ -30,11 +28,11 @@ async function scrapeUrlMetadata(url: string) {
     const getMetaTag = (prop: string) => {
       const match = html.match(new RegExp(`<meta[^>]*property=["']${prop}["'][^>]*content=["']([^"']*)["']`, "i")) ||
                     html.match(new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*property=["']${prop}["']`, "i"));
-      return match ? match : null;
+      return match ? match[1] : null;
     };
 
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-    const fallbackTitle = titleMatch ? titleMatch : new URL(url).hostname;
+    const fallbackTitle = titleMatch ? titleMatch[1] : new URL(url).hostname;
 
     return {
       title: getMetaTag("og:title") || fallbackTitle,
@@ -60,11 +58,10 @@ export async function createPost(formData: FormData) {
 
   // Regex Link Detection System
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  
-  // 🚀 FIXED: Removed the trailing ?. which was causing the syntax parser to panic!
   const detectedMatches = content.match(urlRegex);
-  const detectedUrl = detectedMatches ? detectedMatches[0] : null;
   
+  // 🚀 FIXED: Grab the first matched URL string item out of the matches array
+  const detectedUrl = detectedMatches ? detectedMatches[0] : null;
   let metaData = null;
 
   if (detectedUrl) {
@@ -76,20 +73,17 @@ export async function createPost(formData: FormData) {
     data: {
       content,
       userId: sessionUser.id,
-      linkUrl: detectedUrl ? detectedUrl[0] : null,
+      linkUrl: detectedUrl, // 🎯 Typesafe string mapping matching Prisma rules
       linkTitle: metaData?.title || null,
       linkDesc: metaData?.desc || null,
       linkImage: metaData?.image || null,
     }
   });
 
-  // 🚀 HIGH-SPEED MULTI-PHOTO UPLOAD GRID LOOP
+  // HIGH-SPEED MULTI-PHOTO UPLOAD GRID LOOP
   if (validFiles.length > 0) {
     try {
-      // Stream files simultaneously using the official backend array runner
       const uploadResponses = await utapi.uploadFiles(validFiles);
-      
-      // Ensure we map responses correctly whether it returns an array or single item
       const responsesArray = Array.isArray(uploadResponses) ? uploadResponses : [uploadResponses];
 
       for (const res of responsesArray) {
