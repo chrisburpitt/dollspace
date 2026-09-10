@@ -261,10 +261,8 @@ export default function ProfileClient({
       {/* Full-screen Lightbox Portal Media Preview Overlay Canvas */}
       {activeLightboxUrl && (
         <ImageLightbox 
-          imageUrl={activeLightboxUrl} 
+          imageUrls={activeLightboxUrl} 
+          initialIndex={0}
           onClose={() => setActiveLightboxUrl(null)} 
         />
-      )}
-    </div>
-  );
-}
+)}
