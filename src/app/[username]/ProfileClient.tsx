@@ -206,10 +206,18 @@ export default function ProfileClient({
                     
                     {post.imageUrl && (
                       <div 
-                        onClick={() => setActiveLightboxUrl(post.imageUrl)}
+                        /* 🚀 FIXED: Pass the url wrapped inside an array brackets block to satisfy the updated carousel types */
+                        onClick={() => setActiveLightboxUrl([post.imageUrl])}
                         className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
                       >
-                        <img src={post.imageUrl} alt="" className="w-full h-full max-h-[450px] object-cover" />
+                        <img 
+                          src={post.imageUrl} 
+                          alt="" 
+                          className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" 
+                        />
+                        <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
+                          🔍 Zoom Photo
+                        </span>
                       </div>
                     )}
 

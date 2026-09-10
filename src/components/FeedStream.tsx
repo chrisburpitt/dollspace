@@ -114,9 +114,9 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
               {post.linkUrl && (
                 <a 
                   href={post.linkUrl} 
-                  target="_blank" // 🎯 Opens inside a new tab by default
+                  target="_blank" 
                   rel="noopener noreferrer"
-                  className="mb-4 rounded-2xl border border-gray-100 bg-gray-50/50 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50 transition block shadow-sm border border-gray-200"
+                  className="mb-4 rounded-2xl border bg-gray-50/50 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50 transition block border-gray-200 shadow-sm"
                 >
                   {post.linkImage && (
                     <div className="sm:w-1/3 h-32 sm:h-auto bg-gray-200 relative shrink-0 border-r border-gray-100">
@@ -126,12 +126,11 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                   <div className="p-4 flex flex-col justify-center min-w-0 flex-1">
                     <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-1">🔗 External Link</span>
                     <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">{post.linkTitle || post.linkUrl}</h4>
-                    {notif.linkDesc && <p className="text-gray-400 font-semibold text-[11px] mt-0.5 line-clamp-2 leading-relaxed">{post.linkDesc}</p>}
+                    {post.linkDesc && <p className="text-gray-400 font-semibold text-[11px] mt-0.5 line-clamp-2 leading-relaxed">{post.linkDesc}</p>}
                     <span className="text-[10px] text-gray-400 font-bold block mt-1.5 truncate">{new URL(post.linkUrl).hostname}</span>
                   </div>
                 </a>
               )}
-
               <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={currentUserId} reactions={post.reactions} />
               <PostComments postId={post.id} currentUserId={currentUserId} comments={post.comments} />
             </div>
