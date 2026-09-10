@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
 
-// 🚀 FIXED: Standardized single file cloud writer
+// FIXED: Standardized single file cloud writer
 export async function saveImage(file: File): Promise<string | null> {
   try {
     const uploadRes = await fetch("https://uploadthing.com", {
@@ -114,7 +114,7 @@ export async function deletePost(postId: string) {
   return { success: true };
 }
 
-// ACTION: 🚀 FIXED: Standardized reactions query to match native Neon columns (No 'type' column requirements)
+// ACTION: 🚀 FIXED: Included the required emoji field attribute mapping to satisfy table parameters
 export async function toggleReaction(postId: string) {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized: Please log in first." };
@@ -132,7 +132,8 @@ export async function toggleReaction(postId: string) {
     await prisma.reaction.create({
       data: {
         postId,
-        userId: sessionUser.id
+        userId: sessionUser.id,
+        emoji: "❤️" // 🎯 FIXED: Satisfies your database validation constraint
       }
     });
 
