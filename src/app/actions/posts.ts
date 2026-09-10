@@ -60,11 +60,15 @@ export async function createPost(formData: FormData) {
 
   // Regex Link Detection System
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const detectedUrl = content.match(urlRegex)?.;
+  
+  // 🚀 FIXED: Removed the trailing ?. which was causing the syntax parser to panic!
+  const detectedMatches = content.match(urlRegex);
+  const detectedUrl = detectedMatches ? detectedMatches[0] : null;
+  
   let metaData = null;
 
   if (detectedUrl) {
-    metaData = await scrapeUrlMetadata(detectedUrl[0]);
+    metaData = await scrapeUrlMetadata(detectedUrl);
   }
 
   // Save base records down to Neon transaction matrices
