@@ -33,64 +33,71 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-left">
+    /* 🚀 EXTRA TOP MARGIN: Prevents the floating bubble from clipping your landscape banner! */
+    <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm text-left relative mt-12 sm:mt-14 pt-14">
+      
+      {/* 🚀 FLOATING AVATAR BUBBLE LAYER: Duplicates your exact profile layout overlap aesthetics */}
+      <div className="absolute -top-12 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-20 h-24 sm:w-24 sm:h-24 flex items-center justify-center shrink-0 select-none">
+        {currentUser.avatarUrl ? (
+          <img src={currentUser.avatarUrl} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-rose-500 text-white flex items-center justify-center font-black text-xl uppercase">
+            {currentUser.displayName.charAt(0)}
+          </div>
+        )}
+      </div>
+
       <form action={handleFormSubmit} className="space-y-4">
-        <div className="flex items-start space-x-3">
-          {currentUser.avatarUrl ? (
-            <img src={currentUser.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border" />
-          ) : (
-            <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">
-              {currentUser.displayName.charAt(0)}
-            </div>
-          )}
+        {/* Main Composition Text Box View */}
+        <div className="w-full border-b border-gray-50 pb-2">
           <textarea
             name="content"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="What's updating on your horizon? Drop a link or share code thoughts..."
+            placeholder={`What's updating on your horizon, ${currentUser.displayName}? Drop links or media...`}
             rows={3}
             disabled={isPending}
-            className="flex-1 text-sm font-medium text-gray-800 placeholder-gray-400 bg-transparent border-0 focus:outline-none resize-none pt-1"
+            className="w-full text-sm font-medium text-gray-800 placeholder-gray-400 bg-transparent border-0 focus:outline-none resize-none pt-1 leading-relaxed"
           />
         </div>
 
-        <div className="flex items-center justify-between border-t border-gray-50 pt-3">
+        {/* Lower Toolbar Controls Console Row */}
+        <div className="flex items-center justify-between pt-1">
           <div className="flex items-center space-x-2">
             <label 
               htmlFor="feed-photo-upload" 
-              className="flex items-center space-x-1.5 px-3 py-1.5 bg-gray-50 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition text-xs font-bold text-gray-600 cursor-pointer border border-gray-100"
+              className="flex items-center space-x-1.5 px-3.5 py-2 bg-gray-50 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition text-xs font-bold text-gray-600 cursor-pointer border border-gray-100"
             >
               <span>📷</span>
               <span>{selectedCount > 0 ? `${selectedCount}/3 Selected` : "Add Photos"}</span>
             </label>
             <input
               type="file"
-              /* 🚀 FIXED: Pluralized attribute name string perfectly matches the Server Action query loop parameter! */
-              name="images" 
+              name="images"
               accept="image/*"
-              multiple // Allows selecting up to 3 gorgeous photos natively
+              multiple
               disabled={isPending}
               onChange={(e) => {
                 const files = e.target.files;
                 if (files) {
-                   if (files.length > 3) {
+                  if (files.length > 3) {
                     alert("🌸 You can select a maximum of 3 gorgeous photos at a time!");
                     e.target.value = "";
                     setSelectedCount(0);
                   } else {
                     setSelectedCount(files.length);
                   }
-                 }
-               }}
+                }
+              }}
               className="hidden"
               id="feed-photo-upload"
-            />
+          />
           </div>
 
           <SubmitButton 
             label="Post Update ✨" 
             loadingLabel="Publishing..." 
-            className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-5 py-2.5 rounded-xl transition shadow-sm"
+            className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-5 py-2.5 rounded-xl transition shadow-sm tracking-wide"
           />
         </div>
       </form>
