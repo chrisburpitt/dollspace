@@ -32,7 +32,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       `On Wednesday's we wear pink! Post an outfiot pic, ${name}! 🩷`,
       `What's the vibe for #hersday diva? 💕`,
       `What's happening this weekend, ${name}? 🥂`, // 🎯 Friday prompt!
-      `Saturday SLAY photo drop incoming! Send us a selfie ${name}? 📸`
+      `Saturday SLAY photo drop incoming! Send us a selfie gorge! 📸`
     ];
 
     setDynamicPlaceholder(PLACEHOLDER_PROMPTS[currentDayIndex]);
