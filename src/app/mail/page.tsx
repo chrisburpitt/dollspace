@@ -62,7 +62,7 @@ export default async function MailPage() {
               <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">🏠 Home Feed</Link>
               <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">👤 My Profile</Link>
               <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2"><span>💬 Chat Lounge</span></Link>
-              <Link href="/mail" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center justify-between">
+              <Link href="/mail" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition">
                 <span className="flex items-center space-x-2">
                   <span>💌 Mailbox</span>
                 </span>
