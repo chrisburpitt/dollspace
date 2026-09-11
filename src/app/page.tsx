@@ -110,7 +110,7 @@ export default async function HomePage() {
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Platform Hub</h3>
-            <p className="text-xs text-gray-400 font-semibold leading-relaxed">Welcome back to Dollspace! Share multi-image photo drops or link profiles to check activity feeds seamlessly.</p>
+            <p className="text-xs text-gray-400 font-semibold leading-relaxed">Welcome back to Dollspace $(name)! Share stories, pictures or links directly to your feed for your followers to see ✨</p>
           </div>
         </aside>
 
