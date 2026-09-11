@@ -1,4 +1,4 @@
-// src/app/mail/MailDashboardClient.tsx (PART 1 - PASTE THIS FIRST)
+// src/app/mail/MailDashboardClient.tsx (PART 1 - THREE PIECE SPLIT)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -13,7 +13,10 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // 🚀 FOLDER ROUTER FILTER: Segregates mails precisely based on independent sender/recipient visibility states
+  const [recipientInput, setRecipientInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // 🚀 FOLDER ROUTER FILTER: Segregates mails precisely based on independent folder states
   const filteredMails = initialMails.filter((mail: any) => {
     const isSender = mail.senderId === currentUser.id;
     const isRecipient = mail.recipientId === currentUser.id;
@@ -36,6 +39,14 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
     }
     return false;
   });
+
+  // Autocomplete Filter Suggestions Matrix Mapping
+  const filteredUserSuggestions = recipientInput.trim() === "" 
+    ? [] 
+    : registeredUsers.filter((u: any) => 
+        u.username.toLowerCase().includes(recipientInput.toLowerCase()) ||
+        u.displayName.toLowerCase().includes(recipientInput.toLowerCase())
+      ).slice(0, 5);
 
   const handleMailItemSelect = (mail: any) => {
     setSelectedMail(mail);
@@ -60,14 +71,20 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
     });
   };
 
-  // src/app/mail/MailDashboardClient.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 2)
+  // src/app/mail/MailDashboardClient.tsx (PART 2 - THREE PIECE SPLIT)
   return (
-    <div className="flex h-full divide-x divide-gray-200">
+    <div className="flex h-full divide-x divide-gray-200 select-none">
       
       {/* COLUMN A: Folders Selector Sidebar Column (1/4 Width) */}
       <div className="w-1/4 bg-white flex flex-col justify-between shrink-0 p-3 space-y-1">
         <div className="space-y-1">
-          <button onClick={() => setShowComposeModal(true)} className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black text-xs py-3 rounded-xl transition shadow-sm mb-4">
+          <button 
+            onClick={() => {
+              setRecipientInput("");
+              setShowComposeModal(true);
+            }} 
+            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black text-xs py-3 rounded-xl transition shadow-sm mb-4"
+          >
             📝 Compose Mail
           </button>
           
@@ -88,7 +105,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
         </div>
       </div>
 
-      {/* COLUMN B: Mail Records Feed Selector Item Cards Row (1/3 Width) */}
+      {/* COLUMN B: Mail Records Feed Selector item Row (1/3 Width) */}
       <div className="w-1/3 bg-gray-50/30 flex flex-col overflow-hidden">
         <div className="p-4 border-b border-gray-100 bg-white font-black text-xs uppercase tracking-wider text-gray-400 text-left">
           {activeFolder} Messages List
@@ -125,7 +142,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
         </div>
       </div>
 
-      {/* COLUMN C: Mail Full Document Reading Canvas Pane (Rest of Width) */}
+      {/* src/app/mail/MailDashboardClient.tsx (PART 3 - THREE PIECE SPLIT) */}
+      {/* COLUMN C: Mail Full Document Reading Canvas Pane */}
       <div className="flex-1 bg-white flex flex-col overflow-hidden text-left">
         {selectedMail ? (
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 animate-fade-in">
@@ -146,12 +164,10 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               </div>
             </div>
 
-            {/* Rich Document Content Box Canvas Panel */}
             <div className="text-sm font-medium text-gray-800 leading-relaxed whitespace-pre-wrap bg-gray-50/40 p-4 rounded-2xl border border-gray-100 min-h-[150px]">
               {selectedMail.body}
             </div>
 
-            {/* Render Multi-Image Attachment Previews if present */}
             {selectedMail.attachments && selectedMail.attachments.length > 0 && (
               <div className="space-y-1.5 mt-2">
                 <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">📷 Attached Postal Media Assets ({selectedMail.attachments.length})</span>
@@ -174,7 +190,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
         )}
       </div>
 
-      {/* 🚀 MODAL WINDOW CONTAINER: NEW COMPOSED MAIL WIDGET FORM */}
+      {/* MODAL COMPOSE MAIL WIDGET FORM WITH SUGGESTIONS DROP WINDOW */}
       {showComposeModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <form
@@ -182,18 +198,56 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               const res = await sendInternalMail(formData);
               if (res?.success) {
                 setShowComposeModal(false);
+                setRecipientInput("");
                 alert("🌸 Internal rich postal mail dispatched perfectly!");
               } else if (res?.error) {
                 alert(res.error);
               }
             }}
-            className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl max-w-md w-full space-y-4 text-left"
+            className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl max-w-md w-full space-y-4 text-left overflow-visible"
           >
             <h4 className="font-black text-base text-gray-900 uppercase tracking-wide">Compose Internal Mail</h4>
-            <div>
+            
+            <div className="relative">
               <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">To (Recipient Username Handle)</label>
-              <input type="text" name="recipientUsername" required placeholder="e.g. Chloe" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none" />
+              <input 
+                type="text" 
+                name="recipientUsername" 
+                required 
+                value={recipientInput}
+                onChange={(e) => {
+                  setRecipientInput(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => {
+                  setTimeout(() => setShowSuggestions(false), 200);
+                }}
+                placeholder="Type name or handle... e.g. Chloe" 
+                className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none" 
+                autoComplete="off"
+              />
+
+              {showSuggestions && filteredUserSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 mt-1 overflow-hidden divide-y divide-gray-50 animate-scale-up">
+                  {filteredUserSuggestions.map((u: any) => (
+                    <button
+                      key={u.username}
+                      type="button"
+                      onClick={() => {
+                        setRecipientInput(u.username);
+                        setShowSuggestions(false);
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-xs font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-500 transition flex items-center justify-between"
+                    >
+                      <span>{u.displayName}</span>
+                      <span className="text-[10px] text-gray-400 font-semibold">@{u.username}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
+
             <div>
               <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Subject</label>
               <input type="text" name="subject" required placeholder="e.g. Secret Outfit Preview Thoughts 🩰" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none" />
