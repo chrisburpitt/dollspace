@@ -10,7 +10,7 @@ import UnifiedMessengerClient from "./UnifiedMessengerClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dollspace | Messenger Lounge",
+  title: "Dollspace | Chat Lounge",
   description: "Kick off your heels and have a chat - in public or send direct messages to others in real-time.",
 };
 
@@ -61,10 +61,10 @@ export default async function ChatPage() {
                 👤 My Profile
               </Link>
               <Link href="/chat" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition flex items-center space-x-2">
-                💬 Messenger Lounge
+                💬 Chat Lounge
               </Link>
 			  <Link href="/mail" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                <span>💌 Internal  Mail</span>
+                <span>💌 Mailbox</span>
               </Link>
             </nav>
           </div>

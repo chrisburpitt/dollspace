@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
   if (!user) return { title: "User Not Found | Dollspace" };
 
   return {
-    title: `Dollspace | ${user.displayName}'s profile`,
+    title: `Dollspace | ${user.displayName}'s Profile`,
     description: `View ${user.displayName}'s custom profile card on Dollspace.`
   };
 }
