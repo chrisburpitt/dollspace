@@ -11,7 +11,6 @@ import { Metadata } from "next";
   title: "Dollspace 👑 | Home",
   description: "Make yourself at home doll, this is your space!",
 };
-}
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
