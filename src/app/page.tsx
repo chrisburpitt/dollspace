@@ -9,6 +9,8 @@ import { getCurrentUser } from "@/app/actions/auth";
 import GlobalHeader from "@/components/GlobalHeader";
 import StaticFeedBanner from "@/components/StaticFeedBanner"; 
 import { getUnreadMailCount } from "@/app/actions/mailCount";
+import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
+import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import { redirect } from "next/navigation";
 
 export default async function HomePage() {
@@ -107,6 +109,7 @@ export default async function HomePage() {
 			  </Link>
             </nav>
           </div>
+		  <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
         {/* CENTER COLUMN: Interactive Feed Timeline Core */}
