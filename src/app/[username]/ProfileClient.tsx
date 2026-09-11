@@ -23,10 +23,6 @@ interface ProfileClientProps {
   validatedHeaderUser: any;
 }
 
-export default async function ProfilePage() {
-  const unreadMailCount = await getUnreadMailCount(); 
-};
-
 export default function ProfileClient({ 
   user, 
   isOwner, 
@@ -38,12 +34,14 @@ export default function ProfileClient({
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
 
-
-
   const filteredAlbums = (user.albums || []).filter((album: any) => {
     if (isOwner) return true;
     return !album.isPrivate;
   });
+  
+ export default async function ProfilePage() {
+  const unreadMailCount = await getUnreadMailCount(); 
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
