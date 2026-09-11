@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
 import ProfileClient from "./ProfileClient";
+import { getUnreadMailCount } from "@/app/actions/mailCount"; 
 import { Metadata } from "next";
 
 interface ProfilePageProps {
@@ -19,12 +20,14 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     select: { displayName: true }
   });
 
-  if (!user) return { title: "User Not Found | Dollspace" };
+  if (!user) return { title: "Dollspace | User Not Found" };
 
   return {
     title: `Dollspace | ${user.displayName}'s Profile`,
     description: `View ${user.displayName}'s custom profile card on Dollspace.`
   };
+  const unreadMailCount = await getUnreadMailCount(); 
+
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
