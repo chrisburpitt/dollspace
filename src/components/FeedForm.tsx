@@ -1,7 +1,7 @@
 // src/components/FeedForm.tsx
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { createPost } from "@/app/actions/posts";
 import SubmitButton from "./SubmitButton";
 
@@ -13,7 +13,7 @@ interface FeedFormProps {
   };
 }
 
-// 🚀 HIGH-SPEED CLIENT-SIDE COMPRESSION UTILITY: Resizes 4K images to 1200px max in 50ms
+// HIGH-SPEED CLIENT-SIDE COMPRESSION UTILITY: Resizes 4K images to 1200px max in 50ms
 function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -45,7 +45,7 @@ function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): 
             });
             resolve(compressedFile);
           } else {
-            resolve(file); // Fallback to original if compression skips
+            resolve(file);
           }
         }, "image/jpeg", quality);
       };
@@ -56,8 +56,12 @@ function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): 
 export default function FeedForm({ currentUser }: FeedFormProps) {
   const [isPending, startTransition] = useTransition();
   const [text, setText] = useState("");
-  const [selectedCount, setSelectedCount] = useState(0);
   const [dynamicPlaceholder, setDynamicPlaceholder] = useState("");
+  
+  // 🚀 NEW: State managing selected File handles and their local blob URLs for preview rendering
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Automated Day-of-Week Prompts
   useEffect(() => {
@@ -65,34 +69,74 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
     const name = currentUser.displayName;
 
     const PLACEHOLDER_PROMPTS = [
-      `It's Storytime Sunday! Tell us a story, ${name} ✨`,
+      `Happy Sunday! What's the mood today, ${name}? ✨`,
       `Fresh week, fresh drops! What's on your mind today, ${name}? 🌸`,
-      `How's your Tuesday looking, ${name}? What are you crushing? 🩰`,
-      `On Wednesday's we wear pink! Post an outfiot pic, ${name}! 🩷`,
-      `What's the vibe for #hersday diva? 💕`,
-      `What's happening this weekend, ${name}? 🥂`, // 🎯 Friday prompt!
-      `Saturday SLAY photo drop incoming! Send us a selfie gorge! 📸`
+      `How's your Tuesday looking, ${name}? Share an update! 🩰`,
+      `Midweek checkpoint! What are we working on today, ${name}? 💻`,
+      `Almost there! What's the vibe this Thursday, ${name}? 💕`,
+      `What's on for the weekend, ${name}? 🥂`,
+      `Saturday photo drop! What are you getting up to today, ${name}? 📸`
     ];
 
     setDynamicPlaceholder(PLACEHOLDER_PROMPTS[currentDayIndex]);
   }, [currentUser.displayName]);
 
-  // 🚀 FIXED TYPE SIGNATURE: Uses explicit React FormEvent to satisfy TypeScript build checks
+  // Clean up object URLs memory leaks on component dismount
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [previewUrls]);
+
+  // 🚀 NEW: File Selection Handler
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    // Combine any existing selected files with newly chosen ones
+    const newFilesArray = Array.from(files);
+    const combinedFiles = [...selectedFiles, ...newFilesArray].slice(0, 3); // Firm cap at 3
+
+    if (selectedFiles.length + newFilesArray.length > 3) {
+      alert("🌸 You can select a maximum of 3 gorgeous photos at a time!");
+    }
+
+    setSelectedFiles(combinedFiles);
+    
+    // Revoke old object URLs first
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+    
+    // Generate fresh local blob preview URLs
+    const newUrls = combinedFiles.map(file => URL.createObjectURL(file));
+    setPreviewUrls(newUrls);
+  };
+
+  // 🚀 NEW: Individual Photo Deletion Handler prior to posting
+  const removePhotoPriorToPosting = (indexToRemove: number) => {
+    const updatedFiles = selectedFiles.filter((_, idx) => idx !== indexToRemove);
+    setSelectedFiles(updatedFiles);
+
+    // Update preview arrays cleanly
+    URL.revokeObjectURL(previewUrls[indexToRemove]);
+    const updatedUrls = previewUrls.filter((_, idx) => idx !== indexToRemove);
+    setPreviewUrls(updatedUrls);
+
+    // Reset native input element value string so selecting the same photo again fires correctly
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!text.trim() && selectedCount === 0) return;
+    if (!text.trim() && selectedFiles.length === 0) return;
 
     startTransition(async () => {
       const customPayload = new FormData();
       customPayload.append("content", text);
 
-      const fileInput = document.getElementById("feed-photo-upload") as HTMLInputElement;
-      const files = fileInput?.files;
-
-      if (files && files.length > 0) {
-        for (let i = 0; i < files.length; i++) {
-          // Compress the photo on the client thread before piping it to UploadThing
-          const compressedPhoto = await compressImageBeforeUpload(files[i]);
+      // Compress and append each file remaining inside your tracking state
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const compressedPhoto = await compressImageBeforeUpload(file);
           customPayload.append("images", compressedPhoto);
         }
       }
@@ -100,8 +144,9 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       const res = await createPost(customPayload);
       if (res?.success) {
         setText("");
-        setSelectedCount(0);
-        if (fileInput) fileInput.value = "";
+        setSelectedFiles([]);
+        setPreviewUrls([]);
+        if (fileInputRef.current) fileInputRef.current.value = "";
       }
     });
   };
@@ -120,7 +165,6 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
         )}
       </div>
 
-      {/* 🚀 FIXED EVENT TARGET: Changed from action={} to onSubmit={} for standard client-side forms */}
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <div className="w-full border-b border-gray-50 pb-2">
           <textarea
@@ -134,33 +178,44 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
           />
         </div>
 
+        {/* 🚀 NEW: DYNAMIC INTERACTIVE IMAGES PREVIEW BAR ROW GRID */}
+        {previewUrls.length > 0 && (
+          <div className="grid grid-cols-3 gap-3 animate-scale-up pt-1">
+            {previewUrls.map((url, idx) => (
+              <div key={url} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 relative group shadow-sm">
+                <img src={url} alt="" className="w-full h-full object-cover select-none" />
+                
+                {/* ✕ CLOSE REMOVE BUTTON: Absolute floating badge triggers delete handler instantly */}
+                <button
+                  type="button"
+                  onClick={() => removePhotoPriorToPosting(idx)}
+                  className="absolute top-2 right-2 bg-black/60 hover:bg-rose-500 text-white font-black rounded-full w-6 h-6 flex items-center justify-center transition duration-200 text-xs shadow-md select-none z-30"
+                >
+                  ✕
+                </button>
+                <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-10 transition duration-200" />
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center space-x-2">
             <label 
               htmlFor="feed-photo-upload" 
-              className="flex items-center space-x-1.5 px-3.5 py-2 bg-gray-50 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition text-xs font-bold text-gray-600 cursor-pointer border border-gray-100"
+              className="flex items-center space-x-1.5 px-3.5 py-2 bg-gray-50 hover:bg-rose-50 hover:text-rose-500 rounded-xl transition text-xs font-bold text-gray-600 cursor-pointer border border-gray-100 shadow-inner select-none"
             >
               <span>📷</span>
-              <span>{selectedCount > 0 ? `${selectedCount}/3 Selected` : "Add Photos"}</span>
+              <span>{selectedFiles.length > 0 ? `${selectedFiles.length}/3 Selected` : "Add Photos"}</span>
             </label>
             <input
               type="file"
               id="feed-photo-upload"
+              ref={fileInputRef} // 🚀 Linked to reset reference node
               accept="image/*"
               multiple
-              disabled={isPending}
-              onChange={(e) => {
-                const files = e.target.files;
-                if (files) {
-                  if (files.length > 3) {
-                    alert("🌸 You can select a maximum of 3 gorgeous photos at a time!");
-                    e.target.value = "";
-                    setSelectedCount(0);
-                  } else {
-                    setSelectedCount(files.length);
-                  }
-                }
-              }}
+              disabled={isPending || selectedFiles.length >= 3}
+              onChange={handleFileChange}
               className="hidden"
             />
           </div>
