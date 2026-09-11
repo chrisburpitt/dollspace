@@ -8,11 +8,15 @@ export async function getOnlineDollsRoster() {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return [];
 
+  // 🕒 2-MINUTE THRESHOLD: Calculate the cutoff time for active sessions
+  const cutoffTime = new Date(Date.now() - 2 * 60 * 1000);
+
   try {
-    // 🚀 ZERO-DELAY ACCUMULATOR: Scans for active statuses, sorted by most recent login activity
     const onlineUsers = await prisma.user.findMany({
       where: {
         id: { not: sessionUser.id },
+        // 🚀 CRITICAL FIX: Must have a recent heartbeat AND cannot be manually hiding via OFFLINE/Appear Offline status
+        lastActive: { gte: cutoffTime },
         status: { in: ["ONLINE", "AWAY", "BUSY"] }
       },
       select: {
@@ -23,12 +27,12 @@ export async function getOnlineDollsRoster() {
         status: true
       },
       orderBy: { lastActive: "desc" },
-      take: 5 // Firm cap at 5 people to keep the sidebar incredibly clean
+      take: 5
     });
 
     return onlineUsers;
   } catch (err) {
-    console.error("Failed to fetch online sidebar roster:", err);
+    console.error("Failed to query live presence roster:", err);
     return [];
   }
 }

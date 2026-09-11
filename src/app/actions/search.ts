@@ -15,10 +15,10 @@ export async function searchDollsRegistry(filters: SearchFilters) {
   if (!sessionUser) return { error: "Unauthorized." };
 
   const { query, genderIdentity, lookingFor } = filters;
+  const cutoffTime = new Date(Date.now() - 2 * 60 * 1000); // 2 minutes heartbeat cutoff
 
-  // 1. Build typesafe Prisma conditional filters object
   const whereClause: any = {
-    id: { not: sessionUser.id } // 🚀 Exclude yourself from directory results
+    id: { not: sessionUser.id }
   };
 
   if (query?.trim()) {
@@ -36,7 +36,6 @@ export async function searchDollsRegistry(filters: SearchFilters) {
     whereClause.lookingFor = { contains: lookingFor, mode: "insensitive" };
   }
 
-  // 2. Query matching profiles directly from Neon
   try {
     const users = await prisma.user.findMany({
       where: whereClause,
@@ -49,22 +48,35 @@ export async function searchDollsRegistry(filters: SearchFilters) {
         genderIdentity: true,
         lookingFor: true,
         status: true,
+        lastActive: true,
         createdAt: true
       },
       orderBy: { createdAt: "desc" },
       take: 40
     });
 
-    // Serialize Date parameters safely across network boundary
     return {
       success: true,
-      users: users.map(u => ({
-        ...u,
-        createdAt: u.createdAt.toISOString()
-      }))
+      users: users.map(u => {
+        // 🚀 COMPUTE REAL-TIME LIVE STATUS: If heartbeat is older than 2 mins, force their status display to OFFLINE
+        const isHeartbeatActive = u.lastActive >= cutoffTime;
+        const computedStatus = (isHeartbeatActive && u.status !== "OFFLINE") ? u.status : "OFFLINE";
+
+        return {
+          id: u.id,
+          username: u.username,
+          displayName: u.displayName,
+          avatarUrl: u.avatarUrl,
+          location: u.location,
+          genderIdentity: u.genderIdentity,
+          lookingFor: u.lookingFor,
+          status: computedStatus, // Maps the accurate calculated presence state to the UI view
+          createdAt: u.createdAt.toISOString()
+        };
+      })
     };
   } catch (err) {
     console.error("Registry directory search failed:", err);
-    return { error: "Failed to query user registry database records." };
+    return { error: "Failed to query database records." };
   }
 }
