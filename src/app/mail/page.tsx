@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader";
 import Link from "next/link";
 import MailDashboardClient from "./MailDashboardClient";
+import { getUnreadMailCount } from "@/app/actions/mailCount"; 
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,6 +19,8 @@ export default async function MailPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
 
+  const unreadMailCount = await getUnreadMailCount(); 
+  
   // Fetch all potential platform users to power our smart quick compose lookups list
   const registeredUsers = await prisma.user.findMany({
     where: { id: { not: currentUser.id } },
@@ -59,8 +62,18 @@ export default async function MailPage() {
               <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">🏠 Home Feed</Link>
               <Link href={`/${currentUser.username}`} className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">👤 My Profile</Link>
               <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2"><span>💬 Chat Lounge</span></Link>
-              <Link href="/mail" className="px-4 py-2.5 bg-rose-50 text-rose-500 font-bold rounded-xl text-sm transition flex items-center space-x-2"><span>💌 Mailbox</span></Link>
-              <Link href="/discover" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2"><span>🔍 Find Friends</span></Link>
+              <Link href="/mail" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition flex items-center justify-between">
+                <span className="flex items-center space-x-2">
+                  <span>💌</span>
+                  <span>Internal Mail</span>
+                </span>
+                {unreadMailCount > 0 && (
+                  <span className="bg-rose-500 text-white font-black text-[10px] px-2 py-0.5 min-w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-sm">
+                    {unreadMailCount}
+                  </span>
+                )}
+              </Link>              
+			  <Link href="/discover" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2"><span>🔍 Find Friends</span></Link>
             </nav>
           </div>
         </aside>

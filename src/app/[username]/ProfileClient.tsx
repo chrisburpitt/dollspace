@@ -12,6 +12,7 @@ import FollowButton from "@/components/FollowButton";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
+import { getUnreadMailCount } from "@/app/actions/mailCount"; 
 
 interface ProfileClientProps {
   user: any;
@@ -32,6 +33,8 @@ export default function ProfileClient({
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
+
+  const unreadMailCount = await getUnreadMailCount(); 
 
   const filteredAlbums = (user.albums || []).filter((album: any) => {
     if (isOwner) return true;
@@ -64,9 +67,17 @@ export default function ProfileClient({
               <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
                 <span>💬 Chat Lounge</span>
               </Link>
-			  <Link href="/mail" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
-                <span>💌 Mailbox</span>
-			  </Link>
+              <Link href="/mail" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 font-semibold rounded-xl text-sm transition flex items-center justify-between">
+                <span className="flex items-center space-x-2">
+                  <span>💌</span>
+                  <span>Internal Mail</span>
+                </span>
+                {unreadMailCount > 0 && (
+                  <span className="bg-rose-500 text-white font-black text-[10px] px-2 py-0.5 min-w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-sm">
+                    {unreadMailCount}
+                  </span>
+                )}
+              </Link>
 			  <Link href="/discover" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
 			  <span>🔍 Find Friends</span>
               </Link>
