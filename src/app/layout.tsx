@@ -1,9 +1,8 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { touchUserPresenceHeartbeat } from "@/app/actions/presence";
 import "./globals.css";
-
-export default async function RootLayout({ children }: LayoutProps<"/">) {
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,20 +14,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// 🚀 SERVER ONLY: Metadata works perfectly here because the file is a clean Server Component
 export const metadata: Metadata = {
   title: "Dollspace",
   description: "A Space for the Dolls, by the Dolls",
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png",
-  },
+    icon: "/favicon.ico",
+  }
 };
 
-export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Fires instantly in the background thread on every single page render view hit
-  await touchUserPresenceHeartbeat();
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   
+  // 🚀 SILENT HEARTBEAT TRACKER PASSTHROUGH LAYER
+  // Fires instantly in the background thread on every single page render hit
+  await touchUserPresenceHeartbeat();
+
   return (
     <html
       lang="en"
