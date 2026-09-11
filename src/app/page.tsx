@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { Metadata } from "next";
 import FeedForm from "@/components/FeedForm";
 import FeedStream from "@/components/FeedStream";
 import { getCurrentUser } from "@/app/actions/auth";
