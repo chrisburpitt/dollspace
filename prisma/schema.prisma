@@ -35,8 +35,10 @@ model User {
   followers         Follow[]   @relation("UserFollowers")
   following         Follow[]   @relation("UserFollowing")
 
-  messagesReceived  DirectMessage[] @relation("MessageRecipient")
-  messagesSent      DirectMessage[] @relation("MessageSender")
+  mailsSent             InternalMail[] @relation("MailsAsSender")
+  mailsReceived         InternalMail[] @relation("MailsAsRecipient")
+  messagesReceived      DirectMessage[] @relation("MessageRecipient")
+  messagesSent          DirectMessage[] @relation("MessageSender")
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsSent     Notification[] @relation("NotificationTrigger")
   
@@ -122,6 +124,43 @@ model DirectMessage {
   roomToken   String
 
   @@index([roomToken])
+}
+
+model InternalMail {
+  id             String            @id @default(cuid())
+  subject        String
+  body           String            // Stores rich text markdown or HTML strings safely
+  createdAt      DateTime          @default(now())
+  isRead         Boolean           @default(false)
+
+  // Sender Identity & Folder State Controls
+  senderId       String
+  sender         User              @relation("MailsAsSender", fields: [senderId], references: [id], onDelete: Cascade)
+  senderArchived Boolean           @default(false)
+  senderDeleted  Boolean           @default(false)
+
+  // Recipient Identity & Folder State Controls
+  recipientId    String
+  recipient      User              @relation("MailsAsRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientArchived Boolean         @default(false)
+  recipientDeleted  Boolean         @default(false)
+
+  // 🚀 ATTACHMENT MULTI-IMAGE CHILD CONNECTIONS
+  attachments    MailAttachment[] @relation("MailAttachments")
+
+  @@index([senderId])
+  @@index([recipientId])
+}
+
+model MailAttachment {
+  id         String       @id @default(cuid())
+  url        String
+  createdAt  DateTime     @default(now())
+  
+  mailId     String
+  mail       InternalMail @relation("MailAttachments", fields: [mailId], references: [id], onDelete: Cascade)
+
+  @@index([mailId])
 }
 
 model Album {
