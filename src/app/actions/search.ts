@@ -15,7 +15,7 @@ export async function searchDollsRegistry(filters: SearchFilters) {
   if (!sessionUser) return { error: "Unauthorized." };
 
   const { query, genderIdentity, lookingFor } = filters;
-  const cutoffTime = new Date(Date.now() - 2 * 60 * 1000); // 2 minutes heartbeat cutoff
+  const cutoffTime = new Date(Date.now() - 5 * 60 * 1000); // 5 minutes heartbeat cutoff
 
   const whereClause: any = {
     id: { not: sessionUser.id }
