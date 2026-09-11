@@ -23,9 +23,9 @@ interface ProfileClientProps {
   validatedHeaderUser: any;
 }
 
-export default async function ProfilePage(){
+export default async function ProfilePage() {
   const unreadMailCount = await getUnreadMailCount(); 
-}
+});
 
 export default function ProfileClient({ 
   user, 
