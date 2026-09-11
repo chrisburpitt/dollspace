@@ -99,19 +99,30 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                <div className={`grid gap-2 mb-4 rounded-xl overflow-hidden border border-gray-100 bg-gray-50 max-h-[400px] ${
                  combinedImages.length === 2 ? "grid-cols-2" : combinedImages.length >= 3 ? "grid-cols-3" : "grid-cols-1"
                }`}>
-                 {combinedImages.map((imgUrl, idx) => (
-                   <div 
-                     key={`${post.id}-img-${idx}`}
-                     onClick={() => setLightboxUrlState({ urls: combinedImages, index: idx })}
-                     className="w-full h-full min-h-[220px] max-h-[400px] cursor-zoom-in relative overflow-hidden group flex items-center justify-center"
-                   >
-                     <img 
-                       src={imgUrl} 
-                       alt="" 
-                       className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" 
-                     />
-                   </div>
-                 ))}
+                 {/* Inside src/components/FeedStream.tsx - Image Gallery Grid Layout Section */}
+
+                {combinedImages.map((imgUrl, idx) => (
+                  <div 
+                    key={`${post.id}-img-${idx}`}
+                    onClick={() => setLightboxUrlState({ urls: combinedImages, index: idx })}
+                    /* 🚀 INVISIBLE SHIELD CONTAINER: Lock selection pointer events */
+                    className="w-full h-full min-h-[220px] max-h-[400px] cursor-zoom-in relative overflow-hidden group flex items-center justify-center select-none"
+                  >
+                    <img 
+                      src={imgUrl} 
+                      alt="" 
+                      className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" 
+                      draggable="false" // 🚫 Disables casual dragging to the desktop
+                    />
+    
+                    {/* 🚀 THE OVERLAY LOCK: Intercepts right-clicks, preventing savers from grabbing the source asset url */}
+                    <div 
+                      className="absolute inset-0 bg-transparent z-10" 
+                      onContextMenu={(e) => e.preventDefault()} // 🚫 Completely blocks the right-click menu block
+                    />
+                  </div>
+                ))}
+
                </div>
             )}
 
