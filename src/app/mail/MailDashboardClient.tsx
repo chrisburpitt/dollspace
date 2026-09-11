@@ -199,14 +199,14 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               if (res?.success) {
                 setShowComposeModal(false);
                 setRecipientInput("");
-                alert("🌸 Internal rich postal mail dispatched perfectly!");
+                alert("🌸 Email Sent!!");
               } else if (res?.error) {
                 alert(res.error);
               }
             }}
             className="bg-white p-6 rounded-3xl border border-gray-100 shadow-xl max-w-md w-full space-y-4 text-left overflow-visible"
           >
-            <h4 className="font-black text-base text-gray-900 uppercase tracking-wide">Compose Internal Mail</h4>
+            <h4 className="font-black text-base text-gray-900 uppercase tracking-wide">Create Mail</h4>
             
             <div className="relative">
               <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">To (Recipient Username Handle)</label>
@@ -264,7 +264,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             </div>
             <div className="flex space-x-2 pt-2">
               <button type="button" onClick={() => setShowComposeModal(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-2.5 rounded-xl text-xs">Cancel</button>
-              <SubmitButton label="Dispatch Mail 🚀" loadingLabel="Piping Asset Buffer..." className="flex-1 bg-rose-500 text-white font-black p-2.5 rounded-xl text-xs shadow-sm" />
+              <SubmitButton label="Send 🚀" loadingLabel="Piping Asset Buffer..." className="flex-1 bg-rose-500 text-white font-black p-2.5 rounded-xl text-xs shadow-sm" />
             </div>
           </form>
         </div>
