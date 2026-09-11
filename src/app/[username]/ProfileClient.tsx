@@ -1,4 +1,4 @@
-// src/app/[username]/ProfileClient.tsx (PART 1 - FIXED CAROUSEL HOOK TYPING)
+// src/app/[username]/ProfileClient.tsx
 "use client";
 
 import { useState } from "react";
@@ -31,8 +31,6 @@ export default function ProfileClient({
   validatedHeaderUser 
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
-  
-  // 🚀 FIXED TYPE DEFINITION: Explicitly allows string arrays to power the upgraded lightbox carousels
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
 
   const filteredAlbums = (user.albums || []).filter((album: any) => {

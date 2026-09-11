@@ -69,11 +69,11 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
-	  
-	  {/* 🚀 2. MOUNT THE HARDCODED LANDSCAPE BANNER (Perfect layout spacing parity) */}
+
+      {/* 🚀 Mounts the banner completely free, exactly like the profile page layout! */}
       <StaticFeedBanner />
 
-      {/* Main layout container (Removed top margins so columns stay beautifully nestled at the top on scrolls) */}
+      {/* Main Structural Grid Container (Matches the profile page grid spacing perfectly) */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
