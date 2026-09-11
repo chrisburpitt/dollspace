@@ -39,10 +39,10 @@ export default function ProfileClient({
     return !album.isPrivate;
   });
   
- export default async function ProfilePage() {
-  const unreadMailCount = await getUnreadMailCount(); 
-  };
-
+  {async function ProfileClient() {
+    const unreadMailCount = await getUnreadMailCount(); 
+  }
+  
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
