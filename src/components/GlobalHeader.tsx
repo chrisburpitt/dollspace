@@ -66,8 +66,8 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         
         {/* LEFT: Branding Core logo mark */}
-        <Link href="/" className="font-black text-lg text-rose-500 tracking-tighter">
-          Dollspace 🩰
+        <Link href="/" className="font-black text-xl text-rose-500 tracking-tighter">
+          Dollspace 👑
         </Link>
 
         {/* RIGHT: Menu Control Drawer Triggers Console Panel */}
@@ -133,7 +133,7 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
                     className={`w-full px-4 py-2.5 text-left text-xs font-black transition flex items-center space-x-2.5 ${
                       currentStatus === item.key 
                         ? "bg-rose-50 text-rose-500 font-extrabold" 
-                        : "text-gray-600 hover:bg-gray-50"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-rose-600"
                   }`}
                 >
                   <span>{item.icon}</span>
@@ -147,7 +147,7 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
         {/* LOGOUT SECURE ACTION LINK TRIGGER BUTTON */}
         <Link 
           href="/logout" 
-          className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black uppercase tracking-wider transition shadow-sm"
+          className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm"
         >
           Logout
         </Link>
