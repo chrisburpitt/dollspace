@@ -48,7 +48,7 @@ export default function ProfileClient({
         
         {/* LEFT COLUMN: Sidebar Navigation Panel */}
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
-//          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
             <nav className="flex flex-col space-y-1">
               <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
                 🏠 Home Feed
@@ -71,14 +71,14 @@ export default function ProfileClient({
 			  <span>🔍 Find Friends</span>
               </Link>
             </nav>
-//          </div>
+          </div>
         </aside>
 
         {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED CAROUSEL HOOK TYPING) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16">
-            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
+            <div className="absolute -top-14 left-6 sm:left-8 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
               <AvatarUpload user={user} />
             </div>
 
