@@ -13,6 +13,12 @@ import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import { redirect } from "next/navigation";
 
+ export const metadata: Metadata = {
+  title: "Dollspace 👑 | Home",
+  description: "Make yourself at home doll, this is your space!",
+  };
+
+
 export default async function HomePage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");

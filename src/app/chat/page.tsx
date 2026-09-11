@@ -10,6 +10,11 @@ import UnifiedMessengerClient from "./UnifiedMessengerClient";
 import { getUnreadMailCount } from "@/app/actions/mailCount"; 
 import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Dollspace | Chat Lounge",
+  description: "Kick off your heels and have a chat - in public or send direct messages to others in real-time.",
+};
+
 export default async function ChatPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
