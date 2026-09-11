@@ -26,7 +26,6 @@ function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): 
         let width = img.width;
         let height = img.height;
 
-        // Calculate responsive scaling parameters
         if (width > maxWidth) {
           height = Math.round((height * maxWidth) / width);
           width = maxWidth;
@@ -46,7 +45,7 @@ function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): 
             });
             resolve(compressedFile);
           } else {
-            resolve(file); // Fallback to original if blob compression hiccups
+            resolve(file); // Fallback to original if compression skips
           }
         }, "image/jpeg", quality);
       };
@@ -60,12 +59,11 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
   const [selectedCount, setSelectedCount] = useState(0);
   const [dynamicPlaceholder, setDynamicPlaceholder] = useState("");
 
-  // 🚀 AUTOMATED DAY-OF-WEEK QUESTION SYSTEM EFFECT
+  // Automated Day-of-Week Prompts
   useEffect(() => {
     const currentDayIndex = new Date().getDay();
     const name = currentUser.displayName;
 
-    // 🌸 Custom prompt matrices mapped precisely to 0-6 index tracks (Sunday to Saturday)
     const PLACEHOLDER_PROMPTS = [
       `It's Storytime Sunday! Tell us a story, ${name} ✨`,
       `Fresh week, fresh drops! What's on your mind today, ${name}? 🌸`,
@@ -79,33 +77,34 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
     setDynamicPlaceholder(PLACEHOLDER_PROMPTS[currentDayIndex]);
   }, [currentUser.displayName]);
 
-const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  if (!text.trim() && selectedCount === 0) return;
+  // 🚀 FIXED TYPE SIGNATURE: Uses explicit React FormEvent to satisfy TypeScript build checks
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!text.trim() && selectedCount === 0) return;
 
-  startTransition(async () => {
-    const customPayload = new FormData();
-    customPayload.append("content", text);
+    startTransition(async () => {
+      const customPayload = new FormData();
+      customPayload.append("content", text);
 
-    const fileInput = document.getElementById("feed-photo-upload") as HTMLInputElement;
-    const files = fileInput?.files;
+      const fileInput = document.getElementById("feed-photo-upload") as HTMLInputElement;
+      const files = fileInput?.files;
 
-    if (files && files.length > 0) {
-      for (let i = 0; i < files.length; i++) {
-        // 🚀 PIPING THE ENGINE: Shrink the heavy raw 4K camera drop down to an optimized 200KB web photo
-        const compressedPhoto = await compressImageBeforeUpload(files[i]);
-        customPayload.append("images", compressedPhoto);
+      if (files && files.length > 0) {
+        for (let i = 0; i < files.length; i++) {
+          // Compress the photo on the client thread before piping it to UploadThing
+          const compressedPhoto = await compressImageBeforeUpload(files[i]);
+          customPayload.append("images", compressedPhoto);
+        }
       }
-    }
 
-    const res = await createPost(customPayload);
-    if (res?.success) {
-      setText("");
-      setSelectedCount(0);
-      if (fileInput) fileInput.value = "";
-    }
-  });
-};
+      const res = await createPost(customPayload);
+      if (res?.success) {
+        setText("");
+        setSelectedCount(0);
+        if (fileInput) fileInput.value = "";
+      }
+    });
+  };
 
   return (
     <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm text-left relative mt-16 pt-14">
@@ -113,7 +112,7 @@ const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       {/* Floating avatar bubble circle frame */}
       <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
         {currentUser.avatarUrl ? (
-          <img src={currentUser.avatarUrl} alt="$(currentUser.displayName)" className="w-full h-full object-cover" />
+          <img src={currentUser.avatarUrl} alt="" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-rose-500 text-white flex items-center justify-center font-black text-2xl uppercase">
             {currentUser.displayName.charAt(0)}
@@ -121,14 +120,13 @@ const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         )}
       </div>
 
-      <form action={handleFormSubmit} className="space-y-4">
-        {/* Main Composition Text Box */}
+      {/* 🚀 FIXED EVENT TARGET: Changed from action={} to onSubmit={} for standard client-side forms */}
+      <form onSubmit={handleFormSubmit} className="space-y-4">
         <div className="w-full border-b border-gray-50 pb-2">
           <textarea
             name="content"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            /* 🚀 DYNAMIC PLACEHOLDER INJECTED HERE */
             placeholder={dynamicPlaceholder || `What's updating on your horizon, ${currentUser.displayName}?`}
             rows={3}
             disabled={isPending}
@@ -136,7 +134,6 @@ const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           />
         </div>
 
-        {/* Lower Toolbar Controls */}
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-center space-x-2">
             <label 
@@ -148,7 +145,7 @@ const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             </label>
             <input
               type="file"
-              name="images"
+              id="feed-photo-upload"
               accept="image/*"
               multiple
               disabled={isPending}
@@ -165,7 +162,6 @@ const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 }
               }}
               className="hidden"
-              id="feed-photo-upload"
             />
           </div>
 
