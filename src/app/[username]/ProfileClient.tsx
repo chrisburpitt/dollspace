@@ -74,9 +74,9 @@ export default function ProfileClient({
                   <span>💌</span>
                   <span>Internal Mail</span>
                 </span>
-                {unreadMailCount > 0 && (
+                {getUnreadMailCount > 0 && (
                   <span className="bg-rose-500 text-white font-black text-[10px] px-2 py-0.5 min-w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-sm">
-                    {unreadMailCount}
+                    {getUnreadMailCount}
                   </span>
                 )}
               </Link>
