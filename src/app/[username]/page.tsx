@@ -7,9 +7,14 @@ import { getCurrentUser } from "@/app/actions/auth";
 import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
+ export const metadata: Metadata = {
+  title: "Dollspace 👑 | Home",
+  description: "Make yourself at home doll, this is your space!",
+};
+}
+
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
-}
 
 // 🎯 GENERATE METADATA: Stays completely clean, selecting only the display name
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
