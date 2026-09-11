@@ -58,7 +58,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       {/* Floating avatar bubble circle frame */}
       <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
         {currentUser.avatarUrl ? (
-          <img src={currentUser.avatarUrl} alt="" className="w-full h-full object-cover" />
+          <img src={currentUser.avatarUrl} alt="$(currentUser.displayName)" className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-rose-500 text-white flex items-center justify-center font-black text-2xl uppercase">
             {currentUser.displayName.charAt(0)}
