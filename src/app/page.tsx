@@ -15,7 +15,7 @@ import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import { redirect } from "next/navigation";
 
  export const metadata: Metadata = {
-  title: "Dollspace 👑 | Home",
+  title: "Dollspace | Home",
   description: "Make yourself at home doll, this is your space!",
   };
 
