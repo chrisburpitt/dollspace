@@ -77,7 +77,7 @@ export default function ProfileClient({
         {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED CAROUSEL HOOK TYPING) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
-          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-16 relative mt-12 sm:mt-16">
+          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16">
             <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
               <AvatarUpload user={user} />
             </div>
