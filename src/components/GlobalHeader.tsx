@@ -57,82 +57,83 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
       console.error("Status state push failed:", err);
     }
   };
-
-  // src/components/GlobalHeader.tsx (PART 2 - CLICK OUTSIDE UPGRADE)
+  
+  // src/components/GlobalHeader.tsx (PART 2 - EDGE ALIGNMENT SUCCESS)
   return (
-    <header className="w-full h-16 bg-white border-b border-gray-200 sticky top-0 z-40 px-6 flex items-center justify-between select-none">
+    <header className="w-full h-16 bg-white border-b border-gray-200 sticky top-0 z-40 select-none">
       
-      {/* LEFT: Branding Core logo mark */}
-      <Link href="/" className="font-black text-lg text-rose-500 tracking-tighter uppercase">
-        Dollspace 🩰
-      </Link>
-
-      {/* RIGHT: Menu Control Drawer Triggers Console Panel */}
-      <div className="flex items-center space-x-3 relative">
+      {/* 🚀 INTERNAL CONTAINER WRAPPER: Matches the max-width and edge paddings of the rest of the site perfectly! */}
+      <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         
-        {/* WIDGET A: NOTIFICATION CENTER DROPDOWN BAR BUTTON */}
-        {/* 🚀 FIXED: Linked directly to the notification ref node handler hook */}
-        <div className="relative" ref={notificationRef}>
-          <button 
-            onClick={() => {
-              setShowNotifications(!showNotifications);
-              setShowStatusMenu(false); // Close opposite to keep view uncluttered
-            }}
-            className={`p-2.5 rounded-xl border transition relative text-sm ${
-              showNotifications ? "bg-rose-50 border-rose-200 text-rose-500" : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
-            }`}
-          >
-            🔔
-          </button>
+        {/* LEFT: Branding Core logo mark */}
+        <Link href="/" className="font-black text-lg text-rose-500 tracking-tighter">
+          Dollspace 🩰
+        </Link>
 
-          {/* FLOATING RECENT ACTIVITY DRAWER CONTAINER */}
-          {showNotifications && (
-            <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-5 text-left animate-scale-up z-50">
-              <h3 className="font-black text-xs uppercase tracking-wider text-gray-400 mb-3">Recent Activity</h3>
-              <div className="py-8 text-center text-xs font-semibold text-gray-400">
-                Your notification center is clear! 🌸
+        {/* RIGHT: Menu Control Drawer Triggers Console Panel */}
+        <div className="flex items-center space-x-3 relative">
+          
+          {/* WIDGET A: NOTIFICATION CENTER DROPDOWN BAR BUTTON */}
+          <div className="relative" ref={notificationRef}>
+            <button 
+              onClick={() => {
+                setShowNotifications(!showNotifications);
+                setShowStatusMenu(false);
+              }}
+              className={`p-2.5 rounded-xl border transition relative text-sm ${
+                showNotifications ? "bg-rose-50 border-rose-200 text-rose-500" : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+              }`}
+            >
+              🔔
+            </button>
+
+            {/* FLOATING RECENT ACTIVITY DRAWER CONTAINER */}
+            {showNotifications && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-2xl shadow-xl p-5 text-left animate-scale-up z-50">
+                <h3 className="font-black text-xs uppercase tracking-wider text-gray-400 mb-3">Recent Activity</h3>
+                <div className="py-8 text-center text-xs font-semibold text-gray-400">
+                  Your notification center is clear! 🌸
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* WIDGET B: LIVE STATUS SELECTOR DROPDOWN BUTTON */}
-        {/* 🚀 FIXED: Linked directly to the status menu ref node handler hook */}
-        <div className="relative" ref={statusMenuRef}>
-          <button 
-            onClick={() => {
-              setShowStatusMenu(!showStatusMenu);
-              setShowNotifications(false); // Close opposite to keep view uncluttered
-            }}
-            className="flex items-center space-x-2 bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-black text-gray-700 hover:bg-gray-50 transition shadow-sm"
-          >
-            <span>
-              {currentStatus === "ONLINE" && "🟢"}
-              {currentStatus === "AWAY" && "🟡"}
-              {currentStatus === "BUSY" && "🔴"}
-              {currentStatus === "OFFLINE" && "⚫"}
-            </span>
-            <span className="capitalize">{currentStatus.toLowerCase().replace("_", " ")}</span>
-            <span className="text-[10px] text-gray-400">▼</span>
-          </button>
+          {/* WIDGET B: LIVE STATUS SELECTOR DROPDOWN BUTTON */}
+          <div className="relative" ref={statusMenuRef}>
+            <button 
+              onClick={() => {
+                setShowStatusMenu(!showStatusMenu);
+                setShowNotifications(false);
+              }}
+              className="flex items-center space-x-2 bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-black text-gray-700 hover:bg-gray-50 transition shadow-sm"
+            >
+              <span>
+                {currentStatus === "ONLINE" && "🟢"}
+                {currentStatus === "AWAY" && "🟡"}
+                {currentStatus === "BUSY" && "🔴"}
+                {currentStatus === "OFFLINE" && "⚫"}
+              </span>
+              <span className="capitalize">{currentStatus.toLowerCase().replace("_", " ")}</span>
+              <span className="text-[10px] text-gray-400">▼</span>
+            </button>
 
-          {/* DYNAMIC SELECTION ROSTER DROPDOWN PANEL DROPDOWN */}
-          {showStatusMenu && (
-            <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl p-1 animate-scale-up z-50 divide-y divide-gray-50 text-left">
-              {[
-                { key: "ONLINE", icon: "🟢", label: "Online" },
-                { key: "AWAY", icon: "🟡", label: "Away" },
-                { key: "BUSY", icon: "🔴", label: "Busy" },
-                { key: "OFFLINE", icon: "⚫", label: "Appear Offline" }
-              ].map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => handleStatusChange(item.key)}
-                  className={`w-full px-4 py-2.5 text-left text-xs font-black transition flex items-center space-x-2.5 ${
-                    currentStatus === item.key 
-                      ? "bg-rose-50 text-rose-500 font-extrabold" 
-                      : "text-gray-600 hover:bg-gray-50"
+            {/* DYNAMIC SELECTION ROSTER DROPDOWN PANEL */}
+            {showStatusMenu && (
+              <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl p-1 animate-scale-up z-50 divide-y divide-gray-50 text-left">
+                {[
+                  { key: "ONLINE", icon: "🟢", label: "Online" },
+                  { key: "AWAY", icon: "🟡", label: "Away" },
+                  { key: "BUSY", icon: "🔴", label: "Busy" },
+                  { key: "OFFLINE", icon: "⚫", label: "Appear Offline" }
+                ].map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handleStatusChange(item.key)}
+                    className={`w-full px-4 py-2.5 text-left text-xs font-black transition flex items-center space-x-2.5 ${
+                      currentStatus === item.key 
+                        ? "bg-rose-50 text-rose-500 font-extrabold" 
+                        : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
                   <span>{item.icon}</span>
@@ -151,6 +152,7 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
           Logout
         </Link>
 
+        </div>
       </div>
     </header>
   );
