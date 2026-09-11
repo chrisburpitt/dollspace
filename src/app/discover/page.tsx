@@ -27,8 +27,7 @@ export default async function DiscoverPage() {
       <GlobalHeader currentUser={validatedHeaderUser} />
 
       {/* Main Structural Layout Wrapper */}
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10 mt-2 sm:mt-4">
-        
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">        
         {/* LEFT COLUMN: Sidebar Navigation Layout */}
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
