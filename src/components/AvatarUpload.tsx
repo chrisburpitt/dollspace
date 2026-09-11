@@ -14,20 +14,23 @@ interface AvatarUploadProps {
 
 export default function AvatarUpload({ user }: AvatarUploadProps) {
   return (
-    <div className="relative group w-24 h-24 flex-shrink-0">
+    // Changed to w-full h-full so it perfectly matches whatever size the parent container is
+    <div className="relative group w-full h-full flex-shrink-0">
       {user.avatarUrl ? (
         <img 
           src={user.avatarUrl} 
           alt={user.displayName} 
-          className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-50 border-2 border-white shadow" 
+          // REMOVED: ring-4, ring-blue-50, border-2, border-white, and shadow
+          className="w-full h-full rounded-full object-cover" 
         />
       ) : (
-        <div className="w-24 h-24 bg-gradient-to-tr from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center font-black text-3xl uppercase shadow">
+        // REMOVED: shadow. Changed size to w-full h-full
+        <div className="w-full h-full bg-gradient-to-tr from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center font-black text-3xl uppercase">
           {user.displayName.charAt(0)}
         </div>
       )}
 
-      {/* The interactive browser form block is safe out here! */}
+      {/* The interactive browser form block */}
       <form 
         action={async (formData) => {
           await updateAvatar(formData, user.id);
@@ -41,7 +44,7 @@ export default function AvatarUpload({ user }: AvatarUploadProps) {
             name="avatar" 
             accept="image/*" 
             className="hidden" 
-            onChange={(e) => e.target.form?.requestSubmit()} // Automatically submits the photo on click
+            onChange={(e) => e.target.form?.requestSubmit()} 
           />
         </label>
       </form>
