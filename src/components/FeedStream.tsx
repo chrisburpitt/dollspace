@@ -116,36 +116,77 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
             )}
 
               {/* 🚀 NEW: EMBEDDED DYNAMIC HYPERLINK RICH PREVIEW CARD */}
-              {post.linkUrl && (
-                <a 
-                  href={post.linkUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="mb-4 rounded-2xl border border-gray-200 bg-gray-50/30 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50/80 transition block shadow-sm"
-                >
-                  {post.linkImage && (
-                    /* 🚀 FIXED: Robust frame styling constraints guarantee thumbnails present perfectly without collapsing */
-                    <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200/60 flex items-center justify-center p-2">
-                      <img 
-                        src={post.linkImage} 
-                        alt="" 
-                        className="w-full h-full object-contain rounded-lg" 
-                        onError={(e) => {
-                          // Safe inline backup image if source completely blocks hotlinking
-                          (e.target as HTMLImageElement).src = `https://google.com{new URL(post.linkUrl!).hostname}`;
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div className="p-4 flex flex-col justify-center min-w-0 flex-1 text-left">
-                    <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-0.5">🔗 External Link</span>
-                    <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">{post.linkTitle || post.linkUrl}</h4>
-                    {post.linkDesc && <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1 leading-relaxed">{post.linkDesc}</p>}
-                    <span className="text-[10px] text-gray-400 font-bold block mt-1 truncate">
-                      {new URL(post.linkUrl).hostname.replace("www.", "")}
-                    </span>
-                  </div>
-                </a>
+{post.linkUrl && (
+  (() => {
+    const domainName = new URL(post.linkUrl).hostname.toLowerCase();
+    
+    // 🚀 NEW: Brand-Aware Icon Lookup Map Matrix
+    let customSocialBrandIcon = null;
+    if (domainName.includes("instagram.com")) customSocialBrandIcon = "📸";
+    if (domainName.includes("facebook.com")) customSocialBrandIcon = "💙";
+    if (domainName.includes("tiktok.com")) customSocialBrandIcon = "🎵";
+    if (domainName.includes("youtube.com") || domainName.includes("youtu.be")) customSocialBrandIcon = "📺";
+    if (domainName.includes("twitter.com") || domainName.includes("x.com")) customSocialBrandIcon = "🐦";
+    if (domainName.includes("pinterest.com")) customSocialBrandIcon = "📌";
+
+    return (
+      <a 
+        href={post.linkUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="mb-4 rounded-2xl border border-gray-200 bg-gray-50/30 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50/80 transition block shadow-sm select-none"
+      >
+        {/* THUMBNAIL BOX */}
+        <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200/60 flex items-center justify-center p-2">
+          {customSocialBrandIcon ? (
+            /* 🚀 FIXED: If it's a known walled garden like Instagram, display a beautiful native fallback badge instantly! */
+            <div className="w-full h-full bg-rose-50/60 rounded-xl flex items-center justify-center text-3xl shadow-inner border border-rose-100/50">
+              {customSocialBrandIcon}
+            </div>
+          ) : post.linkImage ? (
+            <img 
+              src={post.linkImage} 
+              alt="" 
+              className="w-full h-full object-contain rounded-lg" 
+              onError={(e) => {
+                // If hotlink or Google favicon engine blocks it, swap to a clean multi-purpose internet globe emblem
+                (e.target as HTMLImageElement).style.display = "none";
+                const fallbackContainer = (e.target as HTMLImageElement).parentElement;
+                if (fallbackContainer) {
+                  const labelNode = document.createElement("div");
+                  labelNode.className = "w-full h-full bg-gray-50 rounded-xl flex items-center justify-center text-xl text-gray-400 font-bold border border-gray-100";
+                  labelNode.innerText = "🌐";
+                  fallbackContainer.appendChild(labelNode);
+                }
+              }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-50 rounded-xl flex items-center justify-center text-xl text-gray-400 font-bold border border-gray-100">
+              🌐
+            </div>
+          )}
+        </div>
+
+        {/* DETAILS SECTION */}
+        <div className="p-4 flex flex-col justify-center min-w-0 flex-1 text-left">
+          <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-0.5">
+            {customSocialBrandIcon ? `✨ Instagram Profile` : "🔗 External Link"}
+          </span>
+          <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">
+            {customSocialBrandIcon && domainName.includes("instagram.com") && post.content.includes("instagram.com")
+              ? `View Instagram Profile` 
+              : post.linkTitle || post.linkUrl}
+          </h4>
+          <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1 leading-relaxed">
+            {customSocialBrandIcon && domainName.includes("instagram.com")
+              ? "Follow this user link straight over into the Instagram application."
+              : post.linkDesc || "Click to open external web link safely inside a new tab space."}
+          </p>
+          <span className="text-[10px] text-gray-400 font-bold block mt-1 truncate">
+            {domainName.replace("www.", "")}
+          </span>
+        </div>
+      </a>
               )}
               <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={currentUserId} reactions={post.reactions} />
               <PostComments postId={post.id} currentUserId={currentUserId} comments={post.comments} />
