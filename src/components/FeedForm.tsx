@@ -33,15 +33,15 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
   };
 
   return (
-    /* 🚀 EXTRA TOP MARGIN: Prevents the floating bubble from clipping your landscape banner! */
-    <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm text-left relative mt-12 sm:mt-14 pt-14">
+    /* EXTRA TOP MARGIN: Safely accommodates our newly upscaled absolute floating avatar circle frame */
+    <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm text-left relative mt-16 pt-14">
       
-      {/* 🚀 FLOATING AVATAR BUBBLE LAYER: Duplicates your exact profile layout overlap aesthetics */}
-      <div className="absolute -top-12 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-20 h-24 sm:w-24 sm:h-24 flex items-center justify-center shrink-0 select-none">
+      {/* 🚀 PIXEL-PERFECT ALIGNMENT: Upscaled to match your profile card dimensions exactly! */}
+      <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
         {currentUser.avatarUrl ? (
           <img src={currentUser.avatarUrl} alt="" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-rose-500 text-white flex items-center justify-center font-black text-xl uppercase">
+          <div className="w-full h-full bg-rose-500 text-white flex items-center justify-center font-black text-2xl uppercase">
             {currentUser.displayName.charAt(0)}
           </div>
         )}
