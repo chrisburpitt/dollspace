@@ -74,7 +74,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       `How's your Tuesday looking, ${name}? Share an update! 🩰`,
       `Midweek checkpoint! What are we working on today, ${name}? 💻`,
       `Almost there! What's the vibe this Thursday, ${name}? 💕`,
-      `What's on for the weekend, ${name}? 🥂`,
+      `What's on this weekend, ${name}? 🥂`,
       `Saturday photo drop! What are you getting up to today, ${name}? 📸`
     ];
 
