@@ -12,6 +12,7 @@ import FollowButton from "@/components/FollowButton";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
+import { getUnreadMailCount } from "@/app/actions/mailCount"; 
 
 interface ProfileClientProps {
   user: any;
@@ -20,6 +21,10 @@ interface ProfileClientProps {
   sessionUser: any;
   userPosts: any[];
   validatedHeaderUser: any;
+}
+
+export default async function ProfilePage(){
+  const unreadMailCount = await getUnreadMailCount(); 
 }
 
 export default function ProfileClient({ 
