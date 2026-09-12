@@ -13,7 +13,7 @@ import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 
 export const metadata: Metadata = {
-  title: "Dollspace | Discover Community",
+  title: "Dollspace | Discover Your Community",
   description: "Search username handles, filter identities, and find creators globally.",
 };
 
