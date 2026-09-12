@@ -22,7 +22,8 @@ interface ProfileClientProps {
   sessionUser: any;
   userPosts: any[];
   validatedHeaderUser: any;
-  unreadMailCount: number; // 🚀 ADD TYPING INTERFACE PROP
+  unreadMailCount: number;
+  onlineUsers: any[]; 
 }
 
 export default function ProfileClient({ 
@@ -32,7 +33,8 @@ export default function ProfileClient({
   sessionUser, 
   userPosts, 
   validatedHeaderUser,
-  unreadMailCount // 🚀 DESTRUCTURE UNREAD METRIC
+  unreadMailCount
+  onlineUsers 
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
@@ -56,7 +58,7 @@ export default function ProfileClient({
             currentUsername={sessionUser.username}
             unreadMailCount={unreadMailCount}
           />
-		  <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
+		  <OnlineUsersSidebar users={onlineUsers} />
         </aside>
 
 
