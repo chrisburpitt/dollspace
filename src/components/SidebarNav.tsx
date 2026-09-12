@@ -28,22 +28,19 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
         
         <Link href="/" className={getLinkStyle("/")}>
           <span className="flex items-center space-x-2">
-            <span>🏠</span>
-            <span>Home Feed</span>
+            <span>🏠 Home Feed</span>
           </span>
         </Link>
 
         <Link href={`/${currentUsername}`} className={getLinkStyle(`/${currentUsername}`)}>
           <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
-            <span>👤</span>
-            <span>My Profile</span>
+            <span>👤 My Profile</span>
           </span>
         </Link>
 
         <Link href="/chat" className={getLinkStyle("/chat")}>
           <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
-            <span>💬</span>
-            <span>Chat Lounge</span>
+            <span>💬 Chat Lounge</span>
           </span>
         </Link>
 
@@ -51,6 +48,7 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
         <Link href="/mail" className={getLinkStyle("/mail")}>
           <span className="flex items-center space-x-2">
             <span>💌 Mailbox</span>
+		  </span>
           {unreadMailCount > 0 && (
             <span className="bg-rose-500 text-white font-black text-[10px] px-2 py-0.5 min-w-5 h-5 rounded-full flex items-center justify-center animate-pulse shadow-sm">
               {unreadMailCount}
@@ -60,8 +58,7 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
 
         <Link href="/discover" className={getLinkStyle("/discover")}>
           <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
-            <span>🔍</span>
-            <span>Find Friends</span>
+            <span>🔍 Find Friends</span>
           </span>
         </Link>
 
