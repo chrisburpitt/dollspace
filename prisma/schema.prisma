@@ -9,6 +9,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+ }
+
 model User {
   id                String     @id @default(cuid())
   username          String     @unique
@@ -45,6 +51,11 @@ model User {
   latitude          Float?
   longitude         Float?
   lastActive        DateTime       @default(now())
+  
+  role              Role           @default(USER)
+  isBanned          Boolean        @default(false)
+  banReason         String?
+  bannedAt          DateTime?
 }
 
 model Post {
