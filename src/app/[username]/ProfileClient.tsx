@@ -12,7 +12,8 @@ import FollowButton from "@/components/FollowButton";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
-import SidebarNav from "@/components/SidebarNav"; // 🚀 IMPORT REUSABLE SIDEBAR NAV
+import SidebarNav from "@/components/SidebarNav";
+import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 
 interface ProfileClientProps {
   user: any;
@@ -55,6 +56,7 @@ export default function ProfileClient({
             currentUsername={sessionUser.username}
             unreadMailCount={unreadMailCount}
           />
+		  <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
 
