@@ -6,10 +6,6 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
 import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
-import { getUnreadMailCount } from "@/app/actions/mailCount";
-import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
-import SidebarNav from "@/components/SidebarNav";
-import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 
 interface ProfilePageProps {
   params: Promise<{ username: string }>;
@@ -22,9 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ username:
     where: { username },
     select: { displayName: true }
   });
+
   if (!user) return { title: "Dollspace | User Not Found" };
-  
-  const unreadMailCount = await getUnreadMailCount(); 
 
   return {
     title: `Dollspace | ${user.displayName}'s Profile`,

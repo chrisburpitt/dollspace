@@ -46,13 +46,32 @@ export default function ProfileClient({
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
-        {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated) */}
-        <aside className="lg:col-span-3 flex flex-col gap-4 lg:sticky lg:top-20 h-fit self-start">
-          <SidebarNav 
-            currentUsername={currentUser.username} 
-            unreadMailCount={unreadMailCount} 
-          />
-          <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
+        {/* LEFT COLUMN: Sidebar Navigation Panel */}
+        <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
+          <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm">
+            <nav className="flex flex-col space-y-1">
+              <Link href="/" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition">
+                🏠 Home Feed
+              </Link>
+              <Link 
+                href={`/${sessionUser.username}`} 
+                className={`px-4 py-2.5 font-bold rounded-xl text-sm transition ${
+                  isOwner ? "bg-rose-50 text-rose-500" : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                👤 My Profile
+              </Link>
+              <Link href="/chat" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                <span>💬 Chat Lounge</span>
+              </Link>
+              <Link href="/mail" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+                  <span>💌 Mailbox</span>
+              </Link>
+			  <Link href="/discover" className="px-4 py-2.5 text-gray-600 hover:bg-gray-50 hover:text-rose-600 font-semibold rounded-xl text-sm transition flex items-center space-x-2">
+			  <span>🔍 Find Friends</span>
+              </Link>
+            </nav>
+          </div>
         </aside>
 
         {/* src/app/[username]/ProfileClient.tsx (PART 2 - FIXED CAROUSEL HOOK TYPING) */}
