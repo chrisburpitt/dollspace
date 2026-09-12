@@ -1,9 +1,10 @@
-// src/app/admin/AdminControlsClient.tsx (PART 1 - ADMIN ENGINE SPLIT)
+// src/app/admin/AdminControlsClient.tsx (PART 1 - REUSABLE NAV BAR INTEGRATION FIXED)
 "use client";
 
 import { useState, useTransition } from "react";
 import { banUserProfile, unbanUserProfile, dispatchGlobalSystemBroadcast } from "@/app/actions/moderation";
 import SubmitButton from "@/components/SubmitButton";
+import Link from "next/link"; // 🚀 FIXED: Added missing Next.js navigation engine import link
 
 export default function AdminControlsClient({ initialUsers }: { initialUsers: any[] }) {
   const [isPending, startTransition] = useTransition();
