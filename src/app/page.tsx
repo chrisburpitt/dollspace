@@ -13,6 +13,8 @@ import { getUnreadMailCount } from "@/app/actions/mailCount";
 import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
+import { getPlatformDashboardMetrics } from "@/app/actions/platformMetrics";
+import PlatformMetricsCard from "@/components/PlatformMetricsCard";
 import { redirect } from "next/navigation";
 
  export const metadata: Metadata = {
@@ -26,6 +28,7 @@ export default async function HomePage() {
   if (!currentUser) redirect("/login");
 
   const unreadMailCount = await getUnreadMailCount(); 
+  const dashboardMetrics = await getPlatformDashboardMetrics(); 
 
   // Relational inclusion parameters for home feed queries
   const postInclusions = {
@@ -111,6 +114,7 @@ export default async function HomePage() {
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Platform Hub</h3>
             <p className="text-xs text-gray-400 font-semibold leading-relaxed">Welcome back to Dollspace {currentUser.displayName}! Share stories, pictures or links directly to your feed for your followers to see ✨</p>
           </div>
+		  <PlatformMetricsCard metrics={dashboardMetrics} />
         </aside>
 
       </div>
