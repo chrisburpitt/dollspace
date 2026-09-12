@@ -7,6 +7,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import Link from "next/link";
 import DiscoverDashboardClient from "./DiscoverDashboardClient";
 import { Metadata } from "next";
+import { getUnreadMailCount } from "@/app/actions/mailCount";
 import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
