@@ -33,7 +33,7 @@ export default function ProfileClient({
   sessionUser, 
   userPosts, 
   validatedHeaderUser,
-  unreadMailCount
+  unreadMailCount,
   onlineUsers 
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
