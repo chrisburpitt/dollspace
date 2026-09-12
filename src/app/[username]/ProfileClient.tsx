@@ -53,7 +53,7 @@ export default function ProfileClient({
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* 🚀 LEFT COLUMN: Swapped out old local nav link items block for our global unified menu panel */}
-        <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start">
+        <aside className="lg:col-span-3 flex flex-col gap-4 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav 
             currentUsername={sessionUser.username}
             unreadMailCount={unreadMailCount}
