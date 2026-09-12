@@ -4,7 +4,8 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
-import { getUnreadMailCount } from "@/app/actions/mailCount"; // 🚀 IMPORT ACCUMULATOR
+import { getUnreadMailCount } from "@/app/actions/mailCount";
+import { getOnlineDollsRoster } from "@/app/actions/onlineUsers"; 
 import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
@@ -30,7 +31,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   if (!sessionUser) redirect("/login"); 
 
   // Fetch real-time mail counters for the sidebar nav
-  const unreadMailCount = await getUnreadMailCount(); // 🚀 FETCH TOTAL METRICS
+  const unreadMailCount = await getUnreadMailCount();
+  const onlineUsers = await getOnlineDollsRoster(); 
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -84,7 +86,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       sessionUser={sessionUser} 
       userPosts={userPosts} 
       validatedHeaderUser={validatedHeaderUser} 
-      unreadMailCount={unreadMailCount} // 🚀 PASS UNREAD METRIC COUNT DOWN TO CLIENT
+      unreadMailCount={unreadMailCount}
+	  onlineUsers={onlineUsers} 
     />
   );
 }
