@@ -80,23 +80,20 @@ export default async function HomePage() {
   };
 
   return (
-  <div className="min-h-screen bg-gray-50 text-gray-900">
-    <GlobalHeader currentUser={validatedHeaderUser} />
-    <StaticFeedBanner />
+    <div className="min-h-screen bg-gray-50 text-gray-900">
+      <GlobalHeader currentUser={validatedHeaderUser} />
+      <StaticFeedBanner />
 
-    <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
       
-      {/* 🚀 2. LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated down to just two simple component rows!) */}
-      <aside className="lg:col-span-3 flex flex-col gap-4 lg:sticky lg:top-20 h-fit self-start">
-        
-        {/* Mounts your fresh reusable navigation and passes data strings cleanly */}
-        <SidebarNav 
-          currentUsername={currentUser.username} 
-          unreadMailCount={unreadMailCount} 
-        />
-
-        <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
-      </aside>
+        {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated) */}
+        <aside className="lg:col-span-3 flex flex-col gap-4 lg:sticky lg:top-20 h-fit self-start">
+          <SidebarNav 
+            currentUsername={currentUser.username} 
+            unreadMailCount={unreadMailCount} 
+          />
+          <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
+        </aside>
 
         {/* CENTER COLUMN: Interactive Feed Timeline Core */}
         <main className="lg:col-span-6 space-y-6">
