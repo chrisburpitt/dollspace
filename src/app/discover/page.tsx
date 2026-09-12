@@ -20,6 +20,8 @@ export const metadata: Metadata = {
 export default async function DiscoverPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
+  
+  const unreadMailCount = await getUnreadMailCount(); 
 
   const validatedHeaderUser = {
     id: currentUser.id,
