@@ -4,6 +4,7 @@
 import { useState, useRef, useEffect } from "react";
 import usePartySocket from "partysocket/react";
 import { saveDirectMessage } from "@/app/actions/messages";
+import ChatPresenceKeeper from "@/components/ChatPresenceKeeper"; 
 import Link from "next/link";
 
 interface Contact {
@@ -162,6 +163,8 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   // src/app/chat/UnifiedMessengerClient.tsx (PART 2 - PASTE THIS DIRECTLY UNDERNEATH PART 1)
   return (
     <div className="flex h-full divide-x divide-gray-200">
+	
+	<ChatPresenceKeeper typingInputId="chat-message-input" />
       
       {/* 📂 CHANNEL ROSTER SIDEBAR (1/3 Width Layout Box) */}
       <div className="w-1/3 flex flex-col bg-white overflow-hidden">

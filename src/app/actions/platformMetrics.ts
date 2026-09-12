@@ -16,7 +16,7 @@ export async function getPlatformDashboardMetrics(): Promise<PlatformMetricsSumm
     return { onlineCount: 0, unreadMailCount: 0, waitingDMsCount: 0 };
   }
 
-  const cutoffTime = new Date(Date.now() - 2 * 60 * 1000); // 2 minutes presence limit
+  const cutoffTime = new Date(Date.now() - 5 * 60 * 1000); // 2 minutes presence limit
 
   try {
     // 🚀 EXECUTE COMPATIBLE TRANSACTION COUNTS: Safely fetches dynamic rows
