@@ -9,7 +9,7 @@ import Link from "next/link";
 
 interface PhotoItem { id: string; url: string; }
 interface AlbumItem { id: string; name: string; description: string | null; isPrivate: boolean; photos: PhotoItem[]; }
-interface ProfileAlbumsProps { albums: AlbumItem[]; isOwner: boolean; onPhotoClick: (url: string) => void; forceActiveAlbumsViewTabNatively: () => void; }
+interface ProfileAlbumsProps { albums: AlbumItem[]; isOwner: boolean; onPhotoClick: (url: string) => void; forceActiveAlbumsViewTabNatively: () => void; followersList?: any[]; }
 
 // 🚀 FREE BROWSER CANVAS COMPRESSOR: Down-samples image nodes to 1200px at 80% JPEG quality
 function compressAlbumPhoto(file: File, maxWidth = 1200, quality = 0.8): Promise<string> {
@@ -31,7 +31,7 @@ function compressAlbumPhoto(file: File, maxWidth = 1200, quality = 0.8): Promise
   });
 }
 
-export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoClick, forceActiveAlbumsViewTabNatively }: ProfileAlbumsProps) {
+export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoClick, forceActiveAlbumsViewTabNatively,followersList = [] }: ProfileAlbumsProps) {
   const [albums, setAlbums] = useState<AlbumItem[]>(initialAlbums);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -307,9 +307,24 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
                   </div>
                 </div>
 
-                <form onSubmit={handlePostInspectorComment} className="pt-2 border-t flex gap-1.5 shrink-0">
-                  <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)} required placeholder={selectedPhoto ? "Comment on photo..." : "Comment on album..."} className="flex-1 border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none" />
-                  <button type="submit" className="bg-gray-900 text-white font-black text-xs px-3 py-2.5 rounded-xl hover:bg-rose-500 transition shadow-sm">Post</button>
+                <form onSubmit={handlePostInspectorComment} className="pt-2 border-t flex flex-col gap-1.5 shrink-0 text-left">
+                  <div className="w-full">
+                    <MentionInput 
+                      value={commentText}
+                      onChange={(val: string) => setCommentText(val)}
+                      placeholder={selectedPhoto ? "Comment on photo... use @ to tag!" : "Comment on album... use @ to tag!"}
+                      isTextArea={false}
+                      disabled={isPending}
+                      // Safely pulls follower connection tokens passed down from your props matrix
+                      followersList={followersList} 
+                      className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
+                    />
+                  </div>
+                  <div className="flex justify-end pt-0.5">
+                    <button type="submit" className="bg-gray-900 text-white font-black text-xs px-4 py-2 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide">
+                      Post Comment
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>

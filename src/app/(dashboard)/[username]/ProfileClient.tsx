@@ -144,6 +144,7 @@ export default function ProfileClient({
                 isOwner={isOwner} 
                 onPhotoClick={(url) => setActiveLightboxUrl([url])} 
                 forceActiveAlbumsViewTabNatively={() => setActiveTab("ALBUMS")}
+				followersList={onlineUsers} 
               />
             </div>
           ) : activeTab === "TAGGED" ? (
@@ -185,9 +186,9 @@ export default function ProfileClient({
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Profile Metrics</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
-              <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5"><span>Profile Views:</span><span className="text-rose-500 font-black">👀 {user.views}</span></div>
               <div className="flex justify-between"><span>Account Created:</span><span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span></div>
               <div className="flex justify-between"><span>Total Posts Stored:</span><span className="text-gray-900 font-bold">{user._count.posts}</span></div>
+			  <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5"><span>Profile Views:</span><span className="text-rose-500 font-black">👀 {user.views}</span></div>
             </div>
           </div>
         </aside>
