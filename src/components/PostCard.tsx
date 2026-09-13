@@ -30,10 +30,13 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   if (domainName.includes("twitter.com") || domainName.includes("x.com")) customSocialBrandIcon = "🐦";
   if (domainName.includes("pinterest.com")) customSocialBrandIcon = "📌";
 
-  // 🚀 FIXED: Robust collector handles new multi-image rows AND legacy single-image properties flawlessly!
+  // Robust collector handles new multi-image rows AND legacy single-image fields
   const dbPhotoUrls = post.images?.map((img: any) => img.url) || [];
   const legacyPhotoUrl = post.imageUrl ? [post.imageUrl] : [];
   const combinedImages: string[] = dbPhotoUrls.length > 0 ? dbPhotoUrls : legacyPhotoUrl;
+
+  // 🚀 FIXED: Re-added missing authorization boolean checker variable to clear compile errors!
+  const isOwner = post.userId === currentUserId;
 
   const handleSaveInlineEdit = () => {
     if (!editText.trim() || editText.trim() === post.content) {
@@ -102,7 +105,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         post.content && <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
       )}
 
-      {/* 🚀 FIXED PHOTO COLUMNS GRID: Forces 3 pictures side-by-side cleanly exactly like the profile page! */}
+      {/* PHOTO COLUMNS GRID (Forces 3 pictures side-by-side cleanly) */}
       {combinedImages.length > 0 && (
         <div className={`grid gap-2 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-4 ${
           combinedImages.length === 1 ? "grid-cols-1" :
