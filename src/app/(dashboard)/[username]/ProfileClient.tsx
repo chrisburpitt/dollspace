@@ -1,20 +1,18 @@
-// src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1 - IMPORT FIXED)
+// src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1 - TAGGED TAB EXPANSION)
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import BannerUpload from "@/components/BannerUpload";
-import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
-import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
-import ProfileUpdateFeed from "@/components/ProfileUpdateFeed"; // 🚀 FIXED: Added missing layout component import
+import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
 
 interface ProfileClientProps {
   user: any;
@@ -22,6 +20,7 @@ interface ProfileClientProps {
   isFollowing: boolean;
   sessionUser: any;
   userPosts: any[];
+  taggedPosts: any[]; // 🚀 ADD TAGGED ARRAY TO CLIENT PROPS INTERFACE
   validatedHeaderUser: any;
   unreadMailCount: number;
   onlineUsers: any[];
@@ -33,11 +32,13 @@ export default function ProfileClient({
   isFollowing, 
   sessionUser, 
   userPosts, 
+  taggedPosts = [], // 🚀 DESTRUCTURE TAGGED ARRAY
   validatedHeaderUser,
   unreadMailCount,
   onlineUsers
 }: ProfileClientProps) {
-  const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
+  // 🚀 UPGRADED: Expanded tab state options to handle 'TAGGED' streams seamlessly
+  const [activeTab, setActiveTab] = useState<"FEED" | "TAGGED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
 
   const filteredAlbums = (user.albums || []).filter((album: any) => {
@@ -53,17 +54,13 @@ export default function ProfileClient({
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
-        {/* LEFT COLUMN: Sidebar Navigation Stack Panel */}
+        {/* LEFT COLUMN: Sidebar Navigation Panel */}
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
-          <SidebarNav 
-            currentUsername={sessionUser.username}
-            unreadMailCount={unreadMailCount}
-          />
+          <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
 
-
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - PERFECT GRID ALIGNMENT SUCCESS) */}
+        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - TAGGED TAB EXPANSION) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16">
@@ -83,17 +80,10 @@ export default function ProfileClient({
                     <EditProfileModal user={user} />
                   ) : (
                     <div className="flex items-center space-x-2">
-                      <Link
-                        href="/chat"
-                        className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"
-                      >
+                      <Link href="/chat" className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1">
                         <span>💌 Chat</span>
                       </Link>
-                      <FollowButton 
-                        currentUserId={sessionUser.id} 
-                        targetUserId={user.id} 
-                        initialIsFollowing={isFollowing} 
-                      />
+                      <FollowButton currentUserId={sessionUser.id} targetUserId={user.id} initialIsFollowing={isFollowing} />
                     </div>
                   )}
                 </div>
@@ -105,29 +95,19 @@ export default function ProfileClient({
                   {user.location && <span className="bg-gray-100 px-2.5 py-1 rounded-lg text-gray-600">📍 {user.location}</span>}
                 </div>
 
-                {/* Deduplicated Trait Badges */}
+                {/* Trait Badges */}
                 {user.lookingFor && user.lookingFor.trim().length > 0 && (
                   <div className="flex flex-wrap gap-1.5 items-center mt-4">
                     <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                    {[...new Set(
-                      user.lookingFor
-                        .split(",")
-                        .map((option: string) => option.trim().replace(/_/g, ' '))
-                        .filter(Boolean)
-                    )].map((optionLabel: any) => (
-                      <span 
-                        key={optionLabel} 
-                        className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm"
-                      >
+                    {[...new Set(user.lookingFor.split(",").map((option: string) => option.trim().replace(/_/g, ' ')).filter(Boolean))].map((optionLabel: any) => (
+                      <span key={optionLabel} className="bg-rose-50 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm">
                         {optionLabel}
                       </span>
                     ))}
                   </div>
                 )}
 
-                <p className="mt-4 text-gray-600 leading-relaxed font-medium">
-                  {user.bio || "Welcome to my Dollspace profile layout!"}
-                </p>
+                <p className="mt-4 text-gray-600 leading-relaxed font-medium">{user.bio || "Welcome to my Dollspace profile layout!"}</p>
                 
                 <div className="flex justify-center sm:justify-start space-x-6 mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500 font-medium">
                   <div><strong className="text-gray-900 font-bold">{user._count.following}</strong> Following</div>
@@ -137,7 +117,7 @@ export default function ProfileClient({
             </div>
           </div>
 
-          {/* PREMIUM TAB SELECTION SLIDER BAR */}
+          {/* 🚀 UPGRADED: THREE PIECE TAB SLIDER SELECTION BAR */}
           <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
             <button 
               onClick={() => setActiveTab("FEED")}
@@ -145,6 +125,15 @@ export default function ProfileClient({
             >
               📝 Updates Feed ({userPosts.length})
             </button>
+            
+            {/* 🎯 THE NEW TAGGED TAB ROW LAYOUT */}
+            <button 
+              onClick={() => setActiveTab("TAGGED")}
+              className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "TAGGED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+            >
+              🏷️ Tagged Posts ({taggedPosts.length})
+            </button>
+
             <button 
               onClick={() => setActiveTab("ALBUMS")}
               className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
@@ -153,33 +142,53 @@ export default function ProfileClient({
             </button>
           </div>
 
-          {/* CONDITIONAL TAB SWITCH ROUTER */}
+          {/* DYNAMIC THREE-WAY CONDITIONAL TAB SWITCH ROUTER ROUTER */}
           {activeTab === "ALBUMS" ? (
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-              <ProfileAlbums 
-                albums={filteredAlbums} 
-                isOwner={isOwner} 
-                onPhotoClick={(url) => setActiveLightboxUrl([url])} 
-              />
+              <ProfileAlbums albums={filteredAlbums} isOwner={isOwner} onPhotoClick={(url) => setActiveLightboxUrl([url])} />
             </div>
+          ) : activeTab === "TAGGED" ? (
+            /* 🚀 NEW RENDERING CANVAS BLOCK: Displays updates where this visitor handle was tagged */
+            <>
+              <div className="flex items-center space-x-2 px-1">
+                <h2 className="font-black text-lg text-gray-900">Mentions of {user.displayName}</h2>
+                <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{taggedPosts.length}</span>
+              </div>
+
+              <div className="space-y-4 mt-2">
+                {taggedPosts.length === 0 ? (
+                  <div className="bg-white border border-dashed border-gray-200 p-12 rounded-2xl text-center text-gray-400 shadow-sm">
+                    <span className="text-2xl block mb-1">🏷️</span>
+                    <p className="font-bold text-xs uppercase tracking-wider">No tag citations yet</p>
+                    <p className="text-[11px] mt-0.5">When other dolls mention @{user.username} in a post update, it will display here!</p>
+                  </div>
+                ) : (
+                  taggedPosts.map((post: any) => (
+                    <ProfileUpdateFeed 
+                      key={`tagged-${post.id}`} 
+                      post={post} 
+                      currentUserId={sessionUser.id} 
+                      onPhotoClick={(urlsArray: string[]) => setActiveLightboxUrl(urlsArray)} 
+                    />
+                  ))
+                )}
+              </div>
+            </>
           ) : (
+            /* DEFAULT RENDERING CANVAS BLOCK: Direct updates feed */
             <>
               <div className="flex items-center space-x-2 px-1">
                 <h2 className="font-black text-lg text-gray-900">Updates by {user.displayName}</h2>
                 <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
               </div>
 
-              {/* Timeline Updates Stream Container List */}
               <div className="space-y-4 mt-2">
                 {userPosts.map((post: any) => (
                   <ProfileUpdateFeed 
-                    key={post.id}
-                    post={post}
-                    currentUserId={sessionUser.id}
-                    /* 🚀 FIXED TYPES SIGNATURES: Explicitly typed array parameters to satisfy build rules */
-                    onPhotoClick={(urlsArray: string[], targetIndex: number) => {
-                      setActiveLightboxUrl(urlsArray);
-                    }}
+                    key={post.id} 
+                    post={post} 
+                    currentUserId={sessionUser.id} 
+                    onPhotoClick={(urlsArray: string[]) => setActiveLightboxUrl(urlsArray)} 
                   />
                 ))}
               </div>
@@ -207,15 +216,11 @@ export default function ProfileClient({
             </div>
           </div>
         </aside>
+
       </div>
 
-      {/* Full-screen Lightbox Portal Media Preview Overlay */}
       {activeLightboxUrl && (
-        <ImageLightbox 
-          imageUrls={activeLightboxUrl} 
-          initialIndex={0}
-          onClose={() => setActiveLightboxUrl(null)} 
-        />
+        <ImageLightbox imageUrls={activeLightboxUrl} initialIndex={0} onClose={() => setActiveLightboxUrl(null)} />
       )}
     </div>
   );

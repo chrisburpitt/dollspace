@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
 import { getUnreadMailCount } from "@/app/actions/mailCount";
-import { getOnlineDollsRoster } from "@/app/actions/onlineUsers"; 
+import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
@@ -30,9 +30,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const sessionUser = await getCurrentUser();
   if (!sessionUser) redirect("/login"); 
 
-  // Fetch real-time mail counters for the sidebar nav
   const unreadMailCount = await getUnreadMailCount();
-  const onlineUsers = await getOnlineDollsRoster(); 
+  const onlineUsers = await getOnlineDollsRoster();
 
   const user = await prisma.user.findUnique({
     where: { username },
@@ -49,17 +48,33 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   if (!user) notFound();
 
-  // 🚀 UPGRADED SCHEMA: Load post image sub-tables on profile calls to align layout rendering parameters
+  // 🚀 SHARED POST INCLUSIONS SCHEMATICS WRAPPER MATRIX
+  const sharedPostInclusions = {
+    user: { select: { id: true, username: true, displayName: true, avatarUrl: true } }, 
+    reactions: true,
+    images: { select: { id: true, url: true } }, 
+    comments: { include: { user: true }, orderBy: { createdAt: "asc" as const } }
+  };
+
+  // 1. Fetch posts authored directly by this specific profile
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
-    include: { 
-      user: true, 
-      reactions: true,
-      images: { select: { id: true, url: true } }, // 🎯 CRITICAL ELEMENT FOR MULTI-PHOTO PREVIEWS
-      comments: { include: { user: true }, orderBy: { createdAt: "asc" } }
-    },
+    include: sharedPostInclusions,
     orderBy: { createdAt: "desc" },
     take: 20 
+  });
+
+  // 🚀 2. NEW HIGH-SPEED LOOKUP: Scans global contents for matching '@username' text tags!
+  const taggedPosts = await prisma.post.findMany({
+    where: {
+      content: {
+        contains: `@${user.username}`,
+        mode: "insensitive"
+      }
+    },
+    include: sharedPostInclusions,
+    orderBy: { createdAt: "desc" },
+    take: 20
   });
 
   const isFollowingResult = await prisma.follow.findUnique({
@@ -87,9 +102,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       isFollowing={isFollowing} 
       sessionUser={sessionUser} 
       userPosts={userPosts} 
+      taggedPosts={taggedPosts} // 🚀 PASS TAGGED STREAM MATRIX DOWN TO CLIENT
       validatedHeaderUser={validatedHeaderUser} 
       unreadMailCount={unreadMailCount}
-	  onlineUsers={onlineUsers} 
+      onlineUsers={onlineUsers} 
     />
   );
 }
