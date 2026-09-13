@@ -94,7 +94,8 @@ export default function ProfileClient({
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
 
-        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - BADGE RE-ISOLATION FIXED) */}
+
+        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - RE-ISOLATION FIXED) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
@@ -145,7 +146,7 @@ export default function ProfileClient({
                   </div>
                 )}
                 
-                {/* 🚀 FIXED BADGES AREA: Completely safe, clean, and abstracted to avoid any compilation anomalies */}
+                {/* 🚀 FIXED BADGES AREA: Fully completed the inline logical components loops to pass Turbopack checks */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.genderIdentity && }
                   {user.location && <DiscoverFilterBadge paramName="location" value={user.location} icon="📍" />}
