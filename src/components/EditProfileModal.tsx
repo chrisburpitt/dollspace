@@ -1,8 +1,7 @@
-// src/components/EditProfileModal.tsx (PART 1 - COMPILE FIXED)
+// src/components/EditProfileModal.tsx (PART 1 OF 3)
 "use client";
 
 import { useState, useTransition } from "react";
-// 🚀 FIXED: Importing 'updateProfile' directly to perfectly match your updated actions signature file
 import { updateProfile } from "@/app/actions/profile"; 
 import SubmitButton from "./SubmitButton";
 
@@ -13,7 +12,7 @@ interface EditProfileModalProps {
     location: string | null;
     genderIdentity: string | null;
     lookingFor: string | null;
-    birthday: string | null; // Captures current database records
+    birthday: string | null;
     instagramHandle: string | null;
     facebookHandle: string | null;
   };
@@ -23,15 +22,12 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // Controlled Form Inputs
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
   const [location, setLocation] = useState(user.location || "");
   const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "");
   const [lookingFor, setLookingFor] = useState(user.lookingFor || "");
 
-  // 🚀 NEW INTERACTIVE IDENTITY INPUT STATES
-  // Safely slices native ISO date strings (e.g., 1998-05-12T00:00:00.000Z) down into HTML date picker layout paths
   const initialDateStr = user.birthday ? new Date(user.birthday).toISOString().split("T")[0] : "";
   const [birthday, setBirthday] = useState(initialDateStr);
   const [instagramHandle, setInstagramHandle] = useState(user.instagramHandle || "");
@@ -39,17 +35,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
   const handleFormSubmitAction = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     startTransition(async () => {
-      // Pack parameters into a clean form data payload block
       const payload = new FormData();
       payload.append("displayName", displayName);
       payload.append("bio", bio);
       payload.append("location", location);
       payload.append("genderIdentity", genderIdentity);
       payload.append("lookingFor", lookingFor);
-      
-      // 🚀 NEW STRINGS: Appending your upgraded identity data variables
       payload.append("birthday", birthday);
       payload.append("instagramHandle", instagramHandle);
       payload.append("facebookHandle", facebookHandle);
@@ -57,13 +49,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       const res = await updateProfile(payload);
       if (res?.success) {
         setIsOpen(false);
-        window.location.reload(); // Refresh to repaint the layout tags instantly
+        window.location.reload();
       } else if (res?.error) {
         alert(res.error);
       }
     });
   };
-
+  // src/components/EditProfileModal.tsx (PART 2 OF 3)
   return (
     <>
       <button
@@ -84,60 +76,35 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
             </div>
 
             <form onSubmit={handleFormSubmitAction} className="p-6 overflow-y-auto space-y-4 flex-1 text-xs font-semibold text-gray-700">
-
-              {/* src/components/EditProfileModal.tsx (PART 2 - REPAIRED COMPILE SUCCESS) */}
+              
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
                 <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* Native HTML Date picker selector element for Birthdays */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Date of Birth</label>
-                <input 
-                  type="date" 
-                  value={birthday} 
-                  onChange={(e) => setBirthday(e.target.value)} 
-                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" 
-                />
+                <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" />
               </div>
 
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Location</label>
                 <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Sydney, Australia 📍" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
-
+              {/* src/components/EditProfileModal.tsx (PART 3 OF 3) */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
-                {/* 🚀 FIXED onChange TRIGGER: Fully restored the complete event function handler block below error line 112 */}
-                 setGenderIdentity(e.target.value)} 
-                  placeholder="e.g. Doll / Princess ✨" 
-                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
-                />
+                 setGenderIdentity(e.target.value)} placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* Instagram handle string capture field */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Instagram Handle</label>
-                <input 
-                  type="text" 
-                  value={instagramHandle} 
-                  onChange={(e) => setInstagramHandle(e.target.value)} 
-                  placeholder="e.g. chloe_luxe" 
-                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
-                />
+                <input type="text" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="e.g. chloe_luxe" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* Facebook username identifier field */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Facebook Handle / Username</label>
-                <input 
-                  type="text" 
-                  value={facebookHandle} 
-                  onChange={(e) => setFacebookHandle(e.target.value)} 
-                  placeholder="e.g. chloe.stevens.9" 
-                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
-                />
+                <input type="text" value={facebookHandle} onChange={(e) => setFacebookHandle(e.target.value)} placeholder="e.g. chloe.stevens.9" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
               <div>
