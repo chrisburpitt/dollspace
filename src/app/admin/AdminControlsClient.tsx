@@ -1,12 +1,17 @@
-// src/app/admin/AdminControlsClient.tsx (PART 1 - REUSABLE NAV BAR INTEGRATION FIXED)
+// src/app/admin/AdminControlsClient.tsx (PART 1 - FIXED ADMIN INTERFACE CONTROLS)
 "use client";
 
 import { useState, useTransition } from "react";
 import { banUserProfile, unbanUserProfile, dispatchGlobalSystemBroadcast } from "@/app/actions/moderation";
 import SubmitButton from "@/components/SubmitButton";
-import Link from "next/link"; // 🚀 FIXED: Added missing Next.js navigation engine import link
+import Link from "next/link";
 
-export default function AdminControlsClient({ initialUsers }: { initialUsers: any[] }) {
+interface AdminControlsClientProps {
+  initialUsers: any[];
+  currentUserId: string; // 🚀 FIXED: Added missing typesafe id tracker string to interface props mapping
+}
+
+export default function AdminControlsClient({ initialUsers, currentUserId }: AdminControlsClientProps) {
   const [isPending, startTransition] = useTransition();
   const [users, setUsers] = useState<any[]>(initialUsers);
   
@@ -15,6 +20,8 @@ export default function AdminControlsClient({ initialUsers }: { initialUsers: an
   const [broadcastBody, setBroadcastBody] = useState("");
 
   const handleBanToggle = (userId: string, currentBanState: boolean, name: string) => {
+    if (userId === currentUserId) return; // Guard safe block
+    
     if (currentBanState) {
       if (!confirm(`🌸 Safely lift account ban restrictions for ${name}?`)) return;
       startTransition(async () => {

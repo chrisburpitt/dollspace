@@ -87,8 +87,13 @@ export default async function AdminPage() {
           </div>
         </aside>
 
+        {/* RIGHT CORE CONSOLE: Renders Interactive Management Views */}
         <main className="lg:col-span-9 space-y-6">
-          <AdminControlsClient initialUsers={serializedUsers} />
+          {/* 🚀 FIXED: Passing currentUserId down into your client controls wrapper smoothly */}
+          <AdminControlsClient 
+            initialUsers={serializedUsers} 
+            currentUserId={currentUser.id} 
+          />
         </main>
       </div>
     </div>
