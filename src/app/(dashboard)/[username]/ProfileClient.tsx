@@ -127,7 +127,7 @@ export default function ProfileClient({
                   </div>
                 )}
                 
-                {/* 🚀 FIXED BADGES: Removed the hidden unicode character layout flags to pass Turbopack checks */}
+                {/* 🚀 FIXED BADGES: Fully restored the open Link wrapper tags cleanly to fix the JSX compiler tree error */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.genderIdentity && (
                     
