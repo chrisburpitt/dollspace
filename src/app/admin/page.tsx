@@ -11,7 +11,7 @@ import AdminControlsClient from "./AdminControlsClient";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Dollspace | Admin Moderation Center",
+  title: "Dollspace | Admin Control Panel",
   description: "Secure administrative deck to manage platform bans, blocks, and broadcast alerts.",
 };
 

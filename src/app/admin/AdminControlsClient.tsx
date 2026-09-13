@@ -1,4 +1,4 @@
-// src/app/admin/AdminControlsClient.tsx (PART 1 - FIXED ADMIN INTERFACE CONTROLS)
+// src/app/admin/AdminControlsClient.tsx (PART 1 - LIVE SEARCH STATE UPGRADE)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -8,7 +8,7 @@ import Link from "next/link";
 
 interface AdminControlsClientProps {
   initialUsers: any[];
-  currentUserId: string; // 🚀 FIXED: Added missing typesafe id tracker string to interface props mapping
+  currentUserId: string;
 }
 
 export default function AdminControlsClient({ initialUsers, currentUserId }: AdminControlsClientProps) {
@@ -19,8 +19,21 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   const [broadcastSubject, setBroadcastSubject] = useState("");
   const [broadcastBody, setBroadcastBody] = useState("");
 
+  // 🚀 NEW: State tracker for the directory search box filter
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // 🚀 LIVE SEARCH FILTER ENGINE: Matches text query string parameters instantly in 0ms!
+  const filteredUsers = users.filter((u) => {
+    const searchString = searchTerm.trim().toLowerCase();
+    if (!searchString) return true;
+    return (
+      u.displayName.toLowerCase().includes(searchString) ||
+      u.username.toLowerCase().includes(searchString)
+    );
+  });
+
   const handleBanToggle = (userId: string, currentBanState: boolean, name: string) => {
-    if (userId === currentUserId) return; // Guard safe block
+    if (userId === currentUserId) return;
     
     if (currentBanState) {
       if (!confirm(`🌸 Safely lift account ban restrictions for ${name}?`)) return;
@@ -33,7 +46,7 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
       });
     } else {
       const reason = prompt(`🚫 Specify ban citation reason description for ${name}:`);
-      if (reason === null) return; // Cancelled
+      if (reason === null) return;
       
       startTransition(async () => {
         const res = await banUserProfile(userId, reason.trim());
@@ -64,13 +77,11 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   };
 
 
-  // src/app/admin/AdminControlsClient.tsx (PART 2 - THREE PIECE SPLIT)
+  // src/app/admin/AdminControlsClient.tsx (PART 2 - LIVE SEARCH BAR INJECTION)
   
   // 🚀 NEW INTERACTIVE EVENT HANDLERS
   const handleRoleChange = (userId: string, currentRole: string, newRole: string, name: string) => {
-    if (userId === currentUserId) return; // Guard protection block
-    
-    // Normalise short choice strings over to system database schema enums
+    if (userId === currentUserId) return;
     const validatedSchemaEnum = newRole === "MOD" ? "MODERATOR" : (newRole as "USER" | "ADMIN");
 
     if (!confirm(`🌸 Migrate authority clearance tier for ${name} from ${currentRole} to ${newRole}?`)) return;
@@ -102,16 +113,17 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
     });
   };
 
+// PART 2
   return (
     <div className="space-y-6 text-left select-none animate-fade-in">
       
-      {/* CARD A: DYNAMIC GLOBAL TRANSMISSION BROADCAST BAR FORM PANEL */}
+      {/* CARD A: DYNAMIC GLOBAL TRANSMISSION BROADCAST ENGINE */}
       <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center space-x-2">
           <span className="text-xl">📢</span>
-          <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Global System Broadcast Engine</h2>
+          <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Global System Broadcast</h2>
         </div>
-        <p className="text-xs text-gray-400 font-semibold leading-relaxed">Type your message string layout below. Clicking dispatch will automatically clone and distribute this letter straight into every registered member's mail inbox card array simultaneously.</p>
+        <p className="text-xs text-gray-400 font-semibold leading-relaxed">Type your message string below. Clicking dispatch will automatically distribute this to every registered member's mailbox simultaneously.</p>
         
         <form onSubmit={handleBroadcastSubmit} className="space-y-3">
           <div>
@@ -145,19 +157,38 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
         </form>
       </div>
 
-
-      {/* src/app/admin/AdminControlsClient.tsx (PART 3 - THREE PIECE SPLIT) */}
       {/* CARD B: USER ROSTER MANAGEMENT & MODERATION ACCOUNT GRID LIST */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
-        <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
+      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between mb-1 border-b border-gray-50 pb-3">
           <div className="flex items-center space-x-2">
             <span className="text-xl">🛡️</span>
-            <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Community Member Management Directory</h2>
+            <h2 className="font-black text-base text-gray-900 tracking-wide">Dollspace User Direcotry</h2>
           </div>
           <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-0.5 rounded-full">
-            {users.length} Total Accounts
+            {filteredUsers.length} matched / {users.length} total
           </span>
         </div>
+
+        {/* 🚀 INJECTED LAYER: REAL-TIME CLIENT DIRECTORY SEARCH TEXT BAR CONSOLE */}
+        <div className="w-full">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Type display name or handle to filter management directory list instantly..."
+            className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition text-gray-800 placeholder-gray-400 shadow-inner"
+          />
+        </div>
+
+        {/* Inside Part 3 of AdminControlsClient.tsx */}
+        <div className="divide-y divide-gray-100 max-h-[550px] overflow-y-auto pr-1 space-y-2">
+          {/* 🚀 FIXED: Reads from the live filtered array instead of the raw unfiltered database data */}
+          {filteredUsers.map((profile) => {
+            const isSelf = profile.id === currentUserId;
+            const mappedRoleDisplay = profile.role === "MODERATOR" ? "MOD" : profile.role;
+
+            return (
+              // ... user card rows layout remains 100% exactly the same as previously posted ...
 
         <div className="divide-y divide-gray-100 max-h-[550px] overflow-y-auto pr-1 space-y-2">
           {users.map((profile) => {
