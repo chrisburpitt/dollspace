@@ -11,7 +11,7 @@ interface PostCardProps {
   post: any;
   currentUserId: string;
   onPhotoClick: (urls: string[], index: number) => void;
-  followersList?: Array<{ username: string; displayName: string }>; // Passed down from parent pages context
+  followersList?: Array<{ username: string; displayName: string }>;
 }
 
 export default function PostCard({ post, currentUserId, onPhotoClick, followersList = [] }: PostCardProps) {
@@ -19,7 +19,6 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post.content || "");
   
-  // 🚀 AUTO-EXPAND COMMENTS LOGIC: True automatically if comment rows exist in database arrays!
   const hasCommentsPresent = post.comments && post.comments.length > 0;
 
   const domainName = post.linkUrl ? new URL(post.linkUrl).hostname.toLowerCase() : "";
@@ -32,7 +31,6 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   if (domainName.includes("pinterest.com")) customSocialBrandIcon = "📌";
 
   const combinedImages: string[] = post.images?.map((img: any) => img.url) || [];
-  const isOwner = post.userId === currentUserId;
 
   const handleSaveInlineEdit = () => {
     if (!editText.trim() || editText.trim() === post.content) {
@@ -43,7 +41,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
     startTransition(async () => {
       const res = await editPostContent(post.id, editText);
       if (res.success) {
-        post.content = editText.trim(); // Optimistic lock UI repaint
+        post.content = editText.trim(); // Optimistic repaint
         setIsEditing(false);
       } else if (res.error) {
         alert(res.error);
@@ -54,7 +52,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   return (
     <div className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none">
       
-      {/* AUTHOR HEADER PANEL WITH EDIT CONTROLS OPTIONS */}
+      {/* 👤 AUTHOR HEADER PANEL (Cleaned up: Edit button removed from here) */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <Link href={`/${post.user.username}`} className="shrink-0">
@@ -73,24 +71,9 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
             <span className="text-gray-400 text-xs">@{post.user.username}</span>
           </div>
         </div>
-
-        {/* 🚀 INLINE EDIT LINK ROW COMMANDS CONTAINER BUTTONS */}
-        {isOwner && (
-          <div className="flex items-center space-x-2 text-[10px] uppercase font-black tracking-wider text-gray-400">
-            {isEditing ? (
-              <>
-                <button type="button" onClick={handleSaveInlineEdit} disabled={isPending} className="text-green-500 hover:text-green-600 transition">Save</button>
-                <span>•</span>
-                <button type="button" onClick={() => { setIsEditing(false); setEditText(post.content); }} className="text-gray-400 hover:text-gray-600 transition">Cancel</button>
-              </>
-            ) : (
-              <button type="button" onClick={() => setIsEditing(true)} className="hover:text-rose-500 transition">✏️ Edit Text</button>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* TEXT OR TEXTAREA INLINE EDITOR CONDITIONAL VIEW SWITCH */}
+      {/* TEXT AREA EDITOR VIEW OR MARKDOWN DISPLAY */}
       {isEditing ? (
         <div className="mb-4">
           <textarea
@@ -127,7 +110,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         </div>
       )}
 
-      {/* RICH HYPERLINK LINK CARDS */}
+      {/* RICH DYNAMIC LINK PREVIEWS */}
       {post.linkUrl && (
         <a href={post.linkUrl} target="_blank" rel="noopener noreferrer" className="mb-4 rounded-2xl border border-gray-200 bg-gray-50/30 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50/80 transition block shadow-sm">
           <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200/60 flex items-center justify-center p-2">
@@ -151,10 +134,18 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         </a>
       )}
 
-      {/* CONTROLS PANELS BUTTONS SLIDERS */}
-      <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={currentUserId} reactions={post.reactions} />
+      {/* 🚀 CONTROLS TOOLBAR: Passing inline editing state control handlers directly to the action bar */}
+      <PostControls 
+        postId={post.id} 
+        postOwnerId={post.userId} 
+        currentUserId={currentUserId} 
+        reactions={post.reactions}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        onSaveEdit={handleSaveInlineEdit}
+        isEditPending={isPending}
+      />
       
-      {/* 🚀 AUTO OPEN DRAWER: Passes initialOpen state flag down automatically if count matches */}
       <PostComments 
         postId={post.id} 
         currentUserId={currentUserId} 
