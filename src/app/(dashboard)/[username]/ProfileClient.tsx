@@ -24,6 +24,7 @@ interface ProfileClientProps {
   validatedHeaderUser: any;
   unreadMailCount: number;
   onlineUsers: any[];
+  followersList?: any[];
 }
 
 export default function ProfileClient({ 
@@ -35,7 +36,8 @@ export default function ProfileClient({
   taggedPosts = [], 
   validatedHeaderUser,
   unreadMailCount,
-  onlineUsers
+  onlineUsers,
+  followersList = []
 }: ProfileClientProps) {
   // 🚀 TABS STATE PRESERVATION: Retains the active viewing layout pane correctly across upload refreshes
   const [activeTab, setActiveTab] = useState<"FEED" | "TAGGED" | "ALBUMS">("FEED");
@@ -137,27 +139,16 @@ export default function ProfileClient({
 
           {/* THREE-WAY CONDITIONAL DISPLAY ROUTER PORTALS */}
           {activeTab === "ALBUMS" ? (
-            (() => {
-              // 🚀 FIXED: Normalises and flattens your data list entries into crystal-clear flat objects
-              // completely clearing the autocomplete matching blocks!
-              const flatFollowersList = (onlineUsers || []).map((u: any) => ({
-                username: u.user?.username || u.username || "",
-                displayName: u.user?.displayName || u.displayName || ""
-              })).filter(u => u.username !== ""); // Filter out blank fallbacks
-
-              return (
-                <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-                  <ProfileAlbums 
-                    albums={filteredAlbums} 
-                    isOwner={isOwner} 
-                    onPhotoClick={(url) => setActiveLightboxUrl([url])} 
-                    forceActiveAlbumsViewTabNatively={() => setActiveTab("ALBUMS")}
-                    // 🎯 Passes the clean, flat objects list array down straight to the uploader studio
-                    followersList={flatFollowersList} 
-                  />
-                </div>
-              );
-            })()
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
+              <ProfileAlbums 
+                albums={filteredAlbums} 
+                isOwner={isOwner} 
+                onPhotoClick={(url) => setActiveLightboxUrl([url])} 
+                forceActiveAlbumsViewTabNatively={() => setActiveTab("ALBUMS")}
+                // 🚀 FIXED: Feeds your permanent network list directly into the photo studio inspector!
+                followersList={followersList} 
+              />
+            </div>
           ) : activeTab === "TAGGED" ? (
             <>
               <div className="flex items-center space-x-2 px-1">

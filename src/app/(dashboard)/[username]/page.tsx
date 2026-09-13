@@ -33,6 +33,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const unreadMailCount = await getUnreadMailCount();
   const onlineUsers = await getOnlineDollsRoster();
 
+  // 🚀 FIX: Pre-fetch your complete permanent network directory layout natively
+  const absoluteFollowersList = await prisma.follow.findMany({
+    where: { followerId: sessionUser.id },
+    select: {
+      following: {
+        select: {
+          username: true,
+          displayName: true
+        }
+      }
+    }
+  }).then(relations => relations.map(r => r.following));
+
   const user = await prisma.user.findUnique({
     where: { username },
     include: { 
@@ -48,7 +61,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   if (!user) notFound();
 
-  // 🚀 SHARED POST INCLUSIONS SCHEMATICS WRAPPER MATRIX
   const sharedPostInclusions = {
     user: { select: { id: true, username: true, displayName: true, avatarUrl: true } }, 
     reactions: true,
@@ -56,7 +68,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     comments: { include: { user: true }, orderBy: { createdAt: "asc" as const } }
   };
 
-  // 1. Fetch posts authored directly by this specific profile
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: sharedPostInclusions,
@@ -64,7 +75,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     take: 20 
   });
 
-  // 🚀 2. NEW HIGH-SPEED LOOKUP: Scans global contents for matching '@username' text tags!
   const taggedPosts = await prisma.post.findMany({
     where: {
       content: {
@@ -102,10 +112,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       isFollowing={isFollowing} 
       sessionUser={sessionUser} 
       userPosts={userPosts} 
-      taggedPosts={taggedPosts} // 🚀 PASS TAGGED STREAM MATRIX DOWN TO CLIENT
+      taggedPosts={taggedPosts} 
       validatedHeaderUser={validatedHeaderUser} 
       unreadMailCount={unreadMailCount}
       onlineUsers={onlineUsers} 
+      followersList={absoluteFollowersList} // 🚀 PASS PERMANENT NETWORK ARRAY TO CLIENT
     />
   );
 }
