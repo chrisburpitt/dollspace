@@ -283,8 +283,6 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
             );
           })}
         </div>
-      </div>
-
     </div>
   );
 }
