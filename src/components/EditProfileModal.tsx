@@ -3,6 +3,7 @@
 
 import { useState, useTransition } from "react";
 import { updateProfile } from "@/app/actions/profile"; 
+import { useRouter } from "next/navigation"; 
 import SubmitButton from "./SubmitButton";
 
 interface EditProfileModalProps {
@@ -36,6 +37,7 @@ function GenderIdentityInput({ val, onUpdate }: SubInputProps) {
 }
 
 export default function EditProfileModal({ user }: EditProfileModalProps) {
+  const router = useRouter(); 
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -66,7 +68,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       const res = await updateProfile(payload);
       if (res?.success) {
         setIsOpen(false);
-        window.location.reload();
+        router.refresh(); 
       } else if (res?.error) {
         alert(res.error);
       }

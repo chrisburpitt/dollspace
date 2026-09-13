@@ -93,8 +93,8 @@ export default function ProfileClient({
                 {/* SOCIAL PLATFORM PROFILE LINK CHANNELS */}
                 {(user.instagramHandle || user.facebookHandle) && (
                   <div className="mt-3.5 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500">
-                    {user.instagramHandle && <a href={`https://instagram.com{user.instagramHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-rose-500 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"><span>📸</span> <span>Instagram</span></a>}
-                    {user.facebookHandle && <a href={`https://facebook.com{user.facebookHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-blue-600 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"><span>💙</span> <span>Facebook</span></a>}
+                    {user.instagramHandle && <a href={`https://instagram.com/{user.instagramHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-rose-500 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"><span>📸</span> <span>Instagram</span></a>}
+                    {user.facebookHandle && <a href={`https://facebook.com/{user.facebookHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-blue-600 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"><span>💙</span> <span>Facebook</span></a>}
                   </div>
                 )}
                 
