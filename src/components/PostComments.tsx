@@ -42,17 +42,10 @@ export default function PostComments({
 
     startTransition(async () => {
       try {
-        // 🚀 COMPATIBLE SERVER CALL LAYER: Executes form content updates cleanly
-        // We use a safe payload pass to avoid matching signature arguments errors
-        const formData = new FormData();
-        formData.append("postId", postId);
-        formData.append("content", cleanText);
-
-        const res = await createComment(postId, cleanText) as any;
+        // 🚀 FIXED: Passing currentUserId directly to satisfy the 3-4 expected arguments signature rules!
+        const res = await createComment(postId, cleanText, currentUserId) as any;
         
         if (res?.success) {
-          // 🚀 SAFE REPAINT FALLBACK: Optimistically constructs a typesafe local comment object
-          // using your active user context strings if your action doesn't return the raw object node
           const targetCommentNode = res.comment || {
             id: `cmt-opt-${crypto.randomUUID()}`,
             content: cleanText,
