@@ -1,4 +1,4 @@
-// src/app/admin/AdminControlsClient.tsx (PART 1 - LIVE SEARCH STATE UPGRADE)
+// src/app/admin/AdminControlsClient.tsx (PART 1 - FIXED CLEAN COMPILE)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -19,10 +19,10 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   const [broadcastSubject, setBroadcastSubject] = useState("");
   const [broadcastBody, setBroadcastBody] = useState("");
 
-  // 🚀 NEW: State tracker for the directory search box filter
+  // Live search text tracking state
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 🚀 LIVE SEARCH FILTER ENGINE: Matches text query string parameters instantly in 0ms!
+  // 🚀 LIVE SEARCH FILTER ENGINE: Matches text query string parameters instantly in 0ms
   const filteredUsers = users.filter((u) => {
     const searchString = searchTerm.trim().toLowerCase();
     if (!searchString) return true;
@@ -76,10 +76,8 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
     });
   };
 
-
-  // src/app/admin/AdminControlsClient.tsx (PART 2 - LIVE SEARCH BAR INJECTION)
+  // src/app/admin/AdminControlsClient.tsx (PART 2 - FIXED CLEAN COMPILE)
   
-  // 🚀 NEW INTERACTIVE EVENT HANDLERS
   const handleRoleChange = (userId: string, currentRole: string, newRole: string, name: string) => {
     if (userId === currentUserId) return;
     const validatedSchemaEnum = newRole === "MOD" ? "MODERATOR" : (newRole as "USER" | "ADMIN");
@@ -113,7 +111,6 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
     });
   };
 
-// PART 2
   return (
     <div className="space-y-6 text-left select-none animate-fade-in">
       
@@ -157,19 +154,20 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
         </form>
       </div>
 
+      {/* src/app/admin/AdminControlsClient.tsx (PART 3 - FIXED CLEAN COMPILE) */}
       {/* CARD B: USER ROSTER MANAGEMENT & MODERATION ACCOUNT GRID LIST */}
       <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between mb-1 border-b border-gray-50 pb-3">
           <div className="flex items-center space-x-2">
             <span className="text-xl">🛡️</span>
-            <h2 className="font-black text-base text-gray-900 tracking-wide">Dollspace User Direcotry</h2>
+            <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Dollspace User Directory</h2>
           </div>
           <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-0.5 rounded-full">
             {filteredUsers.length} matched / {users.length} total
           </span>
         </div>
 
-        {/* 🚀 INJECTED LAYER: REAL-TIME CLIENT DIRECTORY SEARCH TEXT BAR CONSOLE */}
+        {/* Real-time Client Search Input Field */}
         <div className="w-full">
           <input
             type="text"
@@ -180,18 +178,10 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
           />
         </div>
 
-        {/* Inside Part 3 of AdminControlsClient.tsx */}
+        {/* Directory Member List Cards Stream */}
         <div className="divide-y divide-gray-100 max-h-[550px] overflow-y-auto pr-1 space-y-2">
-          {/* 🚀 FIXED: Reads from the live filtered array instead of the raw unfiltered database data */}
+          {/* 🚀 FIXED LOGIC: Loops through the clean client filtered array exclusively */}
           {filteredUsers.map((profile) => {
-            const isSelf = profile.id === currentUserId;
-            const mappedRoleDisplay = profile.role === "MODERATOR" ? "MOD" : profile.role;
-
-            return (
-              // ... user card rows layout remains 100% exactly the same as previously posted ...
-
-        <div className="divide-y divide-gray-100 max-h-[550px] overflow-y-auto pr-1 space-y-2">
-          {users.map((profile) => {
             const isSelf = profile.id === currentUserId;
             const mappedRoleDisplay = profile.role === "MODERATOR" ? "MOD" : profile.role;
 
@@ -226,10 +216,10 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
                   </div>
                 </div>
 
-                {/* ADMINISTRATIVE CONTROLS CONTROLLER TOOLBAR ACTIONS */}
+                {/* ADMINISTRATIVE CONTROLS ACTIONS PANEL */}
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
                   
-                  {/* LIVE ROLE MIGRATION DROPDOWN SELECT ENGINE */}
+                  {/* ROLE SELECTION DROPDOWN WIDGET */}
                   <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1.5 rounded-xl border border-gray-100 shadow-inner">
                     <span className="text-[9px] uppercase font-black text-gray-400 pl-1 tracking-wider">Role:</span>
                     <select
@@ -266,7 +256,6 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
                     {profile.isBanned ? "Unban" : "Ban"}
                   </button>
 
-                  {/* HARD PERMANENT INSTANT USER DIRECTORY ACCOUNT PURGE BUTTON */}
                   <button
                     type="button"
                     disabled={isPending || isSelf}
@@ -283,6 +272,8 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
             );
           })}
         </div>
+      </div>
+
     </div>
   );
 }
