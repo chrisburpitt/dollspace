@@ -1,205 +1,156 @@
-// src/components/EditProfileModal.tsx
+// src/components/EditProfileModal.tsx (PART 1 - COMPILE FIXED)
 "use client";
 
-import { useState } from "react";
-import { updateProfileDetails } from "@/app/actions/profile";
-import LocationAutofill from "./LocationAutofill"; // 👈 IMPORT THE SPLIT INPUT
+import { useState, useTransition } from "react";
+// 🚀 FIXED: Importing 'updateProfile' directly to perfectly match your updated actions signature file
+import { updateProfile } from "@/app/actions/profile"; 
+import SubmitButton from "./SubmitButton";
 
 interface EditProfileModalProps {
   user: {
-    id: string;
     displayName: string;
-    age: number | null;
-    genderIdentity: string | null;
-    location: string | null;
     bio: string | null;
+    location: string | null;
+    genderIdentity: string | null;
     lookingFor: string | null;
+    birthday: string | null; // Captures current database records
+    instagramHandle: string | null;
+    facebookHandle: string | null;
   };
 }
 
 export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // Form State Values
+  // Controlled Form Inputs
   const [displayName, setDisplayName] = useState(user.displayName);
-  const [age, setAge] = useState(user.age ? user.age.toString() : "");
-  const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "tgirl");
-  const [location, setLocation] = useState(user.location || "");
   const [bio, setBio] = useState(user.bio || "");
+  const [location, setLocation] = useState(user.location || "");
+  const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "");
+  const [lookingFor, setLookingFor] = useState(user.lookingFor || "");
 
-  // Multi-Select Looking For Array State
-  const [lookingList, setLookingList] = useState<string[]>(
-    user.lookingFor
-      ? user.lookingFor.toUpperCase().split(",")
-      : ["FRIENDS"]
-  );
+  // 🚀 NEW INTERACTIVE IDENTITY INPUT STATES
+  // Safely slices native ISO date strings (e.g., 1998-05-12T00:00:00.000Z) down into HTML date picker layout paths
+  const initialDateStr = user.birthday ? new Date(user.birthday).toISOString().split("T")[0] : "";
+  const [birthday, setBirthday] = useState(initialDateStr);
+  const [instagramHandle, setInstagramHandle] = useState(user.instagramHandle || "");
+  const [facebookHandle, setFacebookHandle] = useState(user.facebookHandle || "");
 
-  const handleToggleLookingFor = (value: string) => {
-    if (lookingList.includes(value)) {
-      setLookingList(lookingList.filter((item) => item !== value));
-    } else {
-      setLookingList([...lookingList, value]);
-    }
-  };
+  const handleFormSubmitAction = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    startTransition(async () => {
+      // Pack parameters into a clean form data payload block
+      const payload = new FormData();
+      payload.append("displayName", displayName);
+      payload.append("bio", bio);
+      payload.append("location", location);
+      payload.append("genderIdentity", genderIdentity);
+      payload.append("lookingFor", lookingFor);
+      
+      // 🚀 NEW STRINGS: Appending your upgraded identity data variables
+      payload.append("birthday", birthday);
+      payload.append("instagramHandle", instagramHandle);
+      payload.append("facebookHandle", facebookHandle);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setIsSaving(true);
-    setError(null);
-
-    const parsedAge = age.trim() ? parseInt(age, 10) : null;
-    if (parsedAge !== null && isNaN(parsedAge)) {
-      setError("Please enter a valid number for age.");
-      setIsSaving(false);
-      return;
-    }
-
-    const res = await updateProfileDetails(user.id, {
-      displayName,
-      age: parsedAge,
-      genderIdentity,
-      location,
-      bio,
-      lookingFor: lookingList.join(","),
+      const res = await updateProfile(payload);
+      if (res?.success) {
+        setIsOpen(false);
+        window.location.reload(); // Refresh to repaint the layout tags instantly
+      } else if (res?.error) {
+        alert(res.error);
+      }
     });
-
-    setIsSaving(false);
-    if (res?.error) {
-      setError(res.error);
-    } else {
-      setIsOpen(false);
-    }
   };
 
   return (
     <>
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold px-4 py-2 rounded-xl text-xs border border-gray-200 shadow-sm transition ml-auto flex items-center space-x-1"
+        className="bg-white hover:bg-gray-50 text-gray-700 font-black text-xs px-4 py-2 rounded-xl border border-gray-200 shadow-sm transition uppercase tracking-wider select-none shrink-0"
       >
-        <span>✏️ Edit Profile</span>
+        ⚙️ Edit Profile
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-lg rounded-3xl border border-gray-200 p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-left">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none animate-fade-in text-left">
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col animate-scale-up">
             
-            <h2 className="text-xl font-black text-gray-900 mb-1">Edit Profile Details</h2>
-            <p className="text-gray-400 text-xs font-semibold mb-6">Update your custom profile card configurations.</p>
+            <div className="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
+              <h3 className="font-black text-lg text-gray-900 uppercase tracking-wide">Edit Custom Vibe</h3>
+              <button type="button" onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold text-sm">✕</button>
+            </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-bold rounded-xl mb-4">
-                {error}
-              </div>
-            )}
+            <form onSubmit={handleFormSubmitAction} className="p-6 overflow-y-auto space-y-4 flex-1 text-xs font-semibold text-gray-700">
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
-              {/* Fields: Name & Age */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Display Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={displayName}
-                    onChange={(event) => setDisplayName(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Age</label>
-                  <input
-                    type="number"
-                    value={age}
-                    onChange={(event) => setAge(event.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400"
-                  />
-                </div>
-              </div>
-
-              {/* Fields: Gender Radio Grid Selection */}
+              {/* src/components/EditProfileModal.tsx (PART 2 - COMPILE FIXED) */}
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Gender Identity</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {["Tgirl", "Crossdresser", "Chaser"].map((g) => (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => setGenderIdentity(g)}
-                      className={`p-3 text-xs font-bold rounded-xl border text-center transition capitalize ${
-                        genderIdentity === g
-                          ? "bg-rose-50 border-rose-400 text-rose-600 shadow-sm"
-                          : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
-                      }`}
-                    >
-                      {g}
-                    </button>
-                  ))}
-                </div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
+                <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* Fields: Standalone Autofill Component */}
-              <LocationAutofill value={location} onChange={setLocation} />
-
-              {/* Fields: Looking For Multi-Select Tags */}
+              {/* 🚀 NEW UPGRADED FIELD LAYER: Native HTML Date picker selector element for Birthdays */}
               <div>
-                <label className="text-xs font-bold text-gray-500 uppercase block mb-2">Looking For (Select multiple)</label>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { key: "friends", label: "Friends" },
-                    { key: "support", label: "Support" },
-                    { key: "sugar_daddy", label: "Sugar Daddy" },
-                  ].map((item) => {
-                    const isSelected = lookingList.includes(item.key);
-                    return (
-                      <button
-                        key={item.key}
-                        type="button"
-                        onClick={() => handleToggleLookingFor(item.key)}
-                        className={`px-4 py-2 text-xs font-bold rounded-xl border transition ${
-                          isSelected
-                            ? "bg-rose-50 border-rose-400 text-rose-600 shadow-sm"
-                            : "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
-                        }`}
-                      >
-                        {isSelected ? "✓ " : ""} {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Fields: Biography Area */}
-              <div>
-                <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Biography Description</label>
-                <textarea
-                  value={bio}
-                  onChange={(event) => setBio(event.target.value)}
-                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-rose-400"
-                  rows={3}
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Date of Birth</label>
+                <input 
+                  type="date" 
+                  value={birthday} 
+                  onChange={(e) => setBirthday(e.target.value)} 
+                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" 
                 />
               </div>
 
-              {/* Form Trigger Row Footer */}
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100 mt-6">
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 text-sm font-bold text-gray-500 hover:text-gray-700 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="bg-rose-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition"
-                >
-                  Save Updates
-                </button>
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Location</label>
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Sydney, Australia 📍" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
+                 setGenderIdentity(e.target.value)} placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+              </div>
+
+              {/* 🚀 NEW UPGRADED FIELD LAYER: Instagram handle string capture field */}
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Instagram Handle</label>
+                <input 
+                  type="text" 
+                  value={instagramHandle} 
+                  onChange={(e) => setInstagramHandle(e.target.value)} 
+                  placeholder="e.g. chloe_luxe" 
+                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
+                />
+              </div>
+
+              {/* 🚀 NEW UPGRADED FIELD LAYER: Facebook username identifier field */}
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Facebook Handle / Username</label>
+                <input 
+                  type="text" 
+                  value={facebookHandle} 
+                  onChange={(e) => setFacebookHandle(e.target.value)} 
+                  placeholder="e.g. chloe.stevens.9" 
+                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Looking For (Comma Separated)</label>
+                <input type="text" value={lookingFor} onChange={(e) => setLookingFor(e.target.value)} placeholder="e.g. Friends, Networking, Collaborations" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Biography Description</label>
+                <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the community your sweet story..." className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition resize-none leading-relaxed" />
+              </div>
+
+              <div className="flex space-x-2 pt-2 shrink-0">
+                <button type="button" onClick={() => setIsOpen(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-3 rounded-xl text-xs uppercase tracking-wider transition">Cancel</button>
+                <SubmitButton label="Save Changes" loadingLabel="Rewriting Bio..." className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl text-xs uppercase tracking-wider transition shadow-sm" />
+              </div>
+
             </form>
           </div>
         </div>
