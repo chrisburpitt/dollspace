@@ -94,7 +94,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               {/* src/components/EditProfileModal.tsx (PART 3 OF 3) */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
-                 setGenderIdentity(e.target.value) placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                <input type=setGenderIdentity(e.target.value) placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
               <div>
