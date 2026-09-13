@@ -20,8 +20,8 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   const [editText, setEditText] = useState(post.content || "");
   
   const hasCommentsPresent = post.comments && post.comments.length > 0;
-
   const domainName = post.linkUrl ? new URL(post.linkUrl).hostname.toLowerCase() : "";
+  
   let customSocialBrandIcon = null;
   if (domainName.includes("instagram.com")) customSocialBrandIcon = "📸";
   if (domainName.includes("facebook.com")) customSocialBrandIcon = "💙";
@@ -30,7 +30,10 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   if (domainName.includes("twitter.com") || domainName.includes("x.com")) customSocialBrandIcon = "🐦";
   if (domainName.includes("pinterest.com")) customSocialBrandIcon = "📌";
 
-  const combinedImages: string[] = post.images?.map((img: any) => img.url) || [];
+  // 🚀 FIXED: Robust collector handles new multi-image rows AND legacy single-image properties flawlessly!
+  const dbPhotoUrls = post.images?.map((img: any) => img.url) || [];
+  const legacyPhotoUrl = post.imageUrl ? [post.imageUrl] : [];
+  const combinedImages: string[] = dbPhotoUrls.length > 0 ? dbPhotoUrls : legacyPhotoUrl;
 
   const handleSaveInlineEdit = () => {
     if (!editText.trim() || editText.trim() === post.content) {
@@ -41,7 +44,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
     startTransition(async () => {
       const res = await editPostContent(post.id, editText);
       if (res.success) {
-        post.content = editText.trim(); // Optimistic repaint
+        post.content = editText.trim();
         setIsEditing(false);
       } else if (res.error) {
         alert(res.error);
@@ -52,7 +55,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   return (
     <div className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none">
       
-      {/* 👤 AUTHOR HEADER PANEL (Cleaned up: Edit button removed from here) */}
+      {/* AUTHOR HEADER PANEL */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <Link href={`/${post.user.username}`} className="shrink-0">
@@ -71,9 +74,20 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
             <span className="text-gray-400 text-xs">@{post.user.username}</span>
           </div>
         </div>
+
+        {isOwner && (
+          <div className="flex items-center space-x-2.5 text-[10px] uppercase font-black tracking-wider text-gray-400">
+            {isEditing ? (
+              <>
+                <button type="button" onClick={handleSaveInlineEdit} disabled={isPending} className="text-green-500 hover:text-green-600 transition">Save</button>
+                <span>•</span>
+                <button type="button" onClick={() => { setIsEditing(false); setEditText(post.content); }} className="text-gray-400 hover:text-gray-600 transition">Cancel</button>
+              </>
+            ) : null}
+          </div>
+        )}
       </div>
 
-      {/* TEXT AREA EDITOR VIEW OR MARKDOWN DISPLAY */}
       {isEditing ? (
         <div className="mb-4">
           <textarea
@@ -85,23 +99,22 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
           />
         </div>
       ) : (
-        post.content && (
-          <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </p>
-        )
+        post.content && <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
       )}
 
-      {/* GALLERY IMAGES */}
+      {/* 🚀 FIXED PHOTO COLUMNS GRID: Forces 3 pictures side-by-side cleanly exactly like the profile page! */}
       {combinedImages.length > 0 && (
         <div className={`grid gap-2 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-4 ${
-          combinedImages.length === 1 ? "grid-cols-1" : "grid-cols-2"
+          combinedImages.length === 1 ? "grid-cols-1" :
+          combinedImages.length === 2 ? "grid-cols-2" : "grid-cols-3"
         }`}>
           {combinedImages.map((imgUrl, idx) => (
             <div 
               key={`${post.id}-img-${idx}`}
               onClick={() => onPhotoClick(combinedImages, idx)}
-              className="w-full h-full min-h-[220px] max-h-[400px] cursor-zoom-in relative overflow-hidden group flex items-center justify-center"
+              className={`w-full cursor-zoom-in relative overflow-hidden group flex items-center justify-center ${
+                combinedImages.length === 1 ? "min-h-[260px] max-h-[450px]" : "aspect-square"
+              }`}
             >
               <img src={imgUrl} alt="" className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" draggable="false" />
               <div className="absolute inset-0 bg-transparent z-10" onContextMenu={(e) => e.preventDefault()} />
@@ -134,7 +147,6 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         </a>
       )}
 
-      {/* 🚀 CONTROLS TOOLBAR: Passing inline editing state control handlers directly to the action bar */}
       <PostControls 
         postId={post.id} 
         postOwnerId={post.userId} 

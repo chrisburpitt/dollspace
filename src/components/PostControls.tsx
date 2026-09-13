@@ -15,7 +15,6 @@ interface PostControlsProps {
   isEditPending: boolean;
 }
 
-// 🎯 THE EXACT EMOJI GRID FROM YOUR ATTACHED IMAGE SCREENSHOT!
 const REACTION_EMOJIS = ["❤️", "🔥", "✨", "🎀", "👑", "👀"];
 
 export default function PostControls({
@@ -36,7 +35,6 @@ export default function PostControls({
   const myExistingReaction = localReactions.find((r: any) => r.userId === currentUserId);
   const isOwner = postOwnerId === currentUserId;
 
-  // Group all global reactions by their emoji character to display matching counter totals
   const aggregatedCounts = localReactions.reduce((acc: Record<string, number>, curr: any) => {
     const key = curr.emoji || "❤️";
     acc[key] = (acc[key] || 0) + 1;
@@ -46,11 +44,10 @@ export default function PostControls({
   const handleSelectReactionEmoji = (chosenEmoji: string) => {
     setShowEmojiDock(false);
 
-    // 🌟 OPTIMISTIC UI REPAINT: Calculate and adjust total increments instantly in 0ms!
     setLocalReactions((prev) => {
       const filtered = prev.filter((r: any) => r.userId !== currentUserId);
       if (myExistingReaction && myExistingReaction.emoji === chosenEmoji) {
-        return filtered; // Toggled off identical emoji
+        return filtered;
       }
       return [...filtered, { id: "temp-id", postId, userId: currentUserId, emoji: chosenEmoji }];
     });
@@ -58,7 +55,7 @@ export default function PostControls({
     startTransition(async () => {
       const res = await togglePostReaction(postId, chosenEmoji);
       if (res?.error) {
-        setLocalReactions(initialReactions); // Rollback on error
+        setLocalReactions(initialReactions);
         alert(res.error);
       }
     });
@@ -71,7 +68,7 @@ export default function PostControls({
         const { deletePost } = await import("@/app/actions/posts");
         await deletePost(postId);
       } catch (err) {
-        console.error("Post purge action halted:", err);
+        console.error("Deletion failure:", err);
       }
     });
   };
@@ -79,13 +76,12 @@ export default function PostControls({
   return (
     <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50/60 relative select-none">
       
-      {/* 🚀 LEFT SIDEBAR BUTTON: Matches your screenshot layout completely */}
+      {/* 🚀 FIXED HOVER BOX CONTAINER: Group wraps the trigger button and child dock together cleanly */}
       <div 
-        className="flex items-center space-x-2 relative"
+        className="flex items-center space-x-2 relative group"
         onMouseEnter={() => setShowEmojiDock(true)}
         onMouseLeave={() => setShowEmojiDock(false)}
       >
-        {/* Interactive "+ React" Main Button Trigger */}
         <button
           type="button"
           onClick={() => handleSelectReactionEmoji(myExistingReaction?.emoji || "❤️")}
@@ -99,28 +95,31 @@ export default function PostControls({
           <span>React</span>
         </button>
 
-        {/* 🎨 FLOATING EMOJI DOCK HOVER PANEL (Matches your reference image layout identically!) */}
+        {/* 🚀 FIXED GAP LAYER OVERLAY: Bounding box spans the empty whitespace so the menu never closes prematurely */}
         {showEmojiDock && (
-          <div className="absolute left-0 bottom-full mb-2 bg-white border border-gray-100 rounded-2xl shadow-xl px-4 py-2.5 flex items-center space-x-3.5 z-40 animate-scale-up border-b-2">
-            {REACTION_EMOJIS.map((emoji) => {
-              const isCurrentSelection = myExistingReaction?.emoji === emoji;
-              return (
-                <button
-                  key={emoji}
-                  type="button"
-                  onClick={() => handleSelectReactionEmoji(emoji)}
-                  className={`text-xl hover:scale-125 active:scale-95 transition duration-150 transform select-none ${
-                    isCurrentSelection ? "filter drop-shadow-[0_0_4px_rgba(244,63,94,0.4)] scale-110" : ""
-                  }`}
-                >
-                  {emoji}
-                </button>
-              );
-            })}
+          <div className="absolute left-0 bottom-0 pb-11 w-64 z-40 cursor-default">
+            {/* The visual popout element itself */}
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-xl px-4 py-2.5 flex items-center space-x-3.5 animate-scale-up border-b-2">
+              {REACTION_EMOJIS.map((emoji) => {
+                const isCurrentSelection = myExistingReaction?.emoji === emoji;
+                return (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => handleSelectReactionEmoji(emoji)}
+                    className={`text-xl hover:scale-125 active:scale-95 transition duration-150 transform select-none ${
+                      isCurrentSelection ? "filter drop-shadow-[0_0_4px_rgba(244,63,94,0.4)] scale-110" : ""
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
-        {/* Global Active Badges Summary Counter Total Display Stream Row */}
+        {/* Counters summary display tags row */}
         <div className="flex items-center space-x-1 pl-1">
           {Object.entries(aggregatedCounts).map(([emojiChar, totalValue]) => (
             <button
