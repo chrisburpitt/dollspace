@@ -113,16 +113,14 @@ export default async function HomePage() {
 
         {/* CENTER COLUMN: Interactive Feed Timeline Core */}
         <main className="lg:col-span-6 space-y-6">
-          {/* 🚀 UPGRADED: Passing down your typesafe followers array cleanly to the form element */}
-          <FeedForm 
-            currentUser={currentUser} 
-            followersList={followingDollsList} 
-          />
+          <FeedForm currentUser={currentUser} followersList={followingDollsList} />
           
+          {/* 🚀 UPGRADED: Passing down your typesafe followers list to your main feed stream */}
           <FeedStream 
             globalPosts={formatPostDates(globalPosts) as any} 
             followingPosts={formatPostDates(followingPosts) as any} 
             currentUserId={currentUser.id} 
+            followersList={followingDollsList} // 🎯 PASSING DOWN
           />
         </main>
 

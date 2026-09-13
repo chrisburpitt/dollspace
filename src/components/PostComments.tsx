@@ -99,7 +99,12 @@ export default function PostComments({
       }
     });
   };
-  // src/components/PostComments.tsx (PART 2 - PROFILE TAG LINKING UPGRADE)
+
+  // src/components/PostComments.tsx (PART 2 - AUTCOMPLETE COMMENTING FIELD UPGRADE)
+  
+  // 🚀 IMPORT THE MENTION PICKER MODULE ENGINE
+  const MentionInput = require("./MentionInput").default;
+
   return (
     <div className="mt-4 border-t border-gray-50 pt-3 text-left">
       
@@ -132,7 +137,6 @@ export default function PostComments({
                   </Link>
                   <div className="bg-gray-50 p-2.5 rounded-2xl flex-1 border border-gray-100/60 min-w-0">
                     <div className="flex justify-between items-center mb-0.5">
-                      {/* 🚀 UPGRADED: Commenter's display name links directly straight out into their profile card view */}
                       <Link 
                         href={`/${reply.user.username}`} 
                         className="font-black text-gray-900 truncate pr-2 hover:underline hover:text-rose-500 text-left block"
@@ -143,7 +147,6 @@ export default function PostComments({
                         {new Date(reply.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    {/* 🚀 UPGRADED: Content now parses text tokens live to draw active hyperlinked text tags anchors! */}
                     <p className="text-gray-700 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
                       {renderCommentContentWithClickableTags(reply.content)}
                     </p>
@@ -155,18 +158,22 @@ export default function PostComments({
 
           {/* Inline Comment Composition Form */}
           <form onSubmit={handleCommentSubmit} className="flex items-center gap-2 pt-1">
-            <input
-              type="text"
-              value={commentText}
-              disabled={isPending}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write a response... use @username to tag dolls!"
-              className="flex-1 border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
-            />
+            <div className="flex-1">
+              {/* 🚀 UPGRADED: Swapped basic input text box for our autocomplete suggestions tag module! */}
+              <MentionInput 
+                value={commentText}
+                onChange={(val: string) => setCommentText(val)}
+                placeholder="Write a response... use @username to tag!"
+                isTextArea={false}
+                disabled={isPending}
+                followersList={(arguments[0] as any).followersList || []} // Pulls connections safely from component props context
+                className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
+              />
+            </div>
             <button
               type="submit"
               disabled={isPending || !commentText.trim()}
-              className="bg-gray-900 text-white font-black text-xs px-4 py-2.5 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide disabled:opacity-40"
+              className="bg-gray-900 text-white font-black text-xs px-4 py-2.5 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide disabled:opacity-40 shrink-0"
             >
               Reply
             </button>

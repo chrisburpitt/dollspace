@@ -3,15 +3,16 @@
 
 import { useState } from "react";
 import PostCard from "./PostCard";
-import ImageLightbox from "./ImageLightbox"; // 🚀 1. IMPORT LIGHTBOX MODAL PORTAL
+import ImageLightbox from "./ImageLightbox";
 
 interface FeedStreamProps {
   globalPosts: any[];
   followingPosts: any[];
   currentUserId: string;
+  followersList?: Array<{ username: string; displayName: string }>;
 }
 
-export default function FeedStream({ globalPosts, followingPosts, currentUserId }: FeedStreamProps) {
+export default function FeedStream({ globalPosts, followingPosts, currentUserId, followersList }: FeedStreamProps) {
   const [activeFeedTab, setActiveFeedTab] = useState<"GLOBAL" | "FOLLOWING">("GLOBAL");
 
   // 🚀 2. ADD REACTION LIGHTBOX PORTAL STATES
@@ -62,6 +63,7 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
                 setActiveLightboxUrls(urlsArray);
                 setInitialLightboxIndex(targetIndex);
               }}
+			  followersList={followersList} 
             />
           ))
         )}

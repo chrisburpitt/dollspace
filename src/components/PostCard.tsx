@@ -165,7 +165,8 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         postId={post.id} 
         currentUserId={currentUserId} 
         comments={post.comments} 
-        initialOpen={hasCommentsPresent} 
+        initialOpen={hasCommentsPresent}
+		followersList={followersList} 
       />
     </div>
   );
