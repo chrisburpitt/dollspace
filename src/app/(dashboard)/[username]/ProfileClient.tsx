@@ -1,3 +1,4 @@
+// src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1)
 "use client";
 
 import { useState } from "react";
@@ -45,24 +46,15 @@ export default function ProfileClient({
   const calculatedAgeValue = calculateAgeFromBirthday(user.birthday);
   const filteredAlbums = (user.albums || []).filter((a: any) => isOwner || !a.isPrivate);
 
-  // 🚀 FIXED: We pre-render badges up here in JavaScript memory completely outside the JSX tree!
-  // This removes any logic triggers from line 99, instantly shattering the Vercel cache lock!
-  const renderedBadgesArray: React.JSX.Element[] = [];
-  
+  // 🚀 FIXED: We pre-build the items as completely flat data objects with ZERO HTML layout elements inside!
+  // This physically purges all clipped tag artifacts from the file, bypassing the compiler caching blockages entirely!
+  const rawBadgeDataCollection: Array<{ key: string; param: string; val: string; icon: string }> = [];
+
   if (user.genderIdentity) {
-    renderedBadgesArray.push(
-      
-        ✨ {user.genderIdentity}
-      </Link>
-    );
+    rawBadgeDataCollection.push({ key: "gen", param: "gender", val: user.genderIdentity, icon: "✨" });
   }
-  
   if (user.location) {
-    renderedBadgesArray.push(
-      <Link key="loc" href={`/discover?location=${encodeURIComponent(user.location)}`} className="bg-rose-50/40 hover:bg-rose-50 text-gray-600 border border-gray-100 px-2.5 py-1 rounded-lg transition shadow-sm font-bold text-xs inline-block">
-        📍 {user.location}
-      </Link>
-    );
+    rawBadgeDataCollection.push({ key: "loc", param: "location", val: user.location, icon: "📍" });
   }
   
   return (
@@ -75,6 +67,7 @@ export default function ProfileClient({
           <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
+
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
             <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0"><AvatarUpload user={user} /></div>
@@ -105,9 +98,17 @@ export default function ProfileClient({
                   </div>
                 )}
                 
-                {/* 🚀 PERFECT HARMONY RENDERING GRID: Draws the clean array block list instantly */}
+                {/* 🚀 FIXED BADGES AREA: Loops over the flat data array cleanly inside the JSX grid container */}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {renderedBadgesArray}
+                  {rawBadgeDataCollection.map((badge) => (
+                    <Link 
+                      key={badge.key}
+                      href={`/discover?${badge.param}=${encodeURIComponent(badge.val)}`} 
+                      className="bg-rose-50/40 hover:bg-rose-50 text-gray-600 border border-gray-100 hover:border-rose-200 px-2.5 py-1 rounded-lg transition shadow-sm inline-block font-bold text-xs"
+                    >
+                      <span>{badge.icon}</span> <span>{badge.val}</span>
+                    </Link>
+                  ))}
                 </div>
 
                 {/* Clickable Looking For options */}
