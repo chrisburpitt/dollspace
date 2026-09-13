@@ -82,14 +82,14 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
     if (userId === currentUserId) return;
     const validatedSchemaEnum = newRole === "MOD" ? "MODERATOR" : (newRole as "USER" | "ADMIN");
 
-    if (!confirm(`🌸 Migrate authority clearance tier for ${name} from ${currentRole} to ${newRole}?`)) return;
+    if (!confirm(`🌸 Change user role for ${name} from ${currentRole} to ${newRole}?`)) return;
 
     startTransition(async () => {
       const { administrativeUpdateUserRole } = await import("@/app/actions/moderation");
       const res = await administrativeUpdateUserRole(userId, validatedSchemaEnum);
       if (res.success) {
         setUsers((prev) => prev.map(u => u.id === userId ? { ...u, role: validatedSchemaEnum } : u));
-        alert(`🌸 ${name} has been successfully migrated to role tier: ${newRole}!`);
+        alert(`🌸 ${name} has been successfully migrated to role: ${newRole}!`);
       } else if (res.error) {
         alert(res.error);
       }
@@ -97,14 +97,14 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   };
 
   const handleFullAccountPurgeClick = (userId: string, name: string) => {
-    if (!confirm(`🚨 CRITICAL ACTION: Are you absolutely certain you want to PERMANENTLY DELETE ${name}'s entire profile?\n\nThis will instantly purge all their posts, photos, messages, and albums completely from Dollspace forever.`)) return;
+    if (!confirm(`🚨 CRITICAL ACTION: Are you sure you want to PERMANENTLY DELETE ${name}'s entire profile?\n\nThis will instantly remove all their posts, photos, messages, and albums completely from Dollspace.`)) return;
 
     startTransition(async () => {
       const { administrativeDeleteUser } = await import("@/app/actions/moderation");
       const res = await administrativeDeleteUser(userId);
       if (res.success) {
         setUsers((prev) => prev.filter(u => u.id !== userId));
-        alert(`🗑️ ${name}'s account data records have been completely purged from the core cluster database.`);
+        alert(`🗑️ ${name}'s account has been completely deleted from the site.`);
       } else if (res.error) {
         alert(res.error);
       }
@@ -264,7 +264,7 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
                       isSelf ? "hidden" : "block"
                     }`}
                   >
-                    Purge 🗑️
+                    Delete 🗑️
                   </button>
                 </div>
 
