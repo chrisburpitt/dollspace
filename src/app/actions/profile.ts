@@ -2,62 +2,45 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/app/actions/auth";
 import { revalidatePath } from "next/cache";
 
-export async function updateStatus(userId: string, status: string) {
-  await prisma.user.update({
-    where: { id: userId },
-    data: { status },
-  });
-  revalidatePath("/");
-  revalidatePath("/[username]", "layout");
-}
+export async function updateProfile(formData: FormData) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized access path." };
 
-// 🚀 UPGRADED TO CAPTURE EXPANDED MATCHING DATA FIELDS
-export async function updateProfileDetails(
-  userId: string, 
-  data: {
-    displayName: string;
-    age: number | null;
-    genderIdentity: string;
-    location: string;
-    lookingFor: string; // Receives the comma string from the client form
-    bio: string;
-  }
-) {
-  if (!data.displayName.trim()) {
-    return { error: "Display name cannot be empty." };
-  }
+  const displayName = formData.get("displayName") as string;
+  const bio = formData.get("bio") as string;
+  const location = formData.get("location") as string;
+  const genderIdentity = formData.get("genderIdentity") as string;
+  const lookingFor = formData.get("lookingFor") as string;
+  
+  // 🚀 REWORKED: Grab fresh input strings from your form layout fields
+  const birthdayRaw = formData.get("birthday") as string; // Expects "YYYY-MM-DD"
+  const instagram = formData.get("instagramHandle") as string;
+  const facebook = formData.get("facebookHandle") as string;
 
-  // 🚀 CLEAN UP CHECK: If the list is empty or just commas, force it to null
-  const cleanedLookingFor = data.lookingFor.trim() && data.lookingFor !== "," 
-    ? data.lookingFor 
-    : null;
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      displayName: data.displayName.trim(),
-      age: data.age,
-      genderIdentity: data.genderIdentity,
-      location: data.location.trim() || null,
-      lookingFor: cleanedLookingFor, // 👈 SAVE THE SAFELY CLEANED VALUE
-      bio: data.bio.trim() || null,
-    },
-  });
-
-  revalidatePath("/");
-  revalidatePath("/[username]", "layout");
-}
-
-// ACTION: Increment profile visitor counter
-export async function incrementProfileViews(username: string) {
   try {
     await prisma.user.update({
-      where: { username },
-      data: { views: { increment: 1 } },
+      where: { id: sessionUser.id },
+      data: {
+        displayName: displayName?.trim() || sessionUser.displayName,
+        bio: bio?.trim() || "",
+        location: location?.trim() || null,
+        genderIdentity: genderIdentity?.trim() || null,
+        lookingFor: lookingFor?.trim() || null,
+        
+        // 🚀 TYPESAFE ATTACHMENTS: Map directly into your new Prisma schema columns
+        birthday: birthdayRaw ? new Date(birthdayRaw) : null,
+        instagramHandle: instagram ? instagram.trim().replace(/@/g, "") : null,
+        facebookHandle: facebook ? facebook.trim() : null
+      }
     });
-  } catch (error) {
-    console.error("Failed to increment profile metrics view:", error);
+
+    revalidatePath(`/${sessionUser.username}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Profile mutation transaction failed:", err);
+    return { error: "Failed to rewrite profile directory rows." };
   }
 }
