@@ -1,9 +1,10 @@
-// src/components/PostComments.tsx
+// src/components/PostComments.tsx (PART 1 - PROFILE TAG LINKING UPGRADE)
 "use client";
 
 import { useState, useTransition } from "react";
 import { createComment } from "@/app/actions/comments";
 import SubmitButton from "./SubmitButton";
+import Link from "next/link"; // 🚀 IMPORT NAV MARK LINK
 
 interface CommentItem {
   id: string;
@@ -34,6 +35,30 @@ export default function PostComments({
   const [comments, setComments] = useState<CommentItem[]>(initialComments);
   const [commentText, setCommentText] = useState("");
 
+  // 🚀 HIGH-SPEED REGEX TOKENIZER: Scans comment blocks for @handles and injects active Next.js links inline
+  const renderCommentContentWithClickableTags = (text: string) => {
+    if (!text.includes("@")) return text;
+
+    // Splits the string body safely by picking up text matching word characters after an @ symbol
+    const tokenParts = text.split(/(@[a-zA-Z0-9_]+)/g);
+    
+    return tokenParts.map((part, index) => {
+      if (part.startsWith("@")) {
+        const parsedHandleName = part.slice(1); // Clears the symbol char out to capture raw username string
+        return (
+          <Link 
+            key={`tag-${index}`} 
+            href={`/${parsedHandleName}`}
+            className="text-rose-500 font-bold hover:underline select-text inline-block"
+          >
+            {part}
+          </Link>
+        );
+      }
+      return <span key={`text-${index}`} className="select-text">{part}</span>;
+    });
+  };
+
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
@@ -42,7 +67,6 @@ export default function PostComments({
 
     startTransition(async () => {
       try {
-        // 🚀 FIXED: Passing currentUserId directly to satisfy the 3-4 expected arguments signature rules!
         const res = await createComment(postId, cleanText, currentUserId) as any;
         
         if (res?.success) {
@@ -75,7 +99,7 @@ export default function PostComments({
       }
     });
   };
-
+  // src/components/PostComments.tsx (PART 2 - PROFILE TAG LINKING UPGRADE)
   return (
     <div className="mt-4 border-t border-gray-50 pt-3 text-left">
       
@@ -97,21 +121,32 @@ export default function PostComments({
             <div className="space-y-3 pl-1 max-h-60 overflow-y-auto pr-1">
               {comments.map((reply) => (
                 <div key={reply.id} className="flex items-start space-x-2.5 text-xs">
-                  {reply.user.avatarUrl ? (
-                    <img src={reply.user.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-100 shadow-sm shrink-0" />
-                  ) : (
-                    <div className="w-7 h-7 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-[10px] uppercase shrink-0 shadow-sm">
-                      {reply.user.displayName.charAt(0)}
-                    </div>
-                  )}
+                  <Link href={`/${reply.user.username}`} className="shrink-0">
+                    {reply.user.avatarUrl ? (
+                      <img src={reply.user.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover border border-gray-100 shadow-sm" />
+                    ) : (
+                      <div className="w-7 h-7 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-[10px] uppercase shadow-sm">
+                        {reply.user.displayName.charAt(0)}
+                      </div>
+                    )}
+                  </Link>
                   <div className="bg-gray-50 p-2.5 rounded-2xl flex-1 border border-gray-100/60 min-w-0">
                     <div className="flex justify-between items-center mb-0.5">
-                      <span className="font-black text-gray-900 truncate pr-2">{reply.user.displayName}</span>
+                      {/* 🚀 UPGRADED: Commenter's display name links directly straight out into their profile card view */}
+                      <Link 
+                        href={`/${reply.user.username}`} 
+                        className="font-black text-gray-900 truncate pr-2 hover:underline hover:text-rose-500 text-left block"
+                      >
+                        {reply.user.displayName}
+                      </Link>
                       <span className="text-[9px] text-gray-400 font-bold shrink-0">
                         {new Date(reply.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <p className="text-gray-700 font-medium leading-relaxed whitespace-pre-wrap">{reply.content}</p>
+                    {/* 🚀 UPGRADED: Content now parses text tokens live to draw active hyperlinked text tags anchors! */}
+                    <p className="text-gray-700 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
+                      {renderCommentContentWithClickableTags(reply.content)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -125,13 +160,13 @@ export default function PostComments({
               value={commentText}
               disabled={isPending}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Write a lovely comment response..."
+              placeholder="Write a response... use @username to tag dolls!"
               className="flex-1 border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
             />
             <button
               type="submit"
               disabled={isPending || !commentText.trim()}
-              className="bg-gray-900 text-white font-black text-xs px-4 py-2.5 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide disabled:opacity-40 disabled:hover:bg-gray-900"
+              className="bg-gray-900 text-white font-black text-xs px-4 py-2.5 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide disabled:opacity-40"
             >
               Reply
             </button>
