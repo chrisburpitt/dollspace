@@ -207,7 +207,6 @@ export default function ProfileClient({
             </div>
           </div>
         </aside>
-
       </div>
 
       {/* Full-screen Lightbox Portal Media Preview Overlay */}
