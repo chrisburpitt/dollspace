@@ -68,7 +68,7 @@ export default function ProfileClient({
       />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
-        <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
+        <aside className="hidden lg:block lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
           <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>

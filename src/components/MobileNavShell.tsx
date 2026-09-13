@@ -16,9 +16,10 @@ export default function MobileNavShell({ currentUsername, unreadMailCount }: Mob
 
   // Core platform links mapped to their emojis and paths
   const navLinksArray = [
-    { label: "🌍 Home Feed", path: "/" },
+    { label: "🏠 Home Feed", path: "/" },
     { label: "👑 My Profile", path: `/${currentUsername}` },
-    { label: "💌 Chat Lounge", path: "/chat" },
+    { label: "💬 Chat Lounge", path: "/chat" },
+	{ label: "💌 Mailbox", path: "/mail" },
     { label: "🔔 Activity Notifications", path: "/notifications" },
     { label: "⚙️ Settings", path: "/settings" },
   ];
@@ -28,16 +29,16 @@ export default function MobileNavShell({ currentUsername, unreadMailCount }: Mob
       
       {/* 📱 1. THE FLOATING BOTTOM ACTION BAR: Thumb-friendly controls pinned to the bottom of viewports */}
       <div className="fixed bottom-4 left-4 right-4 h-14 bg-white/90 backdrop-blur-md border border-gray-200/80 rounded-2xl shadow-xl flex items-center justify-around px-4 z-40">
-        <Link href="/" className={`text-xl transition ${pathname === "/" ? "scale-110 text-rose-500" : "text-gray-400"}`}>🌍</Link>
+        <Link href="/" className={`text-xl transition ${pathname === "/" ? "scale-110 text-rose-500" : "text-gray-400"}`}>🏠</Link>
+		<Link href={`/${currentUsername}`} className={`text-xl transition ${pathname === `/${currentUsername}` ? "scale-110 text-rose-500" : "text-gray-400"}`}>👑</Link>
         <Link href="/chat" className={`text-xl relative transition ${pathname.startsWith("/chat") ? "scale-110 text-rose-500" : "text-gray-400"}`}>
-          <span>💌</span>
+          <span>💬</span>
           {unreadMailCount > 0 && (
             <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
               {unreadMailCount}
             </span>
           )}
         </Link>
-        <Link href={`/${currentUsername}`} className={`text-xl transition ${pathname === `/${currentUsername}` ? "scale-110 text-rose-500" : "text-gray-400"}`}>👑</Link>
         
         {/* Toggle Hamburger button trigger line */}
         <button 

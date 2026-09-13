@@ -34,7 +34,7 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
 
         <Link href={`/${currentUsername}`} className={getLinkStyle(`/${currentUsername}`)}>
           <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
-            <span>👤 My Profile</span>
+            <span>👑 My Profile</span>
           </span>
         </Link>
 
