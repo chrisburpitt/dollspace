@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { createAlbum } from "@/app/actions/albums";
 import { updateAlbumMetadata, deleteEntireAlbum, deleteSingleAlbumPhoto, createAlbumPhotoComment } from "@/app/actions/albumsInteractive";
 import SubmitButton from "./SubmitButton";
+import MentionInput from "./MentionInput";
 import Link from "next/link";
 
 interface PhotoItem { id: string; url: string; }
