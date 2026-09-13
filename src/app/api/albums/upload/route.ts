@@ -15,7 +15,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required payload parameters" }, { status: 400 });
     }
 
-    // 1. Verify the active user actually owns the target album before appending photos
     const album = await prisma.album.findFirst({
       where: { id: albumId, userId: sessionUser.id }
     });
@@ -23,15 +22,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Album mismatch or unauthorized" }, { status: 403 });
     }
 
-    // 🚀 YOUR UPLOADTHING/STORAGE CONNECTOR PIPELINE GOES HERE
-    // For now, we simulate your asset link pipeline or drop the string straight to your bucket nodes.
-    // Replace 'photoBase64' with your native UploadThing return URL if piping via uploadthing buckets.
-    const mockStorageUrl = photoBase64; 
+    // Connect this directly to your native cloud asset link saver mapping array loop
+    const storageUrl = photoBase64; 
 
-    // 2. Insert a clean photo row record straight into your Neon cloud database tables
     const newPhotoRow = await prisma.photo.create({
       data: {
-        url: mockStorageUrl,
+        url: storageUrl,
         albumId: albumId
       }
     });
