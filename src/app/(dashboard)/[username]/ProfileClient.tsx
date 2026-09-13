@@ -96,7 +96,7 @@ export default function ProfileClient({
                     {/* 🚀 FIXED BACKTICKS STRINGS: Enforces template literal parsing to pipe your active variables cleanly! */}
                     {user.instagramHandle && (
                       <a 
-                        href={`https://instagram.com{user.instagramHandle}`} 
+                        href={`https://instagram.com/${user.instagramHandle}`} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="flex items-center space-x-1 hover:text-rose-500 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"
@@ -106,7 +106,7 @@ export default function ProfileClient({
                     )}
                     {user.facebookHandle && (
                       <a 
-                        href={`https://facebook.com{user.facebookHandle}`} 
+                        href={`https://facebook.com/${user.facebookHandle}`} 
                         target="_blank" 
                         rel="noopener noreferrer" 
                         className="flex items-center space-x-1 hover:text-blue-600 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"
