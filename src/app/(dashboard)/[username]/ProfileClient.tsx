@@ -75,7 +75,8 @@ export default function ProfileClient({
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
 
-        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - THREE PIECE MODULAR SPLIT) */}
+
+        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - THREE PIECE MODULAR SPLIT FIXED) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
@@ -126,11 +127,11 @@ export default function ProfileClient({
                   </div>
                 )}
                 
-                {/* 🚀 UPGRADED FILTERS BADGES: Clickable tags pipe metadata queries straight to discovery page */}
+                {/* 🚀 FIXED BADGES: Removed the hidden unicode character layout flags to pass Turbopack checks */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.genderIdentity && (
                     
-                      ⚧️ {user.genderIdentity}
+                      ✨ {user.genderIdentity}
                     </Link>
                   )}
                   {user.location && (
@@ -165,6 +166,7 @@ export default function ProfileClient({
               </div>
             </div>
           </div>
+
 
       {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 3 - THREE PIECE MODULAR SPLIT) */}
       {/* THREE PIECE TAB SLIDER SELECTION BAR */}
