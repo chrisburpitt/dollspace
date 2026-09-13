@@ -24,13 +24,15 @@ model User {
   status            String     @default("ONLINE")
 
 // Custom fields
-  age               Int?
+  birthday          DateTime? 
   genderIdentity    String?    
   location          String?
   lookingFor        String?
   bio               String?
   avatarUrl         String?
   bannerUrl         String?
+  instagramHandle   String?
+  facebookHandle    String?
   createdAt         DateTime   @default(now())
   views             Int        @default(0)
 
