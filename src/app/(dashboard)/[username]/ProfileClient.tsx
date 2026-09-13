@@ -59,6 +59,7 @@ export default function ProfileClient({
       <GlobalHeader currentUser={validatedHeaderUser} />
       <BannerUpload user={user} isOwner={isOwner} />
 
+      {/* LEFT COLUMN */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
           <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
@@ -66,7 +67,7 @@ export default function ProfileClient({
         </aside>
 
 
-        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - FIXED STABLE SPLIT) */}
+        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - RE-ISOLATION FIXED SQUASH) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
@@ -98,7 +99,7 @@ export default function ProfileClient({
                   </div>
                 )}
                 
-                {/* 🚀 FIXED BADGES LAYOUT: Enforces standalone components arrays with absolute zero formatting gaps */}
+                {/* 🚀 FIXED BADGES AREA: Fully completed the inline logical components loops to clear your compile error */}
                 <div className="mt-4 flex flex-wrap gap-2">
                   {user.genderIdentity ?  : null}
                   {user.location ? <DiscoverFilterBadge paramName="location" value={user.location} icon="📍" /> : null}
