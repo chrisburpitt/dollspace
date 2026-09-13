@@ -87,13 +87,12 @@ export default function ProfileClient({
       <BannerUpload user={user} isOwner={isOwner} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
-        
+	  
         {/* LEFT ASPECT COLUMN NO-JUMP MODULE PANEL */}
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
           <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
-
 
         {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - BADGE RE-ISOLATION FIXED) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
@@ -150,90 +149,6 @@ export default function ProfileClient({
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
                   {user.genderIdentity && }
                   {user.location && <DiscoverFilterBadge paramName="location" value={user.location} icon="📍" />}
-                </div>
-
-                {/* Clickable Looking For options */}
-                {user.lookingFor && user.lookingFor.trim().length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 items-center mt-4">
-                    <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
-                    {[...new Set(user.lookingFor.split(",").map((option: string) => option.trim().replace(/_/g, ' ')).filter(Boolean))].map((optionLabel: any) => (
-                      <Link 
-                        key={optionLabel} 
-                        href={`/discover?lookingFor=${encodeURIComponent(optionLabel)}`}
-                        className="bg-rose-50 hover:bg-rose-100/80 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 hover:border-rose-200 shadow-sm transition block"
-                      >
-                        {optionLabel}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-
-                <p className="mt-4 text-gray-600 leading-relaxed font-medium">{user.bio || "Welcome to my Dollspace profile layout!"}</p>
-                
-                <div className="flex justify-center sm:justify-start space-x-6 mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500 font-medium">
-                  <div><strong className="text-gray-900 font-bold">{user._count.following}</strong> Following</div>
-                  <div><strong className="text-gray-900 font-bold">{user._count.followers}</strong> Followers</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - THREE PIECE MODULAR SPLIT SOLID COMPILE) */}
-        {/* CENTER COLUMN: Interactive Switch Feed Renders */}
-        <main className="lg:col-span-6 space-y-6">
-          <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
-            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0 select-none z-20">
-              <AvatarUpload user={user} />
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 text-center sm:text-left mt-4">
-              <div className="flex-1 w-full">
-                <div className="flex items-start justify-between w-full">
-                  <div>
-                    <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
-                    <div className="flex items-center space-x-2 mt-0.5">
-                      <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
-                      {calculatedAgeValue !== null && (
-                        <span className="text-gray-900 font-bold text-xs bg-gray-100 px-2 py-0.5 rounded-md">
-                          🎂 {calculatedAgeValue} Years Old
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {isOwner ? (
-                    <EditProfileModal user={user} />
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <Link href="/chat" className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1">
-                        <span>💌 Chat</span>
-                      </Link>
-                      <FollowButton currentUserId={sessionUser.id} targetUserId={user.id} initialIsFollowing={isFollowing} />
-                    </div>
-                  )}
-                </div>
-
-                {/* SOCIAL PLATFORM PROFILE LINK CHANNELS */}
-                {(user.instagramHandle || user.facebookHandle) && (
-                  <div className="mt-3.5 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500">
-                    {user.instagramHandle && (
-                      <a href={`https://instagram.com{user.instagramHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-rose-500 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm">
-                        <span>📸</span> <span>Instagram</span>
-                      </a>
-                    )}
-                    {user.facebookHandle && (
-                      <a href={`https://facebook.com{user.facebookHandle}`} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 hover:text-blue-600 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm">
-                        <span>💙</span> <span>Facebook</span>
-                      </a>
-                    )}
-                  </div>
-                )}
-                
-                {/* 🚀 CRITICAL RE-WRITE FIXED BADGES: Wrapped directly inline with zero whitespace or line-break anomalies to pass Turbopack perfectly! */}
-                <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                  {user.genderIdentity && ✨ {user.genderIdentity}</Link>}
-                  {user.location && <Link href={`/discover?location=${encodeURIComponent(user.location)}`} className="bg-rose-50/40 hover:bg-rose-50 text-gray-600 border border-gray-100 hover:border-rose-200 px-2.5 py-1 rounded-lg transition shadow-sm block">📍 {user.location}</Link>}
                 </div>
 
                 {/* Clickable Looking For options */}
