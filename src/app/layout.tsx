@@ -1,5 +1,5 @@
 // src/app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next"; // 🚀 Added Viewport type tracking
 import { Geist, Geist_Mono } from "next/font/google";
 import { touchUserPresenceHeartbeat } from "@/app/actions/presence";
 import "./globals.css";
@@ -14,18 +14,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// 🚀 SERVER ONLY: Metadata works perfectly here because the file is a clean Server Component
+// 🚀 1. INDEPENDENT VIEWPORT EXPORT: Keeps layout configs clean and tells Android Chrome to scale content at a true 1:1 mobile layout ratio!
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
+// 🚀 2. CLEAN METADATA CONFIGURATION: Merged flawlessly and free from nested bracket trailing comma errors
 export const metadata: Metadata = {
   title: "Dollspace",
   description: "A Space for the Dolls, by the Dolls",
   icons: {
     icon: "/favicon.ico",
-  }
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
   }
 };
 
