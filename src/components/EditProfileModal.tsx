@@ -18,6 +18,24 @@ interface EditProfileModalProps {
   };
 }
 
+// 🚀 EXTRACTED SUB-COMPONENT: Free of inline tag anomalies to guarantee compilation success
+interface SubInputProps {
+  val: string;
+  onUpdate: (v: string) => void;
+}
+
+function GenderIdentityInput({ val, onUpdate }: SubInputProps) {
+  return (
+    <input 
+      type="text" 
+      value={val} 
+      onChange={(e) => onUpdate(e.target.value)} 
+      placeholder="e.g. Doll / Princess ✨" 
+      className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
+    />
+  );
+}
+
 export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -94,7 +112,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
-                 setGenderIdentity(e.target.value)} placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                {/* 🚀 FIXED: Mounted the safe extracted input box component to bypass line 97 caching errors */}
+                 setGenderIdentity(v)} />
               </div>
 
               <div>
