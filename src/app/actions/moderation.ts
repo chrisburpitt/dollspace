@@ -99,3 +99,43 @@ export async function dispatchGlobalSystemBroadcast(subject: string, alertText: 
     return { error: "Broadcast array compilation error." };
   }
 }
+
+// 4. ACTION: Permanently wipe an entire user account out of the database cluster
+export async function administrativeDeleteUser(targetUserId: string) {
+  const admin = await verifyAdminCheckpoint();
+  if (!admin) return { error: "Unauthorized access path." };
+  if (targetUserId === admin.id) return { error: "Security Halt: You cannot delete yourself." };
+
+  try {
+    // Prisma Cascade rules handles cleaning up their child posts, comments, and mail arrays automatically
+    await prisma.user.delete({
+      where: { id: targetUserId }
+    });
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err) {
+    console.error("Account deletion transaction failed:", err);
+    return { error: "Failed to purge user record from the cluster." };
+  }
+}
+
+// 5. ACTION: Instantly update a user's system authority role group permissions
+export async function administrativeUpdateUserRole(targetUserId: string, newRole: "USER" | "MODERATOR" | "ADMIN") {
+  const admin = await verifyAdminCheckpoint();
+  if (!admin) return { error: "Unauthorized access path." };
+  if (targetUserId === admin.id) return { error: "Security Halt: You cannot modify your own role level." };
+
+  try {
+    await prisma.user.update({
+      where: { id: targetUserId },
+      data: { role: newRole }
+    });
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err) {
+    console.error("User role migration failed:", err);
+    return { error: "Failed to rewrite role index rows." };
+  }
+}

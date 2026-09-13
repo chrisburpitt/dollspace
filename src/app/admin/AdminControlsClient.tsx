@@ -57,7 +57,44 @@ export default function AdminControlsClient({ initialUsers }: { initialUsers: an
   };
 
 
-  // src/app/admin/AdminControlsClient.tsx (PART 2 - ADMIN ENGINE SPLIT)
+  // src/app/admin/AdminControlsClient.tsx (PART 2 - THREE PIECE SPLIT)
+  
+  // 🚀 NEW INTERACTIVE EVENT HANDLERS
+  const handleRoleChange = (userId: string, currentRole: string, newRole: string, name: string) => {
+    if (userId === currentUserId) return; // Guard protection block
+    
+    // Normalise short choice strings over to system database schema enums
+    const validatedSchemaEnum = newRole === "MOD" ? "MODERATOR" : (newRole as "USER" | "ADMIN");
+
+    if (!confirm(`🌸 Migrate authority clearance tier for ${name} from ${currentRole} to ${newRole}?`)) return;
+
+    startTransition(async () => {
+      const { administrativeUpdateUserRole } = await import("@/app/actions/moderation");
+      const res = await administrativeUpdateUserRole(userId, validatedSchemaEnum);
+      if (res.success) {
+        setUsers((prev) => prev.map(u => u.id === userId ? { ...u, role: validatedSchemaEnum } : u));
+        alert(`🌸 ${name} has been successfully migrated to role tier: ${newRole}!`);
+      } else if (res.error) {
+        alert(res.error);
+      }
+    });
+  };
+
+  const handleFullAccountPurgeClick = (userId: string, name: string) => {
+    if (!confirm(`🚨 CRITICAL ACTION: Are you absolutely certain you want to PERMANENTLY DELETE ${name}'s entire profile?\n\nThis will instantly purge all their posts, photos, messages, and albums completely from Dollspace forever.`)) return;
+
+    startTransition(async () => {
+      const { administrativeDeleteUser } = await import("@/app/actions/moderation");
+      const res = await administrativeDeleteUser(userId);
+      if (res.success) {
+        setUsers((prev) => prev.filter(u => u.id !== userId));
+        alert(`🗑️ ${name}'s account data records have been completely purged from the core cluster database.`);
+      } else if (res.error) {
+        alert(res.error);
+      }
+    });
+  };
+
   return (
     <div className="space-y-6 text-left select-none animate-fade-in">
       
@@ -101,6 +138,8 @@ export default function AdminControlsClient({ initialUsers }: { initialUsers: an
         </form>
       </div>
 
+
+      {/* src/app/admin/AdminControlsClient.tsx (PART 3 - THREE PIECE SPLIT) */}
       {/* CARD B: USER ROSTER MANAGEMENT & MODERATION ACCOUNT GRID LIST */}
       <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between mb-4 border-b border-gray-50 pb-3">
@@ -113,60 +152,98 @@ export default function AdminControlsClient({ initialUsers }: { initialUsers: an
           </span>
         </div>
 
-        <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto pr-1 space-y-1">
-          {users.map((profile) => (
-            <div key={profile.id} className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-1 rounded-xl hover:bg-gray-50/50 transition">
-              
-              <div className="flex items-center space-x-3 min-w-0">
-                {profile.avatarUrl ? (
-                  <img src={profile.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
-                ) : (
-                  <div className="w-10 h-10 bg-rose-400 text-white rounded-full flex items-center justify-center font-black text-sm uppercase shrink-0 shadow-sm">
-                    {profile.displayName.charAt(0)}
-                  </div>
-                )}
-                <div className="min-w-0 text-left">
-                  <div className="flex items-center space-x-2">
-                    <span className="font-black text-xs text-gray-900 truncate block">{profile.displayName}</span>
-                    <span className="bg-gray-100 text-gray-400 font-black text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded">
-                      {profile.role}
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-gray-400 font-bold block truncate">@{profile.username}</span>
-                  {profile.isBanned && (
-                    <p className="text-[10px] text-red-500 font-bold mt-0.5 italic">
-                      🚫 Banned: {profile.banReason}
-                    </p>
-                  )}
-                </div>
-              </div>
+        <div className="divide-y divide-gray-100 max-h-[550px] overflow-y-auto pr-1 space-y-2">
+          {users.map((profile) => {
+            const isSelf = profile.id === currentUserId;
+            const mappedRoleDisplay = profile.role === "MODERATOR" ? "MOD" : profile.role;
 
-              {/* Action Enforcement Panel Trigger Row Row */}
-              <div className="flex items-center space-x-2 shrink-0 sm:justify-end">
-                <Link 
-                  href={`/${profile.username}`}
-                  target="_blank"
-                  className="bg-white hover:bg-gray-100 text-gray-700 border border-gray-200 font-black text-[10px] px-3.5 py-2 rounded-xl uppercase tracking-wider transition shadow-sm"
-                >
-                  View Profile 👤
-                </Link>
+            return (
+              <div key={profile.id} className="py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-2 rounded-2xl hover:bg-gray-50/60 transition border border-transparent hover:border-gray-100/50">
                 
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => handleBanToggle(profile.id, profile.isBanned, profile.displayName)}
-                  className={`font-black text-[10px] px-4 py-2 rounded-xl uppercase tracking-wider transition shadow-sm border ${
-                    profile.isBanned 
-                      ? "bg-green-50 hover:bg-green-100 text-green-600 border-green-200" 
-                      : "bg-red-50 hover:bg-red-100 text-red-500 border-red-200"
-                  }`}
-                >
-                  {profile.isBanned ? "✅ Reactivate Account" : "🚫 Ban Profile"}
-                </button>
-              </div>
+                {/* MEMBER DETAILS LEFT BLOCK */}
+                <div className="flex items-center space-x-3 min-w-0">
+                  {profile.avatarUrl ? (
+                    <img src={profile.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
+                  ) : (
+                    <div className="w-10 h-10 bg-rose-400 text-white rounded-full flex items-center justify-center font-black text-sm uppercase shrink-0 shadow-sm">
+                      {profile.displayName.charAt(0)}
+                    </div>
+                  )}
+                  <div className="min-w-0 text-left">
+                    <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                      <span className="font-black text-xs text-gray-900 truncate block leading-none">{profile.displayName}</span>
+                      <span className={`font-black text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm border ${
+                        profile.role === "ADMIN" ? "bg-purple-50 text-purple-600 border-purple-100" :
+                        profile.role === "MODERATOR" ? "bg-blue-50 text-blue-600 border-blue-100" : "bg-gray-50 text-gray-400 border-gray-100"
+                      }`}>
+                        {mappedRoleDisplay}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 font-bold block truncate mt-0.5">@{profile.username}</span>
+                    {profile.isBanned && (
+                      <p className="text-[10px] text-red-500 font-bold mt-1 italic leading-none">
+                        🚫 Banned: {profile.banReason}
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-            </div>
-          ))}
+                {/* ADMINISTRATIVE CONTROLS CONTROLLER TOOLBAR ACTIONS */}
+                <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+                  
+                  {/* LIVE ROLE MIGRATION DROPDOWN SELECT ENGINE */}
+                  <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1.5 rounded-xl border border-gray-100 shadow-inner">
+                    <span className="text-[9px] uppercase font-black text-gray-400 pl-1 tracking-wider">Role:</span>
+                    <select
+                      value={mappedRoleDisplay}
+                      disabled={isPending || isSelf}
+                      onChange={(e) => handleRoleChange(profile.id, mappedRoleDisplay, e.target.value, profile.displayName)}
+                      className="bg-transparent text-xs font-black text-gray-700 focus:outline-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <option value="USER">User</option>
+                      <option value="MOD">Mod</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  </div>
+
+                  <Link 
+                    href={`/${profile.username}`}
+                    target="_blank"
+                    className="bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 font-black text-[10px] px-3 py-2 rounded-xl uppercase tracking-wider transition shadow-sm"
+                  >
+                    View 👤
+                  </Link>
+                  
+                  <button
+                    type="button"
+                    disabled={isPending || isSelf}
+                    onClick={() => handleBanToggle(profile.id, profile.isBanned, profile.displayName)}
+                    className={`font-black text-[10px] px-3 py-2 rounded-xl uppercase tracking-wider transition shadow-sm border ${
+                      isSelf ? "hidden" :
+                      profile.isBanned 
+                        ? "bg-green-50 hover:bg-green-100 text-green-600 border-green-200" 
+                        : "bg-amber-50 hover:bg-amber-100 text-amber-600 border-amber-200"
+                    }`}
+                  >
+                    {profile.isBanned ? "Unban" : "Ban"}
+                  </button>
+
+                  {/* HARD PERMANENT INSTANT USER DIRECTORY ACCOUNT PURGE BUTTON */}
+                  <button
+                    type="button"
+                    disabled={isPending || isSelf}
+                    onClick={() => handleFullAccountPurgeClick(profile.id, profile.displayName)}
+                    className={`font-black text-[10px] px-3 py-2 rounded-xl uppercase tracking-wider transition shadow-sm border bg-red-50 hover:bg-red-500 hover:text-white text-red-500 border-red-100 hover:border-red-600 ${
+                      isSelf ? "hidden" : "block"
+                    }`}
+                  >
+                    Purge 🗑️
+                  </button>
+                </div>
+
+              </div>
+            );
+          })}
         </div>
       </div>
 
