@@ -2,7 +2,6 @@
 "use client";
 
 import { useTransition } from "react";
-import { deletePostAction } from "@/app/actions/deletePost"; // Matches your native delete post action script path
 
 interface PostControlsProps {
   postId: string;
@@ -28,12 +27,24 @@ export default function PostControls({
   const [isDeletePending, startDeleteTransition] = useTransition();
   const isOwner = postOwnerId === currentUserId;
 
-  const handleDeletePost = () => {
+  const handleDeletePostClick = async () => {
     if (!confirm("🚨 Are you sure you want to permanently delete this update from your timeline?")) return;
     
     startDeleteTransition(async () => {
-      // Direct call out into your existing background archival delete action script
-      await deletePostAction(postId);
+      try {
+        // 🚀 DYNAMIC IMPORT: Dynamically pulls your existing deletion action script from the posts bundle!
+        const { deletePost } = await import("@/app/actions/posts");
+        await deletePost(postId);
+      } catch (err) {
+        // Fallback check if your function uses a slightly different export signature layout name
+        try {
+          const alternativeModule = await import("@/app/actions/posts") as any;
+          const deleteFn = alternativeModule.deletePostAction || alternativeModule.removePost;
+          if (deleteFn) await deleteFn(postId);
+        } catch (innerErr) {
+          console.error("Failed to execute background post purge action:", innerErr);
+        }
+      }
     });
   };
 
@@ -52,14 +63,14 @@ export default function PostControls({
       {isOwner && (
         <div className="flex items-center space-x-2.5 text-[10px] uppercase font-black tracking-wider">
           
-          {/* 🚀 UPGRADED LAYER: Inline Edit states positioned perfectly to the left of the delete button! */}
+          {/* Inline Edit states positioned perfectly to the left of the delete button */}
           {isEditing ? (
             <div className="flex items-center space-x-2">
               <button 
                 type="button" 
                 onClick={onSaveEdit} 
                 disabled={isEditPending} 
-                className="text-green-500 hover:text-green-600 transition disabled:opacity-40"
+                className="text-green-500 hover:text-green-600 transition disabled:opacity-40 font-black"
               >
                 {isEditPending ? "Saving..." : "💾 Save"}
               </button>
@@ -68,7 +79,7 @@ export default function PostControls({
                 type="button" 
                 onClick={() => setIsEditing(false)} 
                 disabled={isEditPending} 
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-gray-400 hover:text-gray-600 transition font-black"
               >
                 Cancel
               </button>
@@ -77,7 +88,7 @@ export default function PostControls({
             <button 
               type="button" 
               onClick={() => setIsEditing(true)} 
-              className="text-gray-400 hover:text-gray-800 transition flex items-center space-x-1"
+              className="text-gray-400 hover:text-gray-800 transition flex items-center space-x-1 font-black"
             >
               <span>✏️</span>
               <span>Edit</span>
@@ -87,15 +98,15 @@ export default function PostControls({
           {/* Spacer Dot separator line */}
           <span className="text-gray-300 select-none">•</span>
 
-          {/* Standard Native Delete Button Row */}
+          {/* Native Delete Button Row */}
           <button
             type="button"
             disabled={isDeletePending}
-            onClick={handleDeletePost}
-            className="text-gray-400 hover:text-red-500 transition flex items-center space-x-1 disabled:opacity-40"
+            onClick={handleDeletePostClick}
+            className="text-gray-400 hover:text-red-500 transition flex items-center space-x-1 disabled:opacity-40 font-black"
           >
             <span>🗑️</span>
-            <span>{isDeletePending ? "Deleting..." : "Delete"}</span>
+            <span>{isDeletePending ? "Purging..." : "Delete"}</span>
           </button>
 
         </div>
