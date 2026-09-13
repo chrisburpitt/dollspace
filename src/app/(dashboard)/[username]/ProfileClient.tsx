@@ -9,6 +9,7 @@ import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
+import PostCard from "@/components/PostCard";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
@@ -168,43 +169,18 @@ export default function ProfileClient({
                 <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
               </div>
 
-              {/* Timeline Updates Stream Container List */}
+              {/* 🚀 Timeline Updates Stream Container List - CLEANED AND DEDUPLICATED */}
               <div className="space-y-4 mt-2">
                 {userPosts.map((post: any) => (
-                  <div key={post.id} className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
-                    <div className="flex items-center space-x-3 mb-4">
-                      {post.user.avatarUrl ? (
-                        <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase">{post.user.displayName.charAt(0)}</div>
-                      )}
-                      <div>
-                        <span className="font-bold text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
-                        <span className="text-gray-400 text-xs">@{post.user.username}</span>
-                      </div>
-                    </div>
-                    {post.content && <p className="text-gray-800 text-base mb-4">{post.content}</p>}
-                    
-                    {post.imageUrl && (
-                      <div 
-                        onClick={() => setActiveLightboxUrl([post.imageUrl])} 
-                        className="rounded-xl overflow-hidden border border-gray-200 max-h-[450px] bg-gray-50 mt-2 mb-4 cursor-zoom-in group flex items-center justify-center relative hover:opacity-95 transition"
-                      >
-                        <img src={post.imageUrl} alt="" className="w-full h-full max-h-[450px] object-cover transition-transform duration-300 group-hover:scale-[1.01]" />
-                        <span className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-md text-white font-bold text-[10px] px-2.5 py-1 rounded-lg tracking-wider opacity-0 group-hover:opacity-100 transition duration-200 uppercase">
-                          🔍 Zoom Photo
-                        </span>
-                      </div>
-                    )}
-
-                    <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={sessionUser.id} reactions={post.reactions} />
-                    
-                    <PostComments 
-                      postId={post.id}
-                      currentUserId={sessionUser.id}
-                      comments={post.comments}
-                    />
-                  </div>
+                  <PostCard 
+                    key={post.id}
+                    post={post}
+                    currentUserId={sessionUser.id}
+                    /* 🚀 UPGRADED PORTAL ZOOM: Passes complete image array stacks into lightboxes dynamically */
+                    onPhotoClick={(urlsArray, targetIndex) => {
+                      setActiveLightboxUrl(urlsArray);
+                    }}
+                  />
                 ))}
               </div>
             </>

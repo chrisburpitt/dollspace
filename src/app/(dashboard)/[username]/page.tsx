@@ -49,11 +49,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   if (!user) notFound();
 
+  // 🚀 UPGRADED SCHEMA: Load post image sub-tables on profile calls to align layout rendering parameters
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: { 
       user: true, 
       reactions: true,
+      images: { select: { id: true, url: true } }, // 🎯 CRITICAL ELEMENT FOR MULTI-PHOTO PREVIEWS
       comments: { include: { user: true }, orderBy: { createdAt: "asc" } }
     },
     orderBy: { createdAt: "desc" },
