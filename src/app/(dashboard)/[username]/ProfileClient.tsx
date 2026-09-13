@@ -1,4 +1,4 @@
-// src/app/[username]/ProfileClient.tsx (PART 1 - REUSABLE NAV BAR INTEGRATION)
+// src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1 - IMPORT FIXED)
 "use client";
 
 import { useState } from "react";
@@ -9,12 +9,12 @@ import PostControls from "@/components/PostControls";
 import EditProfileModal from "@/components/EditProfileModal";
 import GlobalHeader from "@/components/GlobalHeader";
 import FollowButton from "@/components/FollowButton";
-import PostCard from "@/components/PostCard";
 import PostComments from "@/components/PostComments";
 import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
+import ProfileUpdateFeed from "@/components/ProfileUpdateFeed"; // 🚀 FIXED: Added missing layout component import
 
 interface ProfileClientProps {
   user: any;
@@ -24,7 +24,7 @@ interface ProfileClientProps {
   userPosts: any[];
   validatedHeaderUser: any;
   unreadMailCount: number;
-  onlineUsers: any[]; 
+  onlineUsers: any[];
 }
 
 export default function ProfileClient({ 
@@ -35,7 +35,7 @@ export default function ProfileClient({
   userPosts, 
   validatedHeaderUser,
   unreadMailCount,
-  onlineUsers 
+  onlineUsers
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
@@ -53,17 +53,17 @@ export default function ProfileClient({
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
-        {/* 🚀 LEFT COLUMN: Swapped out old local nav link items block for our global unified menu panel */}
-        <aside className="lg:col-span-3 flex flex-col gap-4 lg:sticky lg:top-20 h-fit self-start">
+        {/* LEFT COLUMN: Sidebar Navigation Stack Panel */}
+        <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
           <SidebarNav 
             currentUsername={sessionUser.username}
             unreadMailCount={unreadMailCount}
           />
-		  <OnlineUsersSidebar users={onlineUsers} />
+          <OnlineUsersSidebar users={onlineUsers} />
         </aside>
 
 
-         {/* src/app/[username]/ProfileClient.tsx (PART 2 - PERFECT GRID ALIGNMENT SUCCESS) */}
+        {/* src/app/[username]/ProfileClient.tsx (PART 2 - PERFECT GRID ALIGNMENT SUCCESS) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16">
@@ -169,15 +169,15 @@ export default function ProfileClient({
                 <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
               </div>
 
-              {/* 🚀 FIXED UPGRADED TIMELINE FEED STREAM CARD LOOP: RE-ROLLED WITH PROFILE UPDATE FEED INTERFACES */}
+              {/* Timeline Updates Stream Container List */}
               <div className="space-y-4 mt-2">
                 {userPosts.map((post: any) => (
                   <ProfileUpdateFeed 
                     key={post.id}
                     post={post}
                     currentUserId={sessionUser.id}
-                    onPhotoClick={(urlsArray, targetIndex) => {
-                      // Packs your multi-photo slider array hooks into lightboxes smoothly
+                    /* 🚀 FIXED TYPES SIGNATURES: Explicitly typed array parameters to satisfy build rules */
+                    onPhotoClick={(urlsArray: string[], targetIndex: number) => {
                       setActiveLightboxUrl(urlsArray);
                     }}
                   />
