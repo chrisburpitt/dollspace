@@ -85,13 +85,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
             <form onSubmit={handleFormSubmitAction} className="p-6 overflow-y-auto space-y-4 flex-1 text-xs font-semibold text-gray-700">
 
-              {/* src/components/EditProfileModal.tsx (PART 2 - COMPILE FIXED) */}
+              {/* src/components/EditProfileModal.tsx (PART 2 - REPAIRED COMPILE SUCCESS) */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
                 <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* 🚀 NEW UPGRADED FIELD LAYER: Native HTML Date picker selector element for Birthdays */}
+              {/* Native HTML Date picker selector element for Birthdays */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Date of Birth</label>
                 <input 
@@ -109,10 +109,14 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
-                 setGenderIdentity(e.target.value)} placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                {/* 🚀 FIXED onChange TRIGGER: Fully restored the complete event function handler block below error line 112 */}
+                 setGenderIdentity(e.target.value)} 
+                  placeholder="e.g. Doll / Princess ✨" 
+                  className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
+                />
               </div>
 
-              {/* 🚀 NEW UPGRADED FIELD LAYER: Instagram handle string capture field */}
+              {/* Instagram handle string capture field */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Instagram Handle</label>
                 <input 
@@ -124,7 +128,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 />
               </div>
 
-              {/* 🚀 NEW UPGRADED FIELD LAYER: Facebook username identifier field */}
+              {/* Facebook username identifier field */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Facebook Handle / Username</label>
                 <input 
