@@ -12,6 +12,7 @@ import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
+import MobileNavShell from "@/components/MobileNavShell"; 
 import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
 
 interface ProfileClientProps {
@@ -61,7 +62,7 @@ export default function ProfileClient({
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
       <BannerUpload user={user} isOwner={isOwner} />
-	  <MobileNavShell 
+      <MobileNavShell 
         currentUsername={sessionUser.username} 
         unreadMailCount={unreadMailCount} 
       />

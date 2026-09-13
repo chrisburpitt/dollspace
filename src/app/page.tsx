@@ -15,6 +15,7 @@ import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import { getPlatformDashboardMetrics } from "@/app/actions/platformMetrics";
 import PlatformMetricsCard from "@/components/PlatformMetricsCard";
+import MobileNavShell from "@/components/MobileNavShell"; 
 import { redirect } from "next/navigation";
 
  export const metadata: Metadata = {
@@ -100,8 +101,8 @@ export default async function HomePage() {
       <GlobalHeader currentUser={validatedHeaderUser} />
       <StaticFeedBanner />
       <MobileNavShell 
-        currentUsername={sessionUser.username} 
-        unreadMailCount={unreadMailCount} 
+        currentUsername={currentUser.username} 
+        unreadMailCount={unreadMailCount || 0} 
       />	
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">

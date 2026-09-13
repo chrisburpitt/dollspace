@@ -11,6 +11,7 @@ import { getUnreadMailCount } from "@/app/actions/mailCount";
 import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
+import MobileNavShell from "@/components/MobileNavShell"; 
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -53,9 +54,9 @@ export default async function ChatPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={currentUser} />
-	  <MobileNavShell 
-        currentUsername={sessionUser.username} 
-        unreadMailCount={unreadMailCount} 
+      <MobileNavShell 
+        currentUsername={currentUser.username} 
+        unreadMailCount={unreadMailCount || 0} 
       />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">

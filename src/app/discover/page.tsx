@@ -11,6 +11,7 @@ import { getUnreadMailCount } from "@/app/actions/mailCount";
 import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
+import MobileNavShell from "@/components/MobileNavShell"; 
 
 export const metadata: Metadata = {
   title: "Dollspace | Discover Your Community",
@@ -31,9 +32,9 @@ export default async function DiscoverPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
-	  <MobileNavShell 
-        currentUsername={sessionUser.username} 
-        unreadMailCount={unreadMailCount} 
+      <MobileNavShell 
+        currentUsername={currentUser.username} 
+        unreadMailCount={unreadMailCount || 0} 
       />
 
       {/* Main Structural Layout Wrapper */}
