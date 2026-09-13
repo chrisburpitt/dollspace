@@ -1,4 +1,4 @@
-// src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1 - THREE PIECE MODULAR SPLIT)
+// src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1 - BADGE RE-ISOLATION FIXED)
 "use client";
 
 import { useState } from "react";
@@ -27,7 +27,26 @@ interface ProfileClientProps {
   followersList?: any[];
 }
 
-// 🚀 LIVE AGE CONVERTER: Calculates precise age natively in 0ms from Date of Birth
+// 🚀 BULLETPROOF EXTRACTED BADGE COMPONENT: Free of all hidden unicode spaces or bracket anomalies
+interface BadgeProps {
+  paramName: string;
+  value: string;
+  icon: string;
+}
+
+function DiscoverFilterBadge({ paramName, value, icon }: BadgeProps) {
+  const absoluteUrlPath = `/discover?${paramName}=${encodeURIComponent(value)}`;
+  return (
+    <Link 
+      href={absoluteUrlPath} 
+      className="bg-rose-50/40 hover:bg-rose-50 text-gray-600 border border-gray-100 hover:border-rose-200 px-2.5 py-1 rounded-lg transition shadow-sm inline-block"
+    >
+      <span>{icon}</span> <span>{value}</span>
+    </Link>
+  );
+}
+
+// LIVE AGE CONVERTER: Calculates precise age from Date of Birth
 function calculateAgeFromBirthday(birthdayString: string | null): number | null {
   if (!birthdayString) return null;
   const birthDate = new Date(birthdayString);
@@ -76,7 +95,7 @@ export default function ProfileClient({
         </aside>
 
 
-        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - THREE PIECE MODULAR SPLIT FIXED) */}
+        {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - BADGE RE-ISOLATION FIXED) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
@@ -127,18 +146,10 @@ export default function ProfileClient({
                   </div>
                 )}
                 
-                {/* 🚀 FIXED BADGES: Fully restored the open Link wrapper tags cleanly to fix the JSX compiler tree error */}
+                {/* 🚀 FIXED BADGES AREA: Completely safe, clean, and abstracted to avoid any compilation anomalies */}
                 <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold">
-                  {user.genderIdentity && (
-                    
-                      ✨ {user.genderIdentity}
-                    </Link>
-                  )}
-                  {user.location && (
-                    <Link href={`/discover?location=${encodeURIComponent(user.location)}`} className="bg-rose-50/40 hover:bg-rose-50 text-gray-600 border border-gray-100 hover:border-rose-200 px-2.5 py-1 rounded-lg transition shadow-sm block">
-                      📍 {user.location}
-                    </Link>
-                  )}
+                  {user.genderIdentity && }
+                  {user.location && <DiscoverFilterBadge paramName="location" value={user.location} icon="📍" />}
                 </div>
 
                 {/* Clickable Looking For options */}
@@ -166,6 +177,7 @@ export default function ProfileClient({
               </div>
             </div>
           </div>
+
 
         {/* src/app/(dashboard)/[username]/ProfileClient.tsx (PART 2 - THREE PIECE MODULAR SPLIT SOLID COMPILE) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
@@ -294,7 +306,7 @@ export default function ProfileClient({
         <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">About My Profile</h3>
         <div className="text-xs space-y-2 text-gray-600 font-semibold">
           <div className="flex justify-between"><span>Account Created:</span><span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span></div>
-          <div className="flex justify-between"><span>Total Posts Stored:</span><span className="text-gray-900 font-bold">{user._count.posts}</span></div>
+          <div className="flex justify-between"><span>Total Posts Shared:</span><span className="text-gray-900 font-bold">{user._count.posts}</span></div>
 		  <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5"><span>Profile Views:</span><span className="text-rose-500 font-black">👀 {user.views}</span></div>
         </div>
       </div>
