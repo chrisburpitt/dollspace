@@ -61,6 +61,10 @@ export default function ProfileClient({
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
       <BannerUpload user={user} isOwner={isOwner} />
+	  <MobileNavShell 
+        currentUsername={sessionUser.username} 
+        unreadMailCount={unreadMailCount} 
+      />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         <aside className="lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">

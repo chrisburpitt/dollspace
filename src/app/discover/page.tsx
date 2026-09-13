@@ -31,6 +31,10 @@ export default async function DiscoverPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
+	  <MobileNavShell 
+        currentUsername={sessionUser.username} 
+        unreadMailCount={unreadMailCount} 
+      />
 
       {/* Main Structural Layout Wrapper */}
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">        
