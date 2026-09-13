@@ -29,7 +29,7 @@ export default function PostComments({
   postId, 
   currentUserId, 
   comments: initialComments, 
-  initialOpen = false 
+  initialOpen = false,
   followersList = [] 
 }: PostCommentsProps) {
   const [isPending, startTransition] = useTransition();
