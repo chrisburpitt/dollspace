@@ -1,8 +1,10 @@
 // src/components/ProfileUpdateFeed.tsx
 "use client";
 
+import { useState, useTransition } from "react";
 import PostControls from "./PostControls";
 import PostComments from "./PostComments";
+import { editPostContent } from "@/app/actions/editPost"; // 🚀 Links straight to your editor action
 
 interface ProfileUpdateFeedProps {
   post: any;
@@ -11,9 +13,14 @@ interface ProfileUpdateFeedProps {
 }
 
 export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }: ProfileUpdateFeedProps) {
+  const [isPending, startTransition] = useTransition();
+  // 🚀 FIXED: Incorporated local states to keep profile editing completely isolated and typesafe!
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(post.content || "");
+
+  const hasCommentsPresent = post.comments && post.comments.length > 0;
   const domainName = post.linkUrl ? new URL(post.linkUrl).hostname.toLowerCase() : "";
   
-  // Smart Brand-Aware Icon Lookup Map Matrix
   let customSocialBrandIcon = null;
   if (domainName.includes("instagram.com")) customSocialBrandIcon = "📸";
   if (domainName.includes("facebook.com")) customSocialBrandIcon = "💙";
@@ -22,15 +29,31 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
   if (domainName.includes("twitter.com") || domainName.includes("x.com")) customSocialBrandIcon = "🐦";
   if (domainName.includes("pinterest.com")) customSocialBrandIcon = "📌";
 
-  // 🚀 HOME-FEED PARITY GRID CALCULATOR: Gathers new multi-photo drops AND legacy single image fields
   const dbPhotoUrls = post.images?.map((img: any) => img.url) || [];
   const legacyPhotoUrl = post.imageUrl ? [post.imageUrl] : [];
   const combinedImages: string[] = dbPhotoUrls.length > 0 ? dbPhotoUrls : legacyPhotoUrl;
 
+  const handleSaveInlineEdit = () => {
+    if (!editText.trim() || editText.trim() === post.content) {
+      setIsEditing(false);
+      return;
+    }
+
+    startTransition(async () => {
+      const res = await editPostContent(post.id, editText);
+      if (res.success) {
+        post.content = editText.trim(); // Optimistic repaint
+        setIsEditing(false);
+      } else if (res.error) {
+        alert(res.error);
+      }
+    });
+  };
+
   return (
     <div className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none">
       
-      {/* 👤 AUTHOR BRAND CARD ROW */}
+      {/* AUTHOR BRAND CARD ROW */}
       <div className="flex items-center space-x-3 mb-4">
         {post.user.avatarUrl ? (
           <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
@@ -45,14 +68,26 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
         </div>
       </div>
 
-      {/* 📝 UPDATE CONTENT REVIEWS BLOCK */}
-      {post.content && <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>}
+      {/* 🚀 FIXED TEXT ROW OR TEXTAREA INLINE EDITOR CONDITIONAL VIEW SWITCH */}
+      {isEditing ? (
+        <div className="mb-4">
+          <textarea
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            className="w-full text-sm border border-gray-200 bg-gray-50 p-3 rounded-xl focus:outline-none focus:bg-white text-gray-800 font-medium resize-none leading-relaxed"
+            rows={3}
+            disabled={isPending}
+          />
+        </div>
+      ) : (
+        post.content && <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
+      )}
 
-      {/* 🚀 HOME-FEED PARITY MULTI-PHOTO FLEX GRID LAYOUT WITH LOCK SHIELDS */}
+      {/* MULTI-PHOTO FLEX GRID LAYOUT */}
       {combinedImages.length > 0 && (
         <div className={`grid gap-2 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-4 ${
           combinedImages.length === 1 ? "grid-cols-1" :
-          combinedImages.length === 2 ? "grid-cols-2" : "grid-cols-3" // 🎯 Level 3-Image Drop rows!
+          combinedImages.length === 2 ? "grid-cols-2" : "grid-cols-3"
         }`}>
           {combinedImages.map((imgUrl, idx) => (
             <div 
@@ -63,14 +98,13 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
               }`}
             >
               <img src={imgUrl} alt="" className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.01]" draggable="false" />
-              {/* Invisible right-click overlay lock panel */}
               <div className="absolute inset-0 bg-transparent z-10" onContextMenu={(e) => e.preventDefault()} />
             </div>
           ))}
         </div>
       )}
 
-      {/* 🔗 EMBEDDED DYNAMIC HYPERLINK RICH PREVIEW CARD */}
+      {/* EMBEDDED HYPERLINK PREVIEW CARD */}
       {post.linkUrl && (
         <a 
           href={post.linkUrl} 
@@ -95,27 +129,37 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
 
           <div className="p-4 flex flex-col justify-center min-w-0 flex-1 text-left">
             <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-0.5">
-              {customSocialBrandIcon ? `✨ ${domainName.includes("instagram") ? "Instagram" : "Social"} Link` : "🔗 External Link"}
+              {customSocialBrandIcon ? `✨ Social Link` : "🔗 External Link"}
             </span>
             <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">
-              {customSocialBrandIcon && domainName.includes("instagram.com") && post.content.includes("instagram.com")
-                ? `View Instagram Profile` 
-                : post.linkTitle || post.linkUrl}
+              {post.linkTitle || post.linkUrl}
             </h4>
             <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1 leading-relaxed">
-              {customSocialBrandIcon && domainName.includes("instagram.com")
-                ? "Follow this user link straight over into the Instagram application."
-                : post.linkDesc || "Click to open external web link safely inside a new tab space."}
+              {post.linkDesc || "Click to open external web link safely inside a new tab space."}
             </p>
             <span className="text-[10px] text-gray-400 font-bold block mt-1 truncate">{domainName.replace("www.", "")}</span>
           </div>
         </a>
       )}
 
-      {/* INTERACTION ACTION BUTTON BAR MATRIX CONTROLS */}
-      <PostControls postId={post.id} postOwnerId={post.userId} currentUserId={currentUserId} reactions={post.reactions} />
-      <PostComments postId={post.id} currentUserId={currentUserId} comments={post.comments} />
+      {/* 🚀 FIXED: Added the complete typesafe parameter properties mapping list directly here! */}
+      <PostControls 
+        postId={post.id} 
+        postOwnerId={post.userId} 
+        currentUserId={currentUserId} 
+        reactions={post.reactions} 
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
+        onSaveEdit={handleSaveInlineEdit}
+        isEditPending={isPending}
+      />
+      
+      <PostComments 
+        postId={post.id} 
+        currentUserId={currentUserId} 
+        comments={post.comments} 
+        initialOpen={hasCommentsPresent} 
+      />
     </div>
   );
 }
-
