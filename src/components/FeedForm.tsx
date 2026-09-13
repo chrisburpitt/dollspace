@@ -4,6 +4,7 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { createPost } from "@/app/actions/posts";
 import SubmitButton from "./SubmitButton";
+import MentionInput from "./MentionInput"; // 🚀 1. IMPORT REUSABLE MENTION TOOL
 
 interface FeedFormProps {
   currentUser: {
@@ -11,9 +12,9 @@ interface FeedFormProps {
     displayName: string;
     avatarUrl: string | null;
   };
+  followersList?: Array<{ username: string; displayName: string }>; // 🚀 2. ADD PROP TO INTERFACE
 }
 
-// HIGH-SPEED CLIENT-SIDE COMPRESSION UTILITY: Resizes 4K images to 1200px max in 50ms
 function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -53,12 +54,11 @@ function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): 
   });
 }
 
-export default function FeedForm({ currentUser }: FeedFormProps) {
+export default function FeedForm({ currentUser, followersList = [] }: FeedFormProps) {
   const [isPending, startTransition] = useTransition();
   const [text, setText] = useState("");
   const [dynamicPlaceholder, setDynamicPlaceholder] = useState("");
   
-  // 🚀 NEW: State managing selected File handles and their local blob URLs for preview rendering
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,52 +76,40 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       `Almost there! What's the vibe this Thursday, ${name}? 💕`,
       `What's on this weekend, ${name}? 🥂`,
       `Saturday photo drop! What are you getting up to today, ${name}? 📸`
-    ];
+     ];
 
     setDynamicPlaceholder(PLACEHOLDER_PROMPTS[currentDayIndex]);
   }, [currentUser.displayName]);
 
-  // Clean up object URLs memory leaks on component dismount
   useEffect(() => {
     return () => {
       previewUrls.forEach(url => URL.revokeObjectURL(url));
     };
   }, [previewUrls]);
 
-  // 🚀 NEW: File Selection Handler
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
-    // Combine any existing selected files with newly chosen ones
     const newFilesArray = Array.from(files);
-    const combinedFiles = [...selectedFiles, ...newFilesArray].slice(0, 3); // Firm cap at 3
+    const combinedFiles = [...selectedFiles, ...newFilesArray].slice(0, 3);
 
     if (selectedFiles.length + newFilesArray.length > 3) {
       alert("🌸 You can select a maximum of 3 gorgeous photos at a time!");
     }
 
     setSelectedFiles(combinedFiles);
-    
-    // Revoke old object URLs first
     previewUrls.forEach(url => URL.revokeObjectURL(url));
-    
-    // Generate fresh local blob preview URLs
     const newUrls = combinedFiles.map(file => URL.createObjectURL(file));
     setPreviewUrls(newUrls);
   };
 
-  // 🚀 NEW: Individual Photo Deletion Handler prior to posting
   const removePhotoPriorToPosting = (indexToRemove: number) => {
     const updatedFiles = selectedFiles.filter((_, idx) => idx !== indexToRemove);
     setSelectedFiles(updatedFiles);
-
-    // Update preview arrays cleanly
     URL.revokeObjectURL(previewUrls[indexToRemove]);
     const updatedUrls = previewUrls.filter((_, idx) => idx !== indexToRemove);
     setPreviewUrls(updatedUrls);
-
-    // Reset native input element value string so selecting the same photo again fires correctly
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -133,7 +121,6 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       const customPayload = new FormData();
       customPayload.append("content", text);
 
-      // Compress and append each file remaining inside your tracking state
       if (selectedFiles.length > 0) {
         for (const file of selectedFiles) {
           const compressedPhoto = await compressImageBeforeUpload(file);
@@ -145,6 +132,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       if (res?.success) {
         setText("");
         setSelectedFiles([]);
+        previewUrls.forEach(url => URL.revokeObjectURL(url));
         setPreviewUrls([]);
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
@@ -166,26 +154,27 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
       </div>
 
       <form onSubmit={handleFormSubmit} className="space-y-4">
+        {/* Main Composition Box Frame */}
         <div className="w-full border-b border-gray-50 pb-2">
-          <textarea
-            name="content"
+          {/* 🚀 UPGRADED LAYER: Swapped out old raw textarea for our smart mention autocomplete picker module */}
+          <MentionInput 
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(val) => setText(val)}
             placeholder={dynamicPlaceholder || `What's updating on your horizon, ${currentUser.displayName}?`}
+            isTextArea={true}
             rows={3}
             disabled={isPending}
+            followersList={followersList}
             className="w-full text-sm font-medium text-gray-800 placeholder-gray-400 bg-transparent border-0 focus:outline-none resize-none pt-2 leading-relaxed"
           />
         </div>
 
-        {/* 🚀 NEW: DYNAMIC INTERACTIVE IMAGES PREVIEW BAR ROW GRID */}
+        {/* INTERACTIVE IMAGES PREVIEW BAR GRID */}
         {previewUrls.length > 0 && (
           <div className="grid grid-cols-3 gap-3 animate-scale-up pt-1">
             {previewUrls.map((url, idx) => (
               <div key={url} className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 relative group shadow-sm">
                 <img src={url} alt="" className="w-full h-full object-cover select-none" />
-                
-                {/* ✕ CLOSE REMOVE BUTTON: Absolute floating badge triggers delete handler instantly */}
                 <button
                   type="button"
                   onClick={() => removePhotoPriorToPosting(idx)}
@@ -211,7 +200,7 @@ export default function FeedForm({ currentUser }: FeedFormProps) {
             <input
               type="file"
               id="feed-photo-upload"
-              ref={fileInputRef} // 🚀 Linked to reset reference node
+              ref={fileInputRef}
               accept="image/*"
               multiple
               disabled={isPending || selectedFiles.length >= 3}

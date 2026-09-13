@@ -29,6 +29,19 @@ export default async function HomePage() {
 
   const unreadMailCount = await getUnreadMailCount(); 
   const dashboardMetrics = await getPlatformDashboardMetrics(); 
+  
+    // 🚀 NEW: High-speed query pulls down accounts you follow to power your autocomplete tagging matrices
+  const followingDollsList = await prisma.follow.findMany({
+    where: { followerId: currentUser.id },
+    select: {
+      following: {
+        select: {
+          username: true,
+          displayName: true
+        }
+      }
+    }
+  }).then(relations => relations.map(r => r.following)); // Flatten the relation into a clean array
 
   // Relational inclusion parameters for home feed queries
   const postInclusions = {
@@ -100,7 +113,12 @@ export default async function HomePage() {
 
         {/* CENTER COLUMN: Interactive Feed Timeline Core */}
         <main className="lg:col-span-6 space-y-6">
-          <FeedForm currentUser={currentUser} />
+          {/* 🚀 UPGRADED: Passing down your typesafe followers array cleanly to the form element */}
+          <FeedForm 
+            currentUser={currentUser} 
+            followersList={followingDollsList} 
+          />
+          
           <FeedStream 
             globalPosts={formatPostDates(globalPosts) as any} 
             followingPosts={formatPostDates(followingPosts) as any} 
