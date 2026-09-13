@@ -63,7 +63,7 @@ export default function ProfileClient({
         </aside>
 
 
-        {/* src/app/[username]/ProfileClient.tsx (PART 2 - REUSABLE NAV BAR INTEGRATION) */}
+         {/* src/app/[username]/ProfileClient.tsx (PART 2 - PERFECT GRID ALIGNMENT SUCCESS) */}
         {/* CENTER COLUMN: Interactive Switch Feed Renders */}
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16">
@@ -147,7 +147,7 @@ export default function ProfileClient({
             </button>
             <button 
               onClick={() => setActiveTab("ALBUMS")}
-              className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-50 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
+              className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}
             >
               📸 Photo Albums ({filteredAlbums.length})
             </button>
@@ -169,15 +169,15 @@ export default function ProfileClient({
                 <span className="bg-gray-200 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full">{userPosts.length}</span>
               </div>
 
-              {/* 🚀 Timeline Updates Stream Container List - CLEANED AND DEDUPLICATED */}
+              {/* 🚀 FIXED UPGRADED TIMELINE FEED STREAM CARD LOOP: RE-ROLLED WITH PROFILE UPDATE FEED INTERFACES */}
               <div className="space-y-4 mt-2">
                 {userPosts.map((post: any) => (
-                  <PostCard 
+                  <ProfileUpdateFeed 
                     key={post.id}
                     post={post}
                     currentUserId={sessionUser.id}
-                    /* 🚀 UPGRADED PORTAL ZOOM: Passes complete image array stacks into lightboxes dynamically */
                     onPhotoClick={(urlsArray, targetIndex) => {
+                      // Packs your multi-photo slider array hooks into lightboxes smoothly
                       setActiveLightboxUrl(urlsArray);
                     }}
                   />
@@ -202,7 +202,7 @@ export default function ProfileClient({
               </div>
               <div className="flex justify-between">
                 <span>Total Posts Stored:</span>
-                <span className="text-gray-900 font-bold">{userPosts.length}</span>
+                <span className="text-gray-900 font-bold">{user._count.posts}</span>
               </div>
             </div>
           </div>
