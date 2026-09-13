@@ -22,6 +22,7 @@ interface PostCommentsProps {
   currentUserId: string;
   comments: CommentItem[];
   initialOpen?: boolean; 
+  followersList?: Array<{ username: string; displayName: string }>; 
 }
 
 export default function PostComments({ 
@@ -29,6 +30,7 @@ export default function PostComments({
   currentUserId, 
   comments: initialComments, 
   initialOpen = false 
+  followersList = [] 
 }: PostCommentsProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(initialOpen);
@@ -159,17 +161,17 @@ export default function PostComments({
           {/* Inline Comment Composition Form */}
           <form onSubmit={handleCommentSubmit} className="flex items-center gap-2 pt-1">
             <div className="flex-1">
-              {/* 🚀 UPGRADED: Swapped basic input text box for our autocomplete suggestions tag module! */}
               <MentionInput 
                 value={commentText}
                 onChange={(val: string) => setCommentText(val)}
                 placeholder="Write a response... use @username to tag!"
                 isTextArea={false}
                 disabled={isPending}
-                followersList={(arguments[0] as any).followersList || []} // Pulls connections safely from component props context
+                followersList={followersList} 
                 className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
               />
             </div>
+
             <button
               type="submit"
               disabled={isPending || !commentText.trim()}
