@@ -5,12 +5,12 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
 
-export async function togglePostReaction(postId: string) {
+export async function togglePostReaction(postId: string, targetEmoji: string = "❤️") {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized access path." };
 
   try {
-    // 1. Look up if this exact doll has already registered a love reaction on this update card
+    // Look up if this user has already left ANY reaction on this post
     const existingReaction = await prisma.reaction.findFirst({
       where: {
         postId: postId,
@@ -19,19 +19,26 @@ export async function togglePostReaction(postId: string) {
     });
 
     if (existingReaction) {
-      // 🚀 ALREADY LIKED: Delete and remove the reaction row to "unlike"
-      await prisma.reaction.delete({
-        where: { id: existingReaction.id }
-      });
-      
-      revalidatePath("/");
-      return { success: true, action: "REMOVED" };
+      // 🚀 SWAP OR UNLIKE: If they click the exact same emoji, remove it. If different, update it!
+      if (existingReaction.emoji === targetEmoji) {
+        await prisma.reaction.delete({ where: { id: existingReaction.id } });
+        revalidatePath("/");
+        return { success: true, action: "REMOVED" };
+      } else {
+        await prisma.reaction.update({
+          where: { id: existingReaction.id },
+          data: { emoji: targetEmoji }
+        });
+        revalidatePath("/");
+        return { success: true, action: "UPDATED" };
+      }
     } else {
-      // 🚀 NOT LIKED YET: Insert a brand new reaction row record straight down to Postgres
+      // 🚀 FRESH REACTION: Create a new row with the chosen emoji string
       await prisma.reaction.create({
         data: {
           postId: postId,
-          userId: sessionUser.id
+          userId: sessionUser.id,
+          emoji: targetEmoji
         }
       });
       
@@ -39,7 +46,7 @@ export async function togglePostReaction(postId: string) {
       return { success: true, action: "ADDED" };
     }
   } catch (err) {
-    console.error("Platform post reaction toggle tracking transaction failed:", err);
+    console.error("Multi-reaction toggle tracking failed:", err);
     return { error: "Database transaction mapping failure." };
   }
 }
