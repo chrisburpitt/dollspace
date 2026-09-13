@@ -1,8 +1,9 @@
-// src/components/FeedStream.tsx (PART 1 - POST CARD REFITTING)
+// src/components/FeedStream.tsx
 "use client";
 
 import { useState } from "react";
-import PostCard from "./PostCard"; // 🚀 IMPORT REUSABLE COMPONENT ASSET
+import PostCard from "./PostCard";
+import ImageLightbox from "./ImageLightbox"; // 🚀 1. IMPORT LIGHTBOX MODAL PORTAL
 
 interface FeedStreamProps {
   globalPosts: any[];
@@ -13,13 +14,16 @@ interface FeedStreamProps {
 export default function FeedStream({ globalPosts, followingPosts, currentUserId }: FeedStreamProps) {
   const [activeFeedTab, setActiveFeedTab] = useState<"GLOBAL" | "FOLLOWING">("GLOBAL");
 
-  // Router selector to switch out mapping sources depending on active header buttons
+  // 🚀 2. ADD REACTION LIGHTBOX PORTAL STATES
+  const [activeLightboxUrls, setActiveLightboxUrls] = useState<string[] | null>(null);
+  const [initialLightboxIndex, setInitialLightboxIndex] = useState<number>(0);
+
   const targetTimelineStream = activeFeedTab === "GLOBAL" ? globalPosts : followingPosts;
 
   return (
     <div className="w-full space-y-6 select-none animate-fade-in text-left">
       
-      {/* FEED CHOOSER TOP MULTI-SLIDER BUTTONS CONSOLE BAR */}
+      {/* FEED CHOOSER TOP BUTTONS CONSOLE BAR */}
       <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
         <button
           onClick={() => setActiveFeedTab("GLOBAL")}
@@ -39,7 +43,6 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
         </button>
       </div>
 
-      {/* src/components/FeedStream.tsx (PART 2 - POST CARD REFITTING) */}
       {/* TIMELINE LIST FEED CARDS GRID */}
       <div className="space-y-4">
         {targetTimelineStream.length === 0 ? (
@@ -50,22 +53,28 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId 
           </div>
         ) : (
           targetTimelineStream.map((post) => (
-            /* 🚀 UPGRADED: Maps straight to the reusable card framework component! */
             <PostCard
               key={post.id}
               post={post}
               currentUserId={currentUserId}
-              onPhotoClick={(urlsArray, targetIndex) => {
-                // Safely handles zooming up multi-image drops or carousels inline
-                // Since individual image lightbox click overlay state logic lives inside components
-                // we can pass window parameters out safely or trigger standard portal sheets
-                const fallbackContainer = document.createElement("div");
-                // Uses your global lightboxes safely across layout sheets
+              /* 🚀 3. FIXED HOOK TARGET: Intercepts the click, grabs the whole image array stack, and opens the viewer! */
+              onPhotoClick={(urlsArray: string[], targetIndex: number) => {
+                setActiveLightboxUrls(urlsArray);
+                setInitialLightboxIndex(targetIndex);
               }}
             />
           ))
         )}
       </div>
+
+      {/* 🚀 4. MOUNT LIGHTBOX PREVIEW PORTAL CELL OVERLAY */}
+      {activeLightboxUrls && (
+        <ImageLightbox 
+          imageUrls={activeLightboxUrls} 
+          initialIndex={initialLightboxIndex}
+          onClose={() => setActiveLightboxUrls(null)} 
+        />
+      )}
 
     </div>
   );
