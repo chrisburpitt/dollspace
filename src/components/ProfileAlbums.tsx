@@ -1,4 +1,4 @@
-// src/components/ProfileAlbums.tsx (PART 1 - FIXED SYNTAX)
+// src/components/ProfileAlbums.tsx (PART 1 - COMPRESSOR & BASE64 DUAL MODULE)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -22,6 +22,38 @@ interface ProfileAlbumsProps {
   albums: AlbumItem[];
   isOwner: boolean;
   onPhotoClick: (url: string) => void;
+}
+
+// 🚀 HIGH-SPEED CLIENT-SIDE COMPRESSION ENGINE: Resizes camera drops down to an optimized 1200px web framework
+function compressAlbumPhoto(file: File, maxWidth = 1200, quality = 0.8): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        // 🎯 DOWN-SAMPLE: Encode canvas array out to a compressed text data string payload natively
+        const compressedBase64Str = canvas.toDataURL("image/jpeg", quality);
+        resolve(compressedBase64Str);
+      };
+    };
+  });
 }
 
 export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: ProfileAlbumsProps) {
@@ -77,39 +109,39 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
         </div>
       )}
 
-
-      {/* src/components/ProfileAlbums.tsx (PART 2 - FIXED SYNTAX) */}
+      {/* src/components/ProfileAlbums.tsx (PART 2 - COMPRESSOR & BASE64 DUAL MODULE) */}
       {/* ALBUMS DECK OVERVIEW GRID */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {albums.length === 0 ? (
-          <p className="text-gray-400 text-xs italic py-4 col-span-2">No photo albums created yet.</p>
+          <p className="text-gray-400 text-xs italic py-4 col-span-2 text-center w-full">No photo albums created yet 📸</p>
         ) : (
           albums.map((album) => {
             const hasPhotos = album.photos.length > 0;
             const coverPhoto = hasPhotos ? album.photos[album.photos.length - 1].url : null;
 
             return (
-              <div key={album.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3 relative group">
+              <div key={album.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3 relative overflow-visible group">
+                
                 {/* Album Cover Thumbnail Box */}
                 <div 
                   onClick={() => hasPhotos && setActiveAlbumId(activeAlbumId === album.id ? null : album.id)}
-                  className={`w-full h-32 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden ${hasPhotos ? "cursor-pointer hover:opacity-95" : ""} relative`}
+                  className={`w-full h-32 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden ${hasPhotos ? "cursor-pointer hover:opacity-95" : ""} relative select-none`}
                 >
                   {coverPhoto ? (
-                    <img src={coverPhoto} alt="" className="w-full h-full object-cover" />
+                    <img src={coverPhoto} alt="" className="w-full h-full object-cover shadow-inner" />
                   ) : (
                     <span className="text-2xl opacity-40">📸</span>
                   )}
 
                   {/* Privacy Flag Badge Indicator */}
-                  <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-black uppercase shadow-sm ${
-                    album.isPrivate ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-green-100 text-green-700 border border-green-200"
+                  <span className={`absolute top-2 right-2 px-2 py-0.5 rounded-md text-[9px] font-black uppercase shadow-sm border ${
+                    album.isPrivate ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-green-50 text-green-600 border-green-100"
                   }`}>
                     {album.isPrivate ? "🔒 Private" : "🔓 Public"}
                   </span>
                 </div>
 
-                <div>
+                <div className="text-left select-none">
                   <h4 className="font-black text-sm text-gray-800 leading-tight">{album.name}</h4>
                   {album.description && <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1">{album.description}</p>}
                   <span className="text-[10px] text-rose-500 font-bold mt-1 block">{album.photos.length} Photos total</span>
@@ -117,9 +149,9 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
 
                 {/* PHOTO UPLOADER TRIGGER (OWNER ONLY) */}
                 {isOwner && (
-                  <div className="border-t border-gray-50 pt-2.5 mt-1 flex items-center justify-between">
-                    <label className="text-[10px] font-black text-rose-500 uppercase tracking-wider cursor-pointer hover:text-rose-600 transition bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100">
-                      <span>{isPending ? "Uploading..." : "📷 Add Photo"}</span>
+                  <div className="border-t border-gray-50 pt-2.5 mt-1 flex items-center justify-between select-none">
+                    <label className="text-[10px] font-black text-rose-500 uppercase tracking-wider cursor-pointer hover:text-rose-600 transition bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100/60 shadow-sm w-full text-center">
+                      <span>{isPending ? "Compressing & Uploading..." : "📷 Add Photo"}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -129,11 +161,16 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
                           const file = e.target.files?.[0];
                           if (!file) return;
 
-                          const formData = new FormData();
-                          formData.append("photo", file);
-
                           startTransition(async () => {
-                            await uploadPhotoToAlbum(formData, album.id);
+                            // 🚀 INTERCEPT & RESIZE: Pipeline shrinks raw camera files down to an optimized format before uploading
+                            const compressedBase64DataString = await compressAlbumPhoto(file);
+
+                            // Wrap base64 string inside typesafe form fields to clear Route Group 404 blockages
+                            const compatiblePayload = new FormData();
+                            compatiblePayload.append("photoBase64", compressedBase64DataString);
+
+                            // Pipe cleanly down to your database action script
+                            await uploadPhotoToAlbum(compatiblePayload, album.id);
                           });
                         }}
                       />
@@ -143,14 +180,15 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
 
                 {/* EXPANDED INNER IMAGES DRAWER POP-DOWN */}
                 {activeAlbumId === album.id && hasPhotos && (
-                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl p-3 z-30 mt-2 grid grid-cols-4 gap-2 animate-scale-up">
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl p-3 z-30 mt-2 grid grid-cols-4 gap-2 animate-scale-up select-none">
                     {album.photos.map((pic) => (
                       <div 
                         key={pic.id} 
                         onClick={() => onPhotoClick(pic.url)}
-                        className="aspect-square bg-gray-50 border border-gray-100 rounded-lg overflow-hidden cursor-zoom-in hover:opacity-90 transition"
+                        className="aspect-square bg-gray-50 border border-gray-100 rounded-lg overflow-hidden cursor-zoom-in hover:opacity-90 transition relative group"
                       >
                         <img src={pic.url} alt="" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-transparent z-10" onContextMenu={(e) => e.preventDefault()} />
                       </div>
                     ))}
                   </div>
@@ -163,4 +201,3 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
     </div>
   );
 }
-
