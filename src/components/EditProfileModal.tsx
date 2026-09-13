@@ -1,4 +1,4 @@
-// src/components/EditProfileModal.tsx (PART 1 OF 3)
+// src/components/EditProfileModal.tsx
 "use client";
 
 import { useState, useTransition } from "react";
@@ -55,7 +55,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       }
     });
   };
-  // src/components/EditProfileModal.tsx (PART 2 OF 3)
+
   return (
     <>
       <button
@@ -91,10 +91,10 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Location</label>
                 <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Sydney, Australia 📍" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
-              {/* src/components/EditProfileModal.tsx (PART 3 OF 3) */}
+
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
-                <input type=setGenderIdentity(e.target.value) placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                 setGenderIdentity(e.target.value)} placeholder="e.g. Doll / Princess ✨" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
               <div>
