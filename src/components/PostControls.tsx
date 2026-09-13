@@ -1,7 +1,8 @@
 // src/components/PostControls.tsx
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { togglePostReaction } from "@/app/actions/reactions"; // 🚀 1. IMPORT REACTION CONTROLLER
 
 interface PostControlsProps {
   postId: string;
@@ -18,25 +19,46 @@ export default function PostControls({
   postId,
   postOwnerId,
   currentUserId,
-  reactions,
+  reactions: initialReactions = [],
   isEditing,
   setIsEditing,
   onSaveEdit,
   isEditPending
 }: PostControlsProps) {
+  const [isPending, startTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
+  
+  // 🚀 OPTIMISTIC REACTION STATES
+  const [localReactions, setLocalReactions] = useState<any[]>(initialReactions);
+  const isMeLikingPostAlready = localReactions.some((r: any) => r.userId === currentUserId);
   const isOwner = postOwnerId === currentUserId;
+
+  const handleLikeButtonClick = () => {
+    // 🌟 OPTIMISTIC UI REPAINT: Toggle counter instantly in 0ms for ultra-responsive feel!
+    if (isMeLikingPostAlready) {
+      setLocalReactions((prev) => prev.filter((r: any) => r.userId !== currentUserId));
+    } else {
+      setLocalReactions((prev) => [...prev, { id: "temp-id", postId, userId: currentUserId }]);
+    }
+
+    startTransition(async () => {
+      const res = await togglePostReaction(postId);
+      if (res?.error) {
+        // Rollback states safely to previous database value if cloud server connection hiccups
+        setLocalReactions(initialReactions);
+        alert(res.error);
+      }
+    });
+  };
 
   const handleDeletePostClick = async () => {
     if (!confirm("🚨 Are you sure you want to permanently delete this update from your timeline?")) return;
     
     startDeleteTransition(async () => {
       try {
-        // 🚀 DYNAMIC IMPORT: Dynamically pulls your existing deletion action script from the posts bundle!
         const { deletePost } = await import("@/app/actions/posts");
         await deletePost(postId);
       } catch (err) {
-        // Fallback check if your function uses a slightly different export signature layout name
         try {
           const alternativeModule = await import("@/app/actions/posts") as any;
           const deleteFn = alternativeModule.deletePostAction || alternativeModule.removePost;
@@ -51,11 +73,19 @@ export default function PostControls({
   return (
     <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50/60 select-none">
       
-      {/* LEFT: Like and Social Reactions Group Metric Buttons */}
-      <div className="flex items-center space-x-4 text-xs font-bold text-gray-500">
-        <button type="button" className="hover:text-rose-500 transition flex items-center space-x-1">
-          <span>💖</span>
-          <span>{reactions?.length || 0}</span>
+      {/* 🚀 LEFT: Upgraded Interactive Social Reaction Button Box */}
+      <div className="flex items-center space-x-4 text-xs font-bold">
+        <button 
+          type="button" 
+          onClick={handleLikeButtonClick}
+          className={`transition flex items-center space-x-1 px-2.5 py-1.5 rounded-xl border border-transparent ${
+            isMeLikingPostAlready 
+              ? "bg-rose-50 text-rose-500 border-rose-100" 
+              : "text-gray-500 hover:bg-gray-50 hover:text-rose-500"
+          }`}
+        >
+          <span>{isMeLikingPostAlready ? "💖" : "🤍"}</span>
+          <span>{localReactions.length}</span>
         </button>
       </div>
 
