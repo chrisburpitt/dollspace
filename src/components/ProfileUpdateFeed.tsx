@@ -1,10 +1,11 @@
-// src/components/ProfileUpdateFeed.tsx
+// src/components/ProfileUpdateFeed.tsx (PART 1 - PROFILE TAG LINKING UPGRADE)
 "use client";
 
 import { useState, useTransition } from "react";
 import PostControls from "./PostControls";
 import PostComments from "./PostComments";
-import { editPostContent } from "@/app/actions/editPost"; // 🚀 Links straight to your editor action
+import { editPostContent } from "@/app/actions/editPost";
+import Link from "next/link"; // 🚀 IMPORT NAV LINK FOR ROUTING
 
 interface ProfileUpdateFeedProps {
   post: any;
@@ -14,7 +15,6 @@ interface ProfileUpdateFeedProps {
 
 export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }: ProfileUpdateFeedProps) {
   const [isPending, startTransition] = useTransition();
-  // 🚀 FIXED: Incorporated local states to keep profile editing completely isolated and typesafe!
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(post.content || "");
 
@@ -33,6 +33,29 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
   const legacyPhotoUrl = post.imageUrl ? [post.imageUrl] : [];
   const combinedImages: string[] = dbPhotoUrls.length > 0 ? dbPhotoUrls : legacyPhotoUrl;
 
+  // 🚀 FIXED: Tokenizer scans text blocks and converts @handles into clickable Next.js profile anchors!
+  const renderPostContentWithClickableTags = (text: string) => {
+    if (!text || !text.includes("@")) return text;
+
+    const tokenParts = text.split(/(@[a-zA-Z0-9_]+)/g);
+    
+    return tokenParts.map((part, index) => {
+      if (part.startsWith("@")) {
+        const parsedHandleName = part.slice(1);
+        return (
+          <Link 
+            key={`profile-post-tag-${index}`} 
+            href={`/${parsedHandleName}`}
+            className="text-rose-500 font-bold hover:underline select-text inline-block"
+          >
+            {part}
+          </Link>
+        );
+      }
+      return <span key={`profile-post-text-${index}`} className="select-text">{part}</span>;
+    });
+  };
+
   const handleSaveInlineEdit = () => {
     if (!editText.trim() || editText.trim() === post.content) {
       setIsEditing(false);
@@ -42,7 +65,7 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
     startTransition(async () => {
       const res = await editPostContent(post.id, editText);
       if (res.success) {
-        post.content = editText.trim(); // Optimistic repaint
+        post.content = editText.trim();
         setIsEditing(false);
       } else if (res.error) {
         alert(res.error);
@@ -80,7 +103,12 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
           />
         </div>
       ) : (
-        post.content && <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
+        post.content && (
+          /* 🚀 FIXED: Profile content feeds directly through the tag linker module now! */
+          <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
+            {renderPostContentWithClickableTags(post.content)}
+          </p>
+        )
       )}
 
       {/* MULTI-PHOTO FLEX GRID LAYOUT */}
