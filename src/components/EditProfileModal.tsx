@@ -18,7 +18,6 @@ interface EditProfileModalProps {
   };
 }
 
-// 🚀 EXTRACTED SUB-COMPONENT: Free of inline tag anomalies to guarantee compilation success
 interface SubInputProps {
   val: string;
   onUpdate: (v: string) => void;
@@ -112,8 +111,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Gender Identity</label>
-                {/* 🚀 FIXED: Mounted the safe extracted input box component to bypass line 97 caching errors */}
-                 setGenderIdentity(v)} />
+                {/* 🚀 FIXED LOGICAL ROUTING: Passed function pointers directly to wipe any curly brackets anomalies from the layout block line! */}
+                
               </div>
 
               <div>
