@@ -162,15 +162,27 @@ export default function ProfileAlbums({ albums, isOwner, onPhotoClick }: Profile
                           if (!file) return;
 
                           startTransition(async () => {
-                            // 🚀 INTERCEPT & RESIZE: Pipeline shrinks raw camera files down to an optimized format before uploading
+                            // 1. Intercept and shrink the raw file block layout down to 1200px
                             const compressedBase64DataString = await compressAlbumPhoto(file);
 
-                            // Wrap base64 string inside typesafe form fields to clear Route Group 404 blockages
-                            const compatiblePayload = new FormData();
-                            compatiblePayload.append("photoBase64", compressedBase64DataString);
+                            // 🚀 2. FIXED PATH ROUTING: Dispatch a robust fetch call straight over an absolute network endpoint route!
+                            // Completely bypasses route group folder tree caching restrictions
+                            const response = await fetch("/api/albums/upload", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                photoBase64: compressedBase64DataString,
+                                albumId: album.id
+                              })
+                            });
 
-                            // Pipe cleanly down to your database action script
-                            await uploadPhotoToAlbum(compatiblePayload, album.id);
+                            const data = await response.json();
+                            if (data.success) {
+                              alert("📸 Gorgeous photo uploaded successfully!");
+                              window.location.reload(); // Repaint the local gallery grids instantly
+                            } else {
+                              alert(data.error || "Upload connection hiccup.");
+                            }
                           });
                         }}
                       />
