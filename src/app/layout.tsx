@@ -2,6 +2,7 @@
 import type { Metadata, Viewport } from "next"; // 🚀 Added Viewport type tracking
 import { Geist, Geist_Mono } from "next/font/google";
 import { touchUserPresenceHeartbeat } from "@/app/actions/presence";
+import { Analytics } from '@vercel/analytics/next';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="min-h-full flex flex-col">
         {children}
+        <Analytics />
       </body>
     </html>
   );
