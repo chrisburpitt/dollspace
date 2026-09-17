@@ -68,7 +68,7 @@ export default function ProfileClient({
       />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
-        <aside className="hidden lg:block lg:col-span-3 lg:sticky lg:top-20 h-fit self-start flex flex-col gap-4">
+        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
@@ -84,7 +84,7 @@ export default function ProfileClient({
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
                     <div className="flex items-center space-x-2 mt-0.5">
                       <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
-                      {calculatedAgeValue !== null && <span className="text-gray-900 font-bold text-xs bg-gray-100 px-2 py-0.5 rounded-md">🎂 {calculatedAgeValue} Years Old</span>}
+                      <p {calculatedAgeValue !== null && <span className="text-gray-900 font-bold text-xs bg-gray-100 px-2 py-0.5 rounded-md">🎂 {calculatedAgeValue} Years Old</span>}</p>
                     </div>
                   </div>
                   {isOwner ? <EditProfileModal user={user} /> : (
