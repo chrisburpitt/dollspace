@@ -59,7 +59,7 @@ export default async function ChatPage() {
         unreadMailCount={unreadMailCount || 0} 
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         
         {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated down to just two simple component rows!) */}
         <aside className="hidden lg:block lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
