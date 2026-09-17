@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader";
 import UnifiedMessengerClient from "./UnifiedMessengerClient";
 import { getUnreadMailCount } from "@/app/actions/mailCount"; 
+import { getOnlineDollsRoster } from "@/app/actions/onlineUsers"; 
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import MobileNavShell from "@/components/MobileNavShell"; 
