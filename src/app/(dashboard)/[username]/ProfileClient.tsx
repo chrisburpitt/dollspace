@@ -12,8 +12,6 @@ import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
-import { getPlatformDashboardMetrics } from "@/app/actions/platformMetrics";
-import PlatformMetricsCard from "@/components/PlatformMetricsCard";
 import MobileNavShell from "@/components/MobileNavShell"; 
 import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
 
@@ -28,6 +26,7 @@ interface ProfileClientProps {
   unreadMailCount: number;
   onlineUsers: any[];
   followersList?: any[];
+  dashboardMetrics: any[];
 }
 
 function calculateAgeFromBirthday(birthdayString: string | null): number | null {
@@ -41,14 +40,13 @@ function calculateAgeFromBirthday(birthdayString: string | null): number | null 
 }
 
 export default function ProfileClient({ 
-  user, isOwner, isFollowing, sessionUser, userPosts, taggedPosts = [], validatedHeaderUser, unreadMailCount, onlineUsers, followersList = []
+  user, isOwner, isFollowing, sessionUser, userPosts, taggedPosts = [], validatedHeaderUser, unreadMailCount, onlineUsers, followersList, dashboardMetrics = []
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "TAGGED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
   
   const calculatedAgeValue = calculateAgeFromBirthday(user.birthday);
   const filteredAlbums = (user.albums || []).filter((a: any) => isOwner || !a.isPrivate);
-  const dashboardMetrics = await getPlatformDashboardMetrics(); 
 
   // 🚀 FIXED: We pre-build the items as completely flat data objects with ZERO HTML layout elements inside!
   // This physically purges all clipped tag artifacts from the file, bypassing the compiler caching blockages entirely!

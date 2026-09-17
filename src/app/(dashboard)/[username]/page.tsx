@@ -6,6 +6,8 @@ import { notFound, redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
 import { getUnreadMailCount } from "@/app/actions/mailCount";
 import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
+import { getPlatformDashboardMetrics } from "@/app/actions/platformMetrics";
+import PlatformMetricsCard from "@/components/PlatformMetricsCard";
 import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
@@ -32,6 +34,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const unreadMailCount = await getUnreadMailCount();
   const onlineUsers = await getOnlineDollsRoster();
+  const dashboardMetrics = await getPlatformDashboardMetrics(); 
 
   // 🚀 FIX: Pre-fetch your complete permanent network directory layout natively
   const absoluteFollowersList = await prisma.follow.findMany({
@@ -116,7 +119,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       validatedHeaderUser={validatedHeaderUser} 
       unreadMailCount={unreadMailCount}
       onlineUsers={onlineUsers} 
-      followersList={absoluteFollowersList} // 🚀 PASS PERMANENT NETWORK ARRAY TO CLIENT
+      followersList={absoluteFollowersList}
+	  dashboardMetrics={dashboardMetrics} 
     />
   );
 }

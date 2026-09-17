@@ -20,7 +20,7 @@ import { redirect } from "next/navigation";
 
  export const metadata: Metadata = {
   title: "Dollspace | Home",
-  description: "Make yourself at home doll, this is your space!",
+  description: "Make yourself at home doll, this is your space xo",
   };
 
 
