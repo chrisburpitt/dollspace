@@ -6,6 +6,7 @@ import Link from "next/link";
 import PostControls from "./PostControls";
 import PostComments from "./PostComments";
 import { editPostContent } from "@/app/actions/editPost";
+import { renderPostContentWithClickableTags } from "@/lib/utils/textParser";
 
 interface PostCardProps {
   post: any;
@@ -102,7 +103,9 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
           />
         </div>
       ) : (
-        post.content && <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
+        <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
+          {renderPostContentWithClickableTags(post.content)}
+        </p>
       )}
 
       {/* PHOTO COLUMNS GRID (Forces 3 pictures side-by-side cleanly) */}
