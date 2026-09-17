@@ -6,10 +6,12 @@ export async function POST(request: Request) {
   try {
     const { content, userId } = await request.json();
     
+    // Ensure payload fields are present before execution
     if (!content?.trim() || !userId) {
-      return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+      return NextResponse.json({ error: "Missing required tracking parameters." }, { status: 400 });
     }
 
+    // 🚀 ARCHIVE TRANSACTION: Creates the persistent database record row on Neon
     const savedLogRow = await prisma.modMessage.create({
       data: {
         content: content.trim(),
@@ -19,7 +21,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, message: savedLogRow });
   } catch (error) {
-    console.error("API ROUTE DATABASE LOG FAULT:", error);
-    return NextResponse.json({ error: "Database operation failed." }, { status: 500 });
+    console.error("CRITICAL API ROUTE DATABASE MOD SAVE FAULT:", error);
+    return NextResponse.json({ error: "Database archival operation failed." }, { status: 500 });
   }
 }
