@@ -11,6 +11,7 @@ import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import MobileNavShell from "@/components/MobileNavShell"; 
+import { Role } from "@prisma/client";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -39,12 +40,12 @@ export default async function ChatPage() {
   });
 
   // 🚀 NEW: Pre-fetch persistent Mod Chat history safely (Only load if staff, or let Prisma handle gracefully)
-  const isStaff = currentUser.role === "MOD" || currentUser.role === "ADMIN";
-  const modHistory = isStaff 
+  const isStaff = currentUser.role === Role.MOD || currentUser.role === Role.ADMIN;
+    const modHistory = isStaff 
     ? await prisma.modMessage.findMany({
         orderBy: { createdAt: "asc" },
         include: { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } },
-        take: 50 // Pull down the last 50 staff logs for context baseline density
+        take: 50 
       })
     : [];
 

@@ -33,7 +33,7 @@ function generateLocalRoomToken(userIdA: string, userIdB: string) {
   return [userIdA, userIdB].sort().join("--");
 }
 
-export default function UnifiedMessengerClient({ currentUser, platformUsers, initialDMs }: UnifiedClientProps) {
+export default function UnifiedMessengerClient({ currentUser, platformUsers, initialDMs, initialModMessages = []  }: UnifiedClientProps) {
   const [selectedChannel, setSelectedChannel] = useState<string>("PUBLIC_LOUNGE");
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
 
