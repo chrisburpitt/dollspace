@@ -105,6 +105,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none animate-fade-in text-left">
+          
+          {/* 🚀 modalInnerContentRef hooks the click-outside closer engine securely */}
           <div ref={modalInnerContentRef} className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col animate-scale-up">
             
             <div className="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
@@ -133,6 +135,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               </div>
 
               {/* 4. GENDER IDENTITY DROPDOWN SELECTION */}
+              {/* 🚀 ULTIMATE CLEANING: Completely flushed away all rogue inner tags and strings */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
                 <div className="relative">
@@ -148,7 +151,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               </div>
 
               {/* 5. WHAT ARE YOU LOOKING FOR INTERACTIVE TILES */}
-              {/* 🚀 FIXED: Shifted items into requested layout hierarchy order, swapping inputs for flat badges */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block">What are you looking for?</label>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -190,10 +192,10 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <input type="text" value={facebookHandle} onChange={(e) => setFacebookHandle(e.target.value)} placeholder="e.g. chloe.stevens.9" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* DRAWER LOWER WINDOW CONTROLS ACTION DOCK */}
+              {/* LOWER DOCK CONTROL BUTTONS */}
               <div className="flex space-x-2 pt-2 shrink-0">
                 <button type="button" onClick={() => setIsOpen(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-3 rounded-xl text-xs uppercase tracking-wider transition">Cancel</button>
-                <SubmitButton label="Save Changes" loadingLabel="Rewriting Bio..." className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl text-xs uppercase tracking-wider transition shadow-sm" />
+                <SubmitButton label="Save Changes" loadingLabel="Saving Vibe..." className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl text-xs uppercase tracking-wider transition shadow-sm" />
               </div>
 
             </form>
