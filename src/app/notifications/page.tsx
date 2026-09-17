@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/app/actions/auth";
 import { markNotificationsAsRead } from "@/app/actions/notifications";
 import { redirect } from "next/navigation";
 import MobileNotificationsClient from "./MobileNotificationsClient";
+import MobileNavShell from "@/components/MobileNavShell"; 
 
 export const metadata = {
   title: "Dollspace | Activity Notifications",
