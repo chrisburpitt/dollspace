@@ -26,6 +26,7 @@ interface UnifiedClientProps {
   currentUser: any;
   platformUsers: Contact[];
   initialDMs: DirectMessageItem[];
+  initialModMessages: any[]; 
 }
 
 function generateLocalRoomToken(userIdA: string, userIdB: string) {
@@ -37,7 +38,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   const [activeContact, setActiveContact] = useState<Contact | null>(null);
 
   const [publicMessages, setPublicMessages] = useState<any[]>([]);
-  const [modMessages, setModMessages] = useState<any[]>([]); 
+  const [modMessages, setModMessages] = useState<any[]>(initialModMessages); 
   const [privateMessages, setPrivateMessages] = useState<DirectMessageItem[]>(initialDMs);
   const [inputText, setInputText] = useState("");
   
@@ -127,6 +128,15 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
 
       if (selectedChannel === "MOD_CHAT") {
         setModMessages((prev) => [...prev, optimisticMsg]);
+        
+        // 🚀 NEW: Background permanent server save for Mod Chat logs!
+        // We can create a simple action file or execute a fetch route inline
+        fetch("/api/chat/mod-save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: cleanText, userId: currentUser.id }),
+        }).catch((err) => console.error("Mod message logging write failure:", err));
+
       } else {
         setPublicMessages((prev) => [...prev, optimisticMsg]);
       }
@@ -137,6 +147,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         content: cleanText,
         room: selectedChannel
       }));
+
 
     } else if (activeContact) {
       const optimisticDM: DirectMessageItem = {

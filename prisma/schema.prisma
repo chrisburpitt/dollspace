@@ -47,6 +47,7 @@ model User {
   mailsReceived         InternalMail[] @relation("MailsAsRecipient")
   messagesReceived      DirectMessage[] @relation("MessageRecipient")
   messagesSent          DirectMessage[] @relation("MessageSender")
+  modMessages           ModMessage[]
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsSent     Notification[] @relation("NotificationTrigger")
   
@@ -137,6 +138,14 @@ model DirectMessage {
   roomToken   String
 
   @@index([roomToken])
+}
+
+model ModMessage {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model InternalMail {

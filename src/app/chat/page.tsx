@@ -24,25 +24,29 @@ export default async function ChatPage() {
 
   const unreadMailCount = await getUnreadMailCount(); 
   
-  // 🚀 FIXED: Filter down contacts list to EXCLUDE any banned accounts natively!
   const platformUsers = await prisma.user.findMany({
     where: { 
       id: { not: currentUser.id },
-      status: { not: "BANNED" } // 🎯 Filters out any banned users
+      status: { not: "BANNED" }
     },
     select: { id: true, username: true, displayName: true, avatarUrl: true }
   });
 
-  // Query archival private messages logged on Neon
+  // Query private DM history
   const dmHistory = await prisma.directMessage.findMany({
-    where: {
-      OR: [
-        { senderId: currentUser.id },
-        { recipientId: currentUser.id }
-      ]
-    },
+    where: { OR: [{ senderId: currentUser.id }, { recipientId: currentUser.id }] },
     orderBy: { createdAt: "asc" }
   });
+
+  // 🚀 NEW: Pre-fetch persistent Mod Chat history safely (Only load if staff, or let Prisma handle gracefully)
+  const isStaff = currentUser.role === "MOD" || currentUser.role === "ADMIN";
+  const modHistory = isStaff 
+    ? await prisma.modMessage.findMany({
+        orderBy: { createdAt: "asc" },
+        include: { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } },
+        take: 50 // Pull down the last 50 staff logs for context baseline density
+      })
+    : [];
 
   const serializedDMs = dmHistory.map((msg) => ({
     id: msg.id,
@@ -53,36 +57,34 @@ export default async function ChatPage() {
     roomToken: msg.roomToken
   }));
 
+  // 🚀 NEW: Format mod database logs safely for client crossing
+  const serializedModHistory = modHistory.map((msg) => ({
+    id: msg.id,
+    content: msg.content,
+    createdAt: msg.createdAt.toISOString(),
+    room: "MOD_CHAT",
+    user: msg.user
+  }));
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={currentUser} />
-      <MobileNavShell 
-        currentUsername={currentUser.username} 
-        unreadMailCount={unreadMailCount || 0} 
-      />
+      <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
-        
-        {/* LEFT COLUMN SIDEBAR PANEL */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          <SidebarNav 
-            currentUsername={currentUser.username} 
-            unreadMailCount={unreadMailCount} 
-          />
-
-          {/* 🚀 FIXED: Reverted back to getOnlineDollsRoster() so your status metrics map perfectly! */}
+          <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* RIGHT FULL WINDOW CONTAINER VIEW PORTAL */}
         <main className="lg:col-span-9 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm h-[calc(100vh-140px)]">
           <UnifiedMessengerClient 
             currentUser={currentUser}
             platformUsers={platformUsers}
             initialDMs={serializedDMs}
+            initialModMessages={serializedModHistory} // 🚀 PASS ARCHIVE TO CLIENT
           />
         </main>
-
       </div>
     </div>
   );
