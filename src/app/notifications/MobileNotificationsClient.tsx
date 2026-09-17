@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import MobileNavShell from "@/components/MobileNavShell"; 
 
 interface NotificationItem {
   id: string;
@@ -20,6 +21,9 @@ interface NotificationItem {
 interface MobileNotificationsClientProps {
   currentUserId: string;
   initialNotifications: NotificationItem[];
+  sessionUser: {
+    username: string;
+  };
 }
 
 export default function MobileNotificationsClient({ initialNotifications }: MobileNotificationsClientProps) {
