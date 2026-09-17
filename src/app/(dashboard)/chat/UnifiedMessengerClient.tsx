@@ -3,7 +3,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import usePartySocket from "partysocket/react";
-import { saveDirectMessage } from "@/app/actions/messages";
+import { saveDirectMessage, saveModChatMessage  } from "@/app/actions/messages";
 import ChatPresenceKeeper from "@/components/ChatPresenceKeeper"; 
 
 interface Contact {
@@ -128,14 +128,9 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
 
       if (selectedChannel === "MOD_CHAT") {
         setModMessages((prev) => [...prev, optimisticMsg]);
-        
-        // 🚀 NEW: Background permanent server save for Mod Chat logs!
-        // We can create a simple action file or execute a fetch route inline
-        fetch("/api/chat/mod-save", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: cleanText, userId: currentUser.id }),
-        }).catch((err) => console.error("Mod message logging write failure:", err));
+        saveModChatMessage(cleanText, currentUser.id).catch((err) => 
+          console.error("Background message logging write failure:", err)
+        );
 
       } else {
         setPublicMessages((prev) => [...prev, optimisticMsg]);
@@ -147,7 +142,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         content: cleanText,
         room: selectedChannel
       }));
-
 
     } else if (activeContact) {
       const optimisticDM: DirectMessageItem = {

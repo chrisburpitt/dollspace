@@ -3,12 +3,10 @@
 
 import { prisma } from "@/lib/prisma";
 
-// FIXED: Removed the standalone 'export' tag to comply with Next.js Server Action guidelines
 function generateRoomToken(userIdA: string, userIdB: string) {
   return [userIdA, userIdB].sort().join("--");
 }
 
-// ACTION: Securely write an archival record of a private chat message to Neon
 export async function saveDirectMessage(data: {
   senderId: string;
   recipientId: string;
@@ -29,4 +27,21 @@ export async function saveDirectMessage(data: {
   });
 
   return messageRow;
+}
+
+export async function saveModChatMessage(content: string, userId: string) {
+  if (!content?.trim() || !userId) return { error: "Missing required chat parameters." };
+  
+  try {
+    const savedLogRow = await prisma.modMessage.create({
+      data: {
+        content: content.trim(),
+        userId: userId
+      }
+    });
+    return { success: true, message: savedLogRow };
+  } catch (error) {
+    console.error("Server action database write failure in saveModChatMessage:", error);
+    return { error: "Failed to persist log row to server database." };
+  }
 }
