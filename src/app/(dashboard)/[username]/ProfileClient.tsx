@@ -14,6 +14,7 @@ import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import MobileNavShell from "@/components/MobileNavShell"; 
 import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
+import PlatformMetricsCard from "@/components/PlatformMetricsCard"; 
 
 interface ProfileClientProps {
   user: any;
@@ -26,7 +27,11 @@ interface ProfileClientProps {
   unreadMailCount: number;
   onlineUsers: any[];
   followersList?: any[];
-  dashboardMetrics: any[];
+  dashboardMetrics: {
+	onlineCount: number;
+    unreadMailCount: number;
+    waitingDMsCount: number;
+  };
 }
 
 function calculateAgeFromBirthday(birthdayString: string | null): number | null {
