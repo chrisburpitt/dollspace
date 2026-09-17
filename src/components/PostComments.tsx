@@ -63,23 +63,24 @@ export default function PostComments({
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim() || isPending) return; // Prevent double submissions
+    if (!commentText.trim() || isPending) return; // Block fast double taps
     
     const cleanText = commentText.trim();
-    setCommentText(""); // Immediately clear the box for snappy UX
+    setCommentText(""); // Empty text box instantly for snappy UX
 
     startTransition(async () => {
       try {
-        const res = await createComment(postId, cleanText, currentUserId) as any;
+        // 🚀 THE ULTIMATE ALIGNMENT: 
+        // 1st: postId, 2nd: currentUserId (mapped to userId), 3rd: cleanText (mapped to content)
+        const res = await createComment(postId, currentUserId, cleanText) as any;
         
-        // Match whatever your server action returns (adjust if it returns raw data)
-        if (res && (res.success || res.id)) {
-          const targetCommentNode = res.comment || res;
+        if (res && res.success) {
+          const targetCommentNode = res.comment;
 
           const freshComment: CommentItem = {
-            id: targetCommentNode.id || `cmt-opt-${crypto.randomUUID()}`,
-            content: targetCommentNode.content || cleanText,
-            createdAt: targetCommentNode.createdAt ? new Date(targetCommentNode.createdAt).toISOString() : new Date().toISOString(),
+            id: targetCommentNode.id,
+            content: targetCommentNode.content,
+            createdAt: new Date(targetCommentNode.createdAt).toISOString(),
             user: {
               displayName: targetCommentNode.user?.displayName || "Me",
               username: targetCommentNode.user?.username || "current",
@@ -89,12 +90,12 @@ export default function PostComments({
 
           setComments((prev) => [...prev, freshComment]);
         } else {
-          // If the server says no, revert text so user doesn't lose it
+          // Fallback UI safety restoration if error catches handled fields
           setCommentText(cleanText);
-          console.error("Server action ran, but returned unhandled response state:", res);
+          console.error("Server action rejected verification payload:", res?.error);
         }
       } catch (err) {
-        // Fallback recovery on network crash
+        // Fallback UI safety restoration on complete network drop
         setCommentText(cleanText);
         console.error("Failed to push comment reply item transaction row:", err);
       }
