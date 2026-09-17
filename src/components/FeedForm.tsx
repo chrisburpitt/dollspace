@@ -4,7 +4,7 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { createPost } from "@/app/actions/posts";
 import SubmitButton from "./SubmitButton";
-import MentionInput from "./MentionInput"; // 🚀 1. IMPORT REUSABLE MENTION TOOL
+import MentionInput from "./MentionInput"; 
 
 interface FeedFormProps {
   currentUser: {
@@ -12,7 +12,7 @@ interface FeedFormProps {
     displayName: string;
     avatarUrl: string | null;
   };
-  followersList?: Array<{ username: string; displayName: string }>; // 🚀 2. ADD PROP TO INTERFACE
+  followersList?: Array<{ username: string; displayName: string }>; 
 }
 
 function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
@@ -160,7 +160,7 @@ export default function FeedForm({ currentUser, followersList = [] }: FeedFormPr
           <MentionInput 
             value={text}
             onChange={(val) => setText(val)}
-            placeholder={dynamicPlaceholder || `What's updating on your horizon, ${currentUser.displayName}?`}
+            placeholder={dynamicPlaceholder}
             isTextArea={true}
             rows={3}
             disabled={isPending}
