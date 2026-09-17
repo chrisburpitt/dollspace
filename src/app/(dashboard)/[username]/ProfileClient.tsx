@@ -53,8 +53,6 @@ export default function ProfileClient({
   const calculatedAgeValue = calculateAgeFromBirthday(user.birthday);
   const filteredAlbums = (user.albums || []).filter((a: any) => isOwner || !a.isPrivate);
 
-  // 🚀 FIXED: We pre-build the items as completely flat data objects with ZERO HTML layout elements inside!
-  // This physically purges all clipped tag artifacts from the file, bypassing the compiler caching blockages entirely!
   const rawBadgeDataCollection: Array<{ key: string; param: string; val: string; icon: string }> = [];
 
   if (user.genderIdentity) {

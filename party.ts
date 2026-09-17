@@ -6,6 +6,7 @@ interface ActiveChatter {
   username: string;
   displayName: string;
   avatarUrl: string | null;
+  currentRoom: string; // 🚀 Added to track active multi-channel visibility
 }
 
 export default class DollspaceMessengerServer implements Party.Server {
@@ -17,31 +18,63 @@ export default class DollspaceMessengerServer implements Party.Server {
     const username = url.searchParams.get("username") || "anonymous";
     const displayName = url.searchParams.get("displayName") || "Guest Doll";
     const avatarUrl = url.searchParams.get("avatarUrl") || null;
+    
+    // 🚀 Grab initial active room string from connection url params or default to public lounge
+    const currentRoom = url.searchParams.get("currentRoom") || "PUBLIC_LOUNGE";
 
-    connection.setState({ id: userId, username, displayName, avatarUrl });
+    connection.setState({ id: userId, username, displayName, avatarUrl, currentRoom });
 
-    // Instantly broadcast the live active presence list to everyone
-    this.broadcastActiveRoster();
+    // Instantly calculate and broadcast room-by-room presence lists
+    this.broadcastPresenceForRooms();
   }
 
   async onClose() {
-    this.broadcastActiveRoster();
+    this.broadcastPresenceForRooms();
   }
 
   onMessage(message: string, sender: Party.Connection) {
     const parsedData = JSON.parse(message);
     const senderState = sender.state as ActiveChatter | undefined;
 
-    // 🌍 ROUTE A: Public Group Chatroom Messages
+    // 🚀 NEW ROUTE: Listens for client tab toggles and switches room state on the fly
+    if (parsedData.type === "room_switch") {
+      if (senderState) {
+        sender.setState({
+          ...senderState,
+          currentRoom: parsedData.newRoom
+        });
+      }
+      this.broadcastPresenceForRooms();
+      return; // Stop processing
+    }
+
+    // 🌍 ROUTE A: Public Group & Mod Chatroom Messages
     if (parsedData.type === "chat_message") {
+      const targetRoom = parsedData.room || "PUBLIC_LOUNGE";
+      
       const globalPayload = {
         type: "incoming_message",
-        id: crypto.randomUUID(),
+        id: parsedData.id || crypto.randomUUID(),
         content: parsedData.content,
         createdAt: new Date().toISOString(),
-        user: senderState
+        room: targetRoom, // Attaches target room parameter block
+        user: {
+          id: senderState?.id,
+          username: senderState?.username,
+          displayName: senderState?.displayName,
+          avatarUrl: senderState?.avatarUrl
+        }
       };
-      this.room.broadcast(JSON.stringify(globalPayload));
+
+      const outboundString = JSON.stringify(globalPayload);
+
+      // 🚀 TARGETED ROOM BROADCAST: Only dispatch chat packets to users inside the same room!
+      for (const client of this.room.getConnections()) {
+        const clientState = client.state as ActiveChatter | undefined;
+        if (clientState && clientState.currentRoom === targetRoom) {
+          client.send(outboundString);
+        }
+      }
     }
 
     // 💌 ROUTE B: Real-Time Direct Private Messages
@@ -53,25 +86,54 @@ export default class DollspaceMessengerServer implements Party.Server {
         createdAt: parsedData.createdAt || new Date().toISOString(),
         senderId: senderState?.id || "",
         recipientId: parsedData.recipientId,
-        roomToken: parsedData.roomToken // Mapped cleanly to filter correctly on the client side
+        roomToken: parsedData.roomToken
       };
+
+      const outboundString = JSON.stringify(privatePayload);
       
-      this.room.broadcast(JSON.stringify(privatePayload));
+      // 🚀 SECURE TARGETED DM BROADCAST: Never blast DMs globally! Only send to sender and recipient lines.
+      for (const client of this.room.getConnections()) {
+        const clientState = client.state as ActiveChatter | undefined;
+        if (clientState && (clientState.id === parsedData.recipientId || clientState.id === senderState?.id)) {
+          client.send(outboundString);
+        }
+      }
     }
   }
 
-  private broadcastActiveRoster() {
-    const activeUsers: ActiveChatter[] = [];
-    const absoluteIds = new Set<string>();
+  // 🚀 ENGINE METHOD: Segregates connected instances and sends localized presence arrays
+  private broadcastPresenceForRooms() {
+    const connections = Array.from(this.room.getConnections());
 
-    for (const client of this.room.getConnections()) {
-      const state = client.state as ActiveChatter | undefined;
-      if (state && !absoluteIds.has(state.id)) {
-        absoluteIds.add(state.id);
-        activeUsers.push(state);
-      }
+    // Loop through every single active socket connection independently
+    for (const client of connections) {
+      const clientState = client.state as ActiveChatter | undefined;
+      const targetRoom = clientState?.currentRoom || "PUBLIC_LOUNGE";
+
+      // Filter down connection states to capture ONLY users sharing the exact same room channel view
+      const roomSpecificUsers = connections
+        .filter((c) => {
+          const cState = c.state as ActiveChatter | undefined;
+          return cState && cState.currentRoom === targetRoom;
+        })
+        .map((c) => {
+          const cState = c.state as ActiveChatter;
+          return {
+            id: cState.id,
+            username: cState.username,
+            displayName: cState.displayName,
+            avatarUrl: cState.avatarUrl
+          };
+        });
+
+      // Remove structural duplicates by ID
+      const uniqueRoomUsers = Array.from(new Map(roomSpecificUsers.map(u => [u.id, u])).values());
+
+      // Send the isolated user counter roster to this connection
+      client.send(JSON.stringify({ 
+        type: "presence_update", 
+        users: uniqueRoomUsers 
+      }));
     }
-
-    this.room.broadcast(JSON.stringify({ type: "presence_update", users: activeUsers }));
   }
 }
