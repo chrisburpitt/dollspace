@@ -99,7 +99,7 @@ export default function ProfileClient({
                   </div>
                   {isOwner ? <EditProfileModal user={user} /> : (
                     <div className="flex items-center space-x-2">
-                      <Link href="/chat" className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"><span>💌 Chat</span></Link>
+                      <Link href="/chat" className="bg-white hover:bg-rose-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex items-center space-x-1"><span>💬 Chat</span></Link>
                       <FollowButton currentUserId={sessionUser.id} targetUserId={user.id} initialIsFollowing={isFollowing} />
                     </div>
                   )}
@@ -202,7 +202,7 @@ export default function ProfileClient({
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">About My Profile</h3>
             <div className="text-xs space-y-2 text-gray-600 font-semibold">
               <div className="flex justify-between"><span>Account Created:</span><span className="text-gray-900 font-bold">{new Date(user.createdAt).toLocaleDateString('en-AU', { dateStyle: 'medium' })}</span></div>
-              <div className="flex justify-between"><span>Total Posts Stored:</span><span className="text-gray-900 font-bold">{user._count.posts}</span></div>
+              <div className="flex justify-between"><span>Number of Updates Posted:</span><span className="text-gray-900 font-bold">{user._count.posts}</span></div>
               <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5"><span>Profile Views:</span><span className="text-rose-500 font-black">👀 {user.views}</span></div>
             </div>
           </div>

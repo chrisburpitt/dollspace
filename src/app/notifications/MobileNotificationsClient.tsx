@@ -104,7 +104,11 @@ export default function MobileNotificationsClient({ initialNotifications }: Mobi
 
         </div>
       </div>
-
+      <MobileNavShell 
+        currentUsername={sessionUser.username} 
+        unreadMailCount={0} 
+      />
+	  
     </div>
   );
 }

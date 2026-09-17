@@ -39,7 +39,7 @@ export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProp
         {/* Metric 2: Unread Mail */}
         <Link href="/mail" className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100 block">
           <span className="flex items-center space-x-2">
-            <span>💌 Unread mail in mailbox:</span>
+            <span>💌 Unread mail:</span>
           </span>
           <span className={`font-black px-2 py-0.5 rounded-lg text-[11px] ${
             unreadMailCount > 0 ? "bg-rose-500 text-white animate-pulse" : "bg-gray-100 text-gray-900"
