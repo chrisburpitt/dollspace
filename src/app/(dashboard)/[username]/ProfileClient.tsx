@@ -82,12 +82,14 @@ export default function ProfileClient({
                 <div className="flex items-start justify-between w-full">
                   <div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
+                    {/* 1. Stacks Username and Age vertically underneath the Display Name */}
                     <div className="flex flex-col items-start space-y-1 mt-0.5">
                       <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
                       {calculatedAgeValue !== null && (
-					    <span className="text-gray-900 font-bold text-xs bg-gray-100 px-2 py-0.5 rounded-md inline-block">🎂 {calculatedAgeValue} Years Old
-					    </span>
-					  )}
+                        <span className="text-gray-900 font-bold text-xs bg-gray-100 px-2 py-0.5 rounded-md inline-block">
+                          🎂 {calculatedAgeValue} Years Old
+                        </span>
+                      )}
                     </div>
                   </div>
                   {isOwner ? <EditProfileModal user={user} /> : (
@@ -98,35 +100,8 @@ export default function ProfileClient({
                   )}
                 </div>
 
-                {/* SOCIAL PLATFORM PROFILE LINK CHANNELS */}
-                {(user.instagramHandle || user.facebookHandle) && (
-                  <div className="mt-3.5 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500">
-                    {/* 🚀 FIXED BACKTICKS STRINGS: Enforces template literal parsing to pipe your active variables cleanly! */}
-                    {user.instagramHandle && (
-                      <a 
-                        href={`https://instagram.com/${user.instagramHandle}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="flex items-center space-x-1 hover:text-rose-500 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"
-                      >
-                        <span>📸</span> <span>Instagram</span>
-                      </a>
-                    )}
-                    {user.facebookHandle && (
-                      <a 
-                        href={`https://facebook.com/${user.facebookHandle}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="flex items-center space-x-1 hover:text-blue-600 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"
-                      >
-                        <span>💙</span> <span>Facebook</span>
-                      </a>
-                    )}
-                  </div>
-                )}
-                
-                {/* 🚀 FIXED BADGES AREA: Loops over the flat data array cleanly inside the JSX grid container */}
-                <div className="mt-4 flex flex-wrap gap-2">
+                {/* 2. Custom Badges Area (Tgirl, Location, etc.) directly below Name details */}
+                <div className="mt-3 flex flex-wrap gap-2">
                   {rawBadgeDataCollection.map((badge) => (
                     <Link 
                       key={badge.key}
@@ -138,9 +113,9 @@ export default function ProfileClient({
                   ))}
                 </div>
 
-                {/* Clickable Looking For options */}
+                {/* Clickable Looking For Options */}
                 {user.lookingFor && user.lookingFor.trim().length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 items-center mt-4">
+                  <div className="flex flex-wrap gap-1.5 items-center mt-3">
                     <span className="text-[10px] uppercase font-bold text-gray-400">🔍 Looking For:</span>
                     {[...new Set(user.lookingFor.split(",").map((o: string) => o.trim().replace(/_/g, ' ')).filter(Boolean))].map((opt: any) => (
                       <Link key={opt} href={`/discover?lookingFor=${encodeURIComponent(opt)}`} className="bg-rose-50 hover:bg-rose-100/80 px-2.5 py-0.5 rounded-full text-[11px] font-black text-rose-500 uppercase tracking-wide border border-rose-100 shadow-sm transition block">{opt}</Link>
@@ -148,7 +123,36 @@ export default function ProfileClient({
                   </div>
                 )}
 
+                {/* 3. Bio Block sits centrally on the layout card */}
                 <p className="mt-4 text-gray-600 leading-relaxed font-medium">{user.bio || "Welcome to my Dollspace profile layout!"}</p>
+
+                {/* 4. Social media channels positioned underneath the Bio */}
+                {(user.instagramHandle || user.facebookHandle) && (
+                  <div className="mt-5 flex flex-wrap items-center gap-3 text-xs font-bold text-gray-500">
+                    {user.instagramHandle && (
+                      <a 
+                        href={`https://instagram.com{user.instagramHandle}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center space-x-1 hover:text-rose-500 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"
+                      >
+                        <span>📸</span> <span>Instagram</span>
+                      </a>
+                    )}
+                    {user.facebookHandle && (
+                      <a 
+                        href={`https://facebook.com{user.facebookHandle}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="flex items-center space-x-1 hover:text-blue-600 transition bg-gray-50 px-2.5 py-1 rounded-lg border border-gray-100 shadow-sm"
+                      >
+                        <span>💙</span> <span>Facebook</span>
+                      </a>
+                    )}
+                  </div>
+                )}
+                
+                {/* Statistics Footer */}
                 <div className="flex justify-center sm:justify-start space-x-6 mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500 font-medium">
                   <div><strong className="text-gray-900 font-bold">{user._count.following}</strong> Following</div>
                   <div><strong className="text-gray-900 font-bold">{user._count.followers}</strong> Followers</div>
