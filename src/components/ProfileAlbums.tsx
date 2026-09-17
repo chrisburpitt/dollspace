@@ -130,7 +130,7 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
   return (
     <div className="space-y-6 text-left animate-fade-in relative">
       <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-        <h3 className="font-black text-base text-gray-900 uppercase tracking-wide">Photo Albums ({albums.length})</h3>
+        <h3 className="font-black text-base text-gray-900 tracking-wide">Photo Albums ({albums.length})</h3>
         {isOwner && (
           <button onClick={() => setShowCreateModal(true)} className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-3.5 py-2 rounded-xl transition shadow-sm">
             ➕ Create New Album

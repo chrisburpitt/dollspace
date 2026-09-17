@@ -156,9 +156,9 @@ export default function ProfileClient({
 
           {/* TAB BAR SELECTORS */}
           <div className="flex bg-white border border-gray-200 p-1 rounded-xl shadow-sm font-black text-xs uppercase tracking-wide">
-            <button onClick={() => setActiveTab("FEED")} className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "FEED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>📝 Updates Feed ({userPosts.length})</button>
-            <button onClick={() => setActiveTab("TAGGED")} className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "TAGGED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>🏷️ Tagged Posts ({taggedPosts.length})</button>
-            <button onClick={() => setActiveTab("ALBUMS")} className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>📸 Photo Albums ({filteredAlbums.length})</button>
+            <button onClick={() => setActiveTab("FEED")} className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "FEED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>{user.displayName}'s Feed ({userPosts.length})</button>
+            <button onClick={() => setActiveTab("TAGGED")} className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "TAGGED" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>Tagged Posts ({taggedPosts.length})</button>
+            <button onClick={() => setActiveTab("ALBUMS")} className={`flex-1 py-2.5 rounded-lg transition text-center ${activeTab === "ALBUMS" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"}`}>Photo Albums ({filteredAlbums.length})</button>
           </div>
 
           {/* DYNAMIC CONTENT PANELS RENDERER */}
