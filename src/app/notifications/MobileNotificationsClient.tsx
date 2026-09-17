@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import MobileNavShell from "@/components/MobileNavShell"; 
+import MobileNavShell from "@/components/MobileNavShell"; // 🚀 FIXED: Brought in your custom pop-out nav widget
 
 interface NotificationItem {
   id: string;
@@ -21,18 +21,22 @@ interface NotificationItem {
 interface MobileNotificationsClientProps {
   currentUserId: string;
   initialNotifications: NotificationItem[];
+  // 🚀 FIXED: Interface definition matches server bundle format perfectly
   sessionUser: {
     username: string;
   };
 }
 
-export default function MobileNotificationsClient({ initialNotifications }: MobileNotificationsClientProps) {
+export default function MobileNotificationsClient({ 
+  initialNotifications,
+  sessionUser // 🚀 FIXED: Destructured here so it becomes available down inside the return block!
+}: MobileNotificationsClientProps) {
   const [notifications] = useState<NotificationItem[]>(initialNotifications);
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 pb-28 select-none">
       
-      {/* STICKY TOP PAGE ROUTER HEADER HEADER */}
+      {/* STICKY TOP PAGE ROUTER HEADER */}
       <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-40 px-6 py-4 flex items-center space-x-4 shadow-sm">
         <Link href="/" className="text-gray-400 hover:text-rose-500 text-lg transition font-black">
           🔙
@@ -55,7 +59,6 @@ export default function MobileNotificationsClient({ initialNotifications }: Mobi
             </div>
           ) : (
             notifications.map((notif) => {
-              // Compute dynamic landing endpoints depending on notification type mappings
               const targetLinkUrl = notif.type === "FOLLOW" 
                 ? `/${notif.issuer.username}` 
                 : `/#post-${notif.postId}`;
@@ -66,7 +69,6 @@ export default function MobileNotificationsClient({ initialNotifications }: Mobi
                   href={targetLinkUrl}
                   className="p-3.5 rounded-xl flex items-center space-x-3.5 transition hover:bg-gray-50/80 active:bg-gray-100 border border-transparent block text-left"
                 >
-                  {/* Account profile icon badge thumbnail slots */}
                   {notif.issuer.avatarUrl ? (
                     <img src={notif.issuer.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
                   ) : (
@@ -75,7 +77,6 @@ export default function MobileNotificationsClient({ initialNotifications }: Mobi
                     </div>
                   )}
                   
-                  {/* Notification text layout line descriptions block */}
                   <div className="flex-1 min-w-0 text-xs">
                     <p className="text-gray-800 leading-normal font-medium">
                       <strong className="font-black text-gray-900 block text-sm mb-0.5 leading-none">
@@ -97,7 +98,6 @@ export default function MobileNotificationsClient({ initialNotifications }: Mobi
                     </span>
                   </div>
 
-                  {/* Context helper icon indicator arrows right margin caps */}
                   <div className="text-gray-300 text-xs font-bold pl-1 select-none">
                     {notif.type === "FOLLOW" ? "👤" : "✨"}
                   </div>
@@ -108,11 +108,13 @@ export default function MobileNotificationsClient({ initialNotifications }: Mobi
 
         </div>
       </div>
+
+      {/* 🚀 FIXED: Mount your custom crown popout action bubble securely in the lower left */}
       <MobileNavShell 
         currentUsername={sessionUser.username} 
         unreadMailCount={0} 
       />
-	  
+
     </div>
   );
 }

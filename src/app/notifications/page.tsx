@@ -6,7 +6,6 @@ import { getCurrentUser } from "@/app/actions/auth";
 import { markNotificationsAsRead } from "@/app/actions/notifications";
 import { redirect } from "next/navigation";
 import MobileNotificationsClient from "./MobileNotificationsClient";
-import MobileNavShell from "@/components/MobileNavShell"; 
 
 export const metadata = {
   title: "Dollspace | Activity Notifications",
@@ -30,10 +29,10 @@ export default async function MobileNotificationsPage() {
       },
     },
     orderBy: { createdAt: "desc" },
-    take: 40, // Expanded capacity for full-page reading depth
+    take: 40,
   });
 
-  // 2. Clear out unread indicators on the database automatically when they access this view
+  // 2. Clear out unread indicators on the database automatically on load
   const unreadCount = databaseNotifications.filter((n) => !n.isRead).length;
   if (unreadCount > 0) {
     await markNotificationsAsRead(sessionUser.id).catch((err) =>
@@ -45,7 +44,7 @@ export default async function MobileNotificationsPage() {
   const formattedNotifications = databaseNotifications.map((notif) => ({
     id: notif.id,
     type: notif.type,
-    isRead: true, // Set to true locally since we executed markNotificationsAsRead above
+    isRead: true, 
     createdAt: notif.createdAt.toISOString(),
     postId: notif.postId,
     issuer: notif.issuer,
@@ -55,6 +54,7 @@ export default async function MobileNotificationsPage() {
     <MobileNotificationsClient 
       currentUserId={sessionUser.id} 
       initialNotifications={formattedNotifications} 
+      sessionUser={{ username: sessionUser.username }} // 🚀 FIXED: Packed and passed directly to client prop validation rules
     />
   );
 }
