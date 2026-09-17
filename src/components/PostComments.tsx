@@ -63,30 +63,23 @@ export default function PostComments({
 
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!commentText.trim()) return;
+    if (!commentText.trim() || isPending) return; // Prevent double submissions
+    
     const cleanText = commentText.trim();
-    setCommentText("");
+    setCommentText(""); // Immediately clear the box for snappy UX
 
     startTransition(async () => {
       try {
         const res = await createComment(postId, cleanText, currentUserId) as any;
         
-        if (res?.success) {
-          const targetCommentNode = res.comment || {
-            id: `cmt-opt-${crypto.randomUUID()}`,
-            content: cleanText,
-            createdAt: new Date().toISOString(),
-            user: {
-              displayName: "Me", 
-              username: "current",
-              avatarUrl: null
-            }
-          };
+        // Match whatever your server action returns (adjust if it returns raw data)
+        if (res && (res.success || res.id)) {
+          const targetCommentNode = res.comment || res;
 
           const freshComment: CommentItem = {
-            id: targetCommentNode.id,
-            content: targetCommentNode.content,
-            createdAt: new Date(targetCommentNode.createdAt).toISOString(),
+            id: targetCommentNode.id || `cmt-opt-${crypto.randomUUID()}`,
+            content: targetCommentNode.content || cleanText,
+            createdAt: targetCommentNode.createdAt ? new Date(targetCommentNode.createdAt).toISOString() : new Date().toISOString(),
             user: {
               displayName: targetCommentNode.user?.displayName || "Me",
               username: targetCommentNode.user?.username || "current",
@@ -95,8 +88,14 @@ export default function PostComments({
           };
 
           setComments((prev) => [...prev, freshComment]);
+        } else {
+          // If the server says no, revert text so user doesn't lose it
+          setCommentText(cleanText);
+          console.error("Server action ran, but returned unhandled response state:", res);
         }
       } catch (err) {
+        // Fallback recovery on network crash
+        setCommentText(cleanText);
         console.error("Failed to push comment reply item transaction row:", err);
       }
     });
@@ -177,7 +176,7 @@ export default function PostComments({
               disabled={isPending || !commentText.trim()}
               className="bg-gray-900 text-white font-black text-xs px-4 py-2.5 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide disabled:opacity-40 shrink-0"
             >
-              Reply
+              {isPending ? "Posting..." : "Reply"}
             </button>
           </form>
 
