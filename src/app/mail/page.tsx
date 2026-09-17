@@ -64,7 +64,7 @@ export default async function MailPage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated) */}
-        <aside className="hidden lg:block lg:col-span-3 flex flex-col gap-4 lg:sticky lg:top-20 h-fit self-start">
+        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav 
             currentUsername={currentUser.username} 
             unreadMailCount={unreadMailCount} 
