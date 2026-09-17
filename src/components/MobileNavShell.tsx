@@ -90,7 +90,7 @@ export default function MobileNavShell({ currentUsername, unreadMailCount }: Mob
         className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl relative transition duration-300 active:scale-90 border focus:outline-none border-b-2 transform ${
           isMenuOpen
             ? "bg-rose-500 border-rose-600 text-white scale-105 rotate-12"
-            : "bg-white border-gray-200 text-amber-500 hover:bg-gray-50"
+            : "bg-rose-50 border-gray-200 text-amber-500 hover:bg-gray-50"
         }`}
       >
         <span>👑</span>
