@@ -40,7 +40,7 @@ export default async function ChatPage() {
   });
 
   // 🚀 NEW: Pre-fetch persistent Mod Chat history safely (Only load if staff, or let Prisma handle gracefully)
-  const isStaff = currentUser.role === Role.MOD || currentUser.role === Role.ADMIN;
+  const isStaff = currentUser.role === Role.MODERATOR || currentUser.role === Role.ADMIN;
     const modHistory = isStaff 
     ? await prisma.modMessage.findMany({
         orderBy: { createdAt: "asc" },
