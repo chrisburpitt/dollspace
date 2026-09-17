@@ -1,7 +1,7 @@
 // src/components/MobileNavShell.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,75 +13,95 @@ interface MobileNavShellProps {
 export default function MobileNavShell({ currentUsername, unreadMailCount }: MobileNavShellProps) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuContainerRef = useRef<HTMLDivElement>(null);
 
-  // Core platform links mapped to their emojis and paths
+  // Core platform links mapped to their exact clean matching strings
   const navLinksArray = [
-    { label: "🏠 Home Feed", path: "/" },
-    { label: "👑 My Profile", path: `/${currentUsername}` },
-    { label: "💬 Chat Lounge", path: "/chat" },
-	{ label: "💌 Mailbox", path: "/mail" },
-    { label: "🔔 Activity Notifications", path: "/notifications" },
+    { label: "🏠 Main Feed", path: "/" },
+    { label: "👑 Profile", path: `/${currentUsername}` },
+    { label: "💬 Chat", path: "/chat" },
+    { label: "💌 Mail", path: "/mail" },
+    { label: "🔔 Notifications", path: "/notifications" },
     { label: "⚙️ Settings", path: "/settings" },
   ];
 
-  return (
-    <div className="block lg:hidden select-none">
-      
-      {/* 📱 1. THE FLOATING BOTTOM ACTION BAR: Thumb-friendly controls pinned to the bottom of viewports */}
-      <div className="fixed bottom-4 left-4 right-4 h-14 bg-white/90 backdrop-blur-md border border-gray-200/80 rounded-2xl shadow-xl flex items-center justify-around px-4 z-40">
-        <Link href="/" className={`text-xl transition ${pathname === "/" ? "scale-110 text-rose-500" : "text-gray-400"}`}>🏠</Link>
-		<Link href={`/${currentUsername}`} className={`text-xl transition ${pathname === `/${currentUsername}` ? "scale-110 text-rose-500" : "text-gray-400"}`}>👑</Link>
-        <Link href="/chat" className={`text-xl relative transition ${pathname.startsWith("/chat") ? "scale-110 text-rose-500" : "text-gray-400"}`}>
-          <span>💬</span>
-          {unreadMailCount > 0 && (
-            <span className="absolute -top-1.5 -right-2 bg-rose-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-              {unreadMailCount}
-            </span>
-          )}
-        </Link>
-        
-        {/* Toggle Hamburger button trigger line */}
-        <button 
-          type="button" 
-          onClick={() => setIsMenuOpen(!isMenuOpen)} 
-          className={`text-xl font-bold transition focus:outline-none ${isMenuOpen ? "text-rose-500 rotate-90" : "text-gray-400"}`}
-        >
-          {isMenuOpen ? "✕" : "✨"}
-        </button>
-      </div>
+  // 🚀 OUTSIDE CLICK TRACKER: Smoothly closes the crown tray if user taps on the main dashboard feed
+  useEffect(() => {
+    function handleOutsideClick(event: MouseEvent) {
+      if (menuContainerRef.current && !menuContainerRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isMenuOpen]);
 
-      {/* 📱 2. SLIDE-UP DRAWER INTERACTIVE MENU PANEL OVERLAY */}
+  return (
+    <div ref={menuContainerRef} className="block lg:hidden select-none fixed bottom-6 left-6 z-50">
+      
+      {/* 📱 1. VIRTUAL POP-UP MENU PANEL: Slides up elegantly right above the crown anchor bubble */}
       {isMenuOpen && (
-        <div 
-          onClick={(e) => e.target === e.currentTarget && setIsMenuOpen(false)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 flex items-end justify-center animate-fade-in cursor-pointer"
-        >
-          <div className="bg-white rounded-t-3xl w-full p-6 pb-24 border-t border-gray-100 shadow-2xl animate-scale-up cursor-default space-y-4 max-w-md">
-            <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-2" onClick={() => setIsMenuOpen(false)} />
-            <h4 className="font-black text-xs uppercase text-gray-400 tracking-widest text-center">Dollspace Navigation Menu</h4>
-            
-            <div className="grid grid-cols-1 gap-2.5 pt-2">
-              {navLinksArray.map((link) => {
-                const isCurrentActive = pathname === link.path;
-                return (
-                  <Link
-                    key={link.path}
-                    href={link.path}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`p-3.5 rounded-xl font-black text-xs uppercase tracking-wider text-center border transition shadow-sm ${
-                      isCurrentActive
-                        ? "bg-rose-500 text-white border-rose-600"
-                        : "bg-gray-50 text-gray-600 border-gray-200/60 hover:bg-gray-100"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </div>
+        <div className="absolute left-0 bottom-16 w-56 bg-white border border-gray-200/90 rounded-2xl shadow-2xl p-2.5 animate-scale-up border-b-2 flex flex-col gap-1">
+          <div className="px-3 py-1.5 border-b border-gray-50 mb-1">
+            <span className="font-black text-[10px] uppercase text-gray-400 tracking-widest block text-left">
+              Dollspace Menu
+            </span>
           </div>
+
+          {navLinksArray.map((link) => {
+            // Evaluates matching states or sub-route structures (e.g. nested /chat paths)
+            const isCurrentActive = link.path === "/" 
+              ? pathname === "/" 
+              : pathname.startsWith(link.path);
+
+            return (
+              <Link
+                key={link.path}
+                href={link.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`w-full px-3.5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wide text-left flex items-center justify-between transition group ${
+                  isCurrentActive
+                    ? "bg-rose-500 text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-rose-500"
+                }`}
+              >
+                <span>{link.label}</span>
+                
+                {/* 🚀 MAIL COUNT COMPATIBILITY INDICATOR: Appends live alerts to your mailbox text row dynamically */}
+                {link.path === "/mail" && unreadMailCount > 0 && (
+                  <span className={`text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center tracking-normal ${
+                    isCurrentActive ? "bg-white text-rose-500" : "bg-rose-500 text-white animate-pulse"
+                  }`}>
+                    {unreadMailCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </div>
       )}
+
+      {/* 📱 2. FLOATING ACTION ICON BUBBLE: Singular crown badge pinned to the lower left corner */}
+      <button
+        type="button"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-2xl relative transition duration-300 active:scale-90 border focus:outline-none border-b-2 transform ${
+          isMenuOpen
+            ? "bg-rose-500 border-rose-600 text-white scale-105 rotate-12"
+            : "bg-white border-gray-200 text-amber-500 hover:bg-gray-50"
+        }`}
+      >
+        <span>👑</span>
+        
+        {/* Unread Alert Node Overlay: Placed on the button hub if the panel is collapsed */}
+        {!isMenuOpen && unreadMailCount > 0 && (
+          <span className="absolute -top-1 -right-1 bg-rose-500 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse border border-white">
+            {unreadMailCount}
+          </span>
+        )}
+      </button>
 
     </div>
   );
