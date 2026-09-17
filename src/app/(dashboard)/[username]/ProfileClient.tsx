@@ -82,11 +82,10 @@ export default function ProfileClient({
                 <div className="flex items-start justify-between w-full">
                   <div>
                     <h1 className="text-3xl font-black tracking-tight text-gray-900">{user.displayName}</h1>
-
                     <div className="flex items-center space-x-2 mt-0.5">
                       <p className="text-gray-400 font-medium text-sm">@{user.username}</p>
                       {calculatedAgeValue !== null && (
-                        <span className="text-gray-900 font-bold text-xs bg-gray-100 px-2 py-0.5 rounded-md">
+                        <span className="text-gray-900 font-medium text-xs bg-rose-100 px-2 py-0.5 rounded-md">
                           🎂 {calculatedAgeValue} Years Old
                         </span>
                       )}
