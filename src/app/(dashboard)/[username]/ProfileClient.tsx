@@ -12,6 +12,8 @@ import ImageLightbox from "@/components/ImageLightbox";
 import ProfileAlbums from "@/components/ProfileAlbums";
 import SidebarNav from "@/components/SidebarNav";
 import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
+import { getPlatformDashboardMetrics } from "@/app/actions/platformMetrics";
+import PlatformMetricsCard from "@/components/PlatformMetricsCard";
 import MobileNavShell from "@/components/MobileNavShell"; 
 import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
 
@@ -200,6 +202,7 @@ export default function ProfileClient({
               <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5"><span>Profile Views:</span><span className="text-rose-500 font-black">👀 {user.views}</span></div>
             </div>
           </div>
+		  <PlatformMetricsCard metrics={dashboardMetrics} />
         </aside>
       </div>
 

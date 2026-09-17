@@ -16,8 +16,8 @@ export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProp
 
   return (
     <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm text-left select-none animate-fade-in space-y-4">
-      <h4 className="font-black text-xs text-gray-900 tracking-wider uppercase">
-        📊 Live Activity Stream
+      <h4 className="font-black text-xs text-gray-900 tracking-wider">
+        ✨ What's Happening on Dollspace
       </h4>
       
       <div className="space-y-1 text-xs font-semibold text-gray-600">
