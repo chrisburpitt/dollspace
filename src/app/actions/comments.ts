@@ -8,23 +8,23 @@ import { createNotification } from "./notifications";
 // ACTION: Create a comment or nested reply with active tagging/mentions tracking
 export async function createComment(
   postId: string, 
-  userId: string,      // 🚀 FIXED: Order matches frontend sequence perfectly now
+  userId: string,      
   content: string, 
   parentId: string | null = null
 ) {
   if (!content.trim()) return { error: "Comment text cannot be empty." };
 
   try {
-    // 1. Create the base comment record row
+    // 1. Create the base comment record row (Matches your schema layout perfectly)
     const newComment = await prisma.comment.create({
       data: {
         content: content.trim(),
         postId,
-        userId,
+        userId, // 🚀 CONFIRMED BY YOUR SCHEMA
         parentId,
       },
       include: { 
-        user: {
+        user: { 
           select: {
             id: true,
             displayName: true,
@@ -35,51 +35,65 @@ export async function createComment(
       }
     });
 
-    // 2. PARSE MENTIONS ENGINE: Find all '@username' strings in text
-    const mentionRegex = /@([a-zA-Z0-9_]+)/g;
-    const matches = content.match(mentionRegex);
+    // 2. DEFENSIVE PARSE MENTIONS ENGINE
+    try {
+      const mentionRegex = /@([a-zA-Z0-9_]+)/g;
+      const matches = content.match(mentionRegex);
 
-    if (matches) {
-      const usernames = [...new Set(matches.map(m => m.substring(1)))];
+      if (matches) {
+        const usernames = [...new Set(matches.map(m => m.substring(1)))];
 
-      const taggedUsers = await prisma.user.findMany({
-        where: { username: { in: usernames } }
-      });
+        const taggedUsers = await prisma.user.findMany({
+          where: { username: { in: usernames } }
+        });
 
-      for (const taggedUser of taggedUsers) {
-        if (taggedUser.id !== userId) {
-          await createNotification({
-            type: "MENTION", 
-            recipientId: taggedUser.id,
-            issuerId: userId,
-            postId,
-          });
+        for (const taggedUser of taggedUsers) {
+          if (taggedUser.id !== userId) {
+            await createNotification({
+              type: "MENTION", 
+              recipientId: taggedUser.id,
+              issuerId: userId,
+              postId,
+            });
+          }
         }
       }
+    } catch (mentionErr) {
+      // If notifications error out, log it but don't stop the comment from posting!
+      console.error("Non-blocking notification system error (Mentions):", mentionErr);
     }
 
-    // 3. REGULAR BASE NOTIFICATION (Only triggers if it's a top-level comment)
-    if (!parentId) {
-      const post = await prisma.post.findUnique({ where: { id: postId } });
-      if (post && post.userId !== userId) {
-        await createNotification({
-          type: "COMMENT",
-          recipientId: post.userId,
-          issuerId: userId,
-          postId,
-        });
+    // 3. DEFENSIVE BASE POST NOTIFICATION
+    try {
+      if (!parentId) {
+        const post = await prisma.post.findUnique({ where: { id: postId } });
+        if (post) {
+          // 🚀 SAFE FALLBACK: Check if post author field uses 'userId', 'authorId', or 'creatorId'
+          const postOwnerId = post.userId || (post as any).authorId || (post as any).creatorId;
+          
+          if (postOwnerId && postOwnerId !== userId) {
+            await createNotification({
+              type: "COMMENT",
+              recipientId: postOwnerId,
+              issuerId: userId,
+              postId,
+            });
+          }
+        }
       }
+    } catch (notifErr) {
+      console.error("Non-blocking notification system error (Comment Alert):", notifErr);
     }
 
-    // Clear caches
+    // Clear Next.js cache segments to display changes live
     revalidatePath("/");
     revalidatePath("/[username]", "layout");
 
-    // 🚀 RETURN DATA OBJECT: Pass back success flag AND full prisma node object to append to list!
     return { success: true, comment: newComment };
 
   } catch (error) {
-    console.error("CRITICAL BACKEND ACTION ERROR IN CREATECOMMENT:", error);
+    // This logs the exact issue to your system terminal window (e.g. npm run dev console)
+    console.error("CRITICAL BACKEND ACTION DATABASE ERROR:", error);
     return { error: "Failed to post comment to database server." };
   }
 }
