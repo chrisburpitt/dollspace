@@ -32,7 +32,7 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId,
             activeFeedTab === "GLOBAL" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"
           }`}
         >
-          🌍 Global Network Feed ({globalPosts.length})
+          👑 Dollspace Feed ({globalPosts.length})
         </button>
         <button
           onClick={() => setActiveFeedTab("FOLLOWING")}
@@ -40,7 +40,7 @@ export default function FeedStream({ globalPosts, followingPosts, currentUserId,
             activeFeedTab === "FOLLOWING" ? "bg-rose-500 text-white shadow-sm" : "text-gray-400 hover:text-gray-600"
           }`}
         >
-          ✨ Following Feed ({followingPosts.length})
+          ❤️ Following Feed ({followingPosts.length})
         </button>
       </div>
 

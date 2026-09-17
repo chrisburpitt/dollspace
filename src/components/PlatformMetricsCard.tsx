@@ -20,7 +20,7 @@ export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProp
         📊 Live Activity Stream
       </h4>
       
-      <div className="space-y-2.5 text-xs font-semibold text-gray-600">
+      <div className="space-y-1 text-xs font-semibold text-gray-600">
         
         {/* Metric 1: Online Users */}
         <Link href="/discover" className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100 block">
