@@ -48,6 +48,7 @@ export default function ProfileClient({
   
   const calculatedAgeValue = calculateAgeFromBirthday(user.birthday);
   const filteredAlbums = (user.albums || []).filter((a: any) => isOwner || !a.isPrivate);
+  const dashboardMetrics = await getPlatformDashboardMetrics(); 
 
   // 🚀 FIXED: We pre-build the items as completely flat data objects with ZERO HTML layout elements inside!
   // This physically purges all clipped tag artifacts from the file, bypassing the compiler caching blockages entirely!
