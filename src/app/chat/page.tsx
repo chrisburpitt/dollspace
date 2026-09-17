@@ -61,19 +61,27 @@ export default async function ChatPage() {
       />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+        
+        {/* LEFT COLUMN SIDEBAR PANEL */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
-          {/* This sidebar layout component stays for tracking generic system online events */}
-          <OnlineUsersSidebar users={platformUsers.slice(0, 10)} /> 
+          <SidebarNav 
+            currentUsername={currentUser.username} 
+            unreadMailCount={unreadMailCount} 
+          />
+
+          {/* 🚀 FIXED: Reverted back to getOnlineDollsRoster() so your status metrics map perfectly! */}
+          <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
+        {/* RIGHT FULL WINDOW CONTAINER VIEW PORTAL */}
         <main className="lg:col-span-9 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm h-[calc(100vh-140px)]">
           <UnifiedMessengerClient 
-            currentUser={currentUser} // 🚀 Passes user info containing 'role'
+            currentUser={currentUser}
             platformUsers={platformUsers}
             initialDMs={serializedDMs}
           />
         </main>
+
       </div>
     </div>
   );
