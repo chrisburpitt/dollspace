@@ -34,6 +34,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const unreadMailCount = await getUnreadMailCount();
   const onlineUsers = await getOnlineDollsRoster();
+  const waitingDMsCount = await prisma.message?.count?.({
+    where: { recipientId: sessionUser.id, isUnread: true }
+  }).catch(() => 0) || 0;
+  
   const dashboardMetrics = {
     onlineCount: onlineUsers.length,
     unreadMailCount: unreadMailCount,
