@@ -38,11 +38,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     where: { recipientId: sessionUser.id, isUnread: true }
   }).catch(() => 0) || 0;
   
-  const dashboardMetrics = {
-    onlineCount: onlineUsers.length,
-    unreadMailCount: unreadMailCount,
-    waitingDMsCount: waitingDMsCount
-  };
+  const dashboardMetrics = await getPlatformDashboardMetrics();
 
   // 🚀 FIX: Pre-fetch your complete permanent network directory layout natively
   const absoluteFollowersList = await prisma.follow.findMany({
