@@ -59,6 +59,7 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
   };
   
   // src/components/GlobalHeader.tsx (PART 2 - EDGE ALIGNMENT SUCCESS)
+  // src/components/GlobalHeader.tsx (PART 2 - EDGE ALIGNMENT SUCCESS)
   return (
     <header className="w-full h-16 bg-white border-b border-gray-200 sticky top-0 z-40 select-none">
       
@@ -74,7 +75,8 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
         <div className="flex items-center space-x-3 relative">
           
           {/* WIDGET A: NOTIFICATION CENTER DROPDOWN BAR BUTTON */}
-          <div className="relative" ref={notificationRef}>
+          {/* 🚀 FIXED: Added 'hidden lg:block' to completely hide the notification bell on mobile screens */}
+          <div className="hidden lg:block relative" ref={notificationRef}>
             <button 
               onClick={() => {
                 setShowNotifications(!showNotifications);
@@ -134,23 +136,23 @@ export default function GlobalHeader({ currentUser }: GlobalHeaderProps) {
                       currentStatus === item.key 
                         ? "bg-rose-50 text-rose-500 font-extrabold" 
                         : "text-gray-600 hover:bg-gray-50 hover:text-rose-600"
-                  }`}
-                >
-                  <span>{item.icon}</span>
-                  <span>{item.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+                    }`}
+                  >
+                    <span>{item.icon}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-        {/* LOGOUT SECURE ACTION LINK TRIGGER BUTTON */}
-        <Link 
-          href="/logout" 
-          className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm"
-        >
-          Logout
-        </Link>
+          {/* LOGOUT SECURE ACTION LINK TRIGGER BUTTON */}
+          <Link 
+            href="/logout" 
+            className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm"
+          >
+            Logout
+          </Link>
 
         </div>
       </div>
