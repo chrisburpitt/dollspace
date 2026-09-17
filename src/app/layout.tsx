@@ -1,6 +1,7 @@
 // src/app/layout.tsx
 import type { Metadata, Viewport } from "next"; // 🚀 Added Viewport type tracking
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { touchUserPresenceHeartbeat } from "@/app/actions/presence";
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body className="antialiased overflow-x-hidden w-full max-w-full bg-gray-50">
         {children}
+	    <Analytics />
       </body>
     </html>
   );
