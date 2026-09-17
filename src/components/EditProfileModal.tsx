@@ -133,7 +133,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               </div>
 
               {/* 4. GENDER IDENTITY DROPDOWN SELECTION */}
-              {/* 🚀 FIXED: Transformed raw string entry field into a clean native input selector menu */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
                 <div className="relative">
