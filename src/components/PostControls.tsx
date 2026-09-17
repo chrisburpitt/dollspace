@@ -1,7 +1,7 @@
 // src/components/PostControls.tsx
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { togglePostReaction } from "@/app/actions/reactions";
 
 interface PostControlsProps {
@@ -30,10 +30,22 @@ export default function PostControls({
   const [isPending, startTransition] = useTransition();
   const [isDeletePending, startDeleteTransition] = useTransition();
   const [showEmojiDock, setShowEmojiDock] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   const [localReactions, setLocalReactions] = useState<any[]>(initialReactions);
   const myExistingReaction = localReactions.find((r: any) => r.userId === currentUserId);
   const isOwner = postOwnerId === currentUserId;
+
+  // 🚀 MOBILE OUTSIDE CLICK CLOSER: Shuts the emoji dock if a touch user clicks anywhere else
+  useEffect(() => {
+    function handleOutsideClick(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowEmojiDock(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   const aggregatedCounts = localReactions.reduce((acc: Record<string, number>, curr: any) => {
     const key = curr.emoji || "❤️";
@@ -61,6 +73,18 @@ export default function PostControls({
     });
   };
 
+  // 🚀 FIXED TOUCH HANDLER: Mobile taps open the menu first, subsequent clicks send reactions
+  const handleMainButtonClick = (e: React.MouseEvent) => {
+    // If the emoji dock is closed, open it instead of instantly reacting
+    if (!showEmojiDock) {
+      e.preventDefault();
+      setShowEmojiDock(true);
+    } else {
+      // If it's already open, submit their current reaction or default heart
+      handleSelectReactionEmoji(myExistingReaction?.emoji || "❤️");
+    }
+  };
+
   const handleDeletePostClick = async () => {
     if (!confirm("🚨 Are you sure you want to permanently delete this update from your timeline?")) return;
     startDeleteTransition(async () => {
@@ -76,15 +100,16 @@ export default function PostControls({
   return (
     <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-50/60 relative select-none">
       
-      {/* 🚀 FIXED HOVER BOX CONTAINER: Group wraps the trigger button and child dock together cleanly */}
+      {/* Attached containerRef to handle clicking outside safely */}
       <div 
+        ref={containerRef}
         className="flex items-center space-x-2 relative group"
         onMouseEnter={() => setShowEmojiDock(true)}
         onMouseLeave={() => setShowEmojiDock(false)}
       >
         <button
           type="button"
-          onClick={() => handleSelectReactionEmoji(myExistingReaction?.emoji || "❤️")}
+          onClick={handleMainButtonClick} // 🚀 FIXED TRIGGER
           className={`flex items-center space-x-1.5 px-3 py-1.5 text-xs font-black rounded-xl transition border shadow-sm ${
             myExistingReaction
               ? "bg-rose-50 text-rose-500 border-rose-100"
@@ -95,10 +120,9 @@ export default function PostControls({
           <span>React</span>
         </button>
 
-        {/* 🚀 FIXED GAP LAYER OVERLAY: Bounding box spans the empty whitespace so the menu never closes prematurely */}
+        {/* 🚀 EXTRA LAYER TIER (z-50): Ensures overlay stays floating on mobile view grids */}
         {showEmojiDock && (
-          <div className="absolute left-0 bottom-0 pb-11 w-64 z-40 cursor-default">
-            {/* The visual popout element itself */}
+          <div className="absolute left-0 bottom-0 pb-11 w-64 z-50 cursor-default">
             <div className="bg-white border border-gray-200 rounded-2xl shadow-xl px-4 py-2.5 flex items-center space-x-3.5 animate-scale-up border-b-2">
               {REACTION_EMOJIS.map((emoji) => {
                 const isCurrentSelection = myExistingReaction?.emoji === emoji;
