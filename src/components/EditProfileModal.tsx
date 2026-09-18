@@ -19,8 +19,30 @@ interface EditProfileModalProps {
   };
 }
 
-const IDENTITY_OPTIONS = ["Cis man", "Cis woman", "Trans woman", "Trans man", "Non-Binary"];
 const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery"];
+
+  // 🚀 CHOOSE OPTIONS DATA STRUCTURES
+  const PREFIX_OPTIONS = ["Cis", "Trans", "Non-Binary"];
+  const GENDER_OPTIONS = ["man", "woman", "boy", "girl"];
+
+  // HELPER FUNCTION: Parses incoming combined database strings (e.g., "Trans woman" -> prefix: "Trans", term: "woman")
+  const parseInitialIdentity = (dbValue: string | null) => {
+    if (!dbValue) return { prefix: "Trans", term: "woman" };
+    if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
+    
+    // Splits by space: "Cis man" -> ["Cis", "man"]
+    const parts = dbValue.split(" ");
+    return {
+      prefix: parts[0] || "Cis",
+      term: parts[1] || "man"
+    };
+  };
+
+  const initialIdentity = parseInitialIdentity(user.genderIdentity);
+
+  // 🚀 CONVERT TO TWO SEPARATE INTERNAL STATES
+  const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
+  const [identityTerm, setIdentityTerm] = useState<string>(initialIdentity.term);
 
 export default function EditProfileModal({ user }: EditProfileModalProps) {
   const router = useRouter(); 
@@ -71,15 +93,24 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     startTransition(async () => {
       const compiledLookingForString = selectedLookingFor.join(", ");
 
+      // 🚀 CONCATENATION ENGINE: Blends the choices back into your exact database format string!
+      const compiledIdentityString = identityPrefix === "Non-Binary" 
+        ? "Non-Binary" 
+        : `${identityPrefix} ${identityTerm}`;
+
       const payload = new FormData();
       payload.append("displayName", displayName);
       payload.append("bio", bio);
       payload.append("location", location);
-      payload.append("genderIdentity", genderIdentity);
+      
+      // 🚀 Pass your compiled single token string securely to your server action!
+      payload.append("genderIdentity", compiledIdentityString); 
+      
       payload.append("lookingFor", compiledLookingForString); 
       payload.append("birthday", birthday);
       payload.append("instagramHandle", instagramHandle);
       payload.append("facebookHandle", facebookHandle);
+
 
       const res = await updateProfile(payload);
       if (res?.success) {
@@ -134,19 +165,58 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Brisbane, Australia 📍" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* 4. GENDER IDENTITY DROPDOWN SELECTION */}
+              {/* 4. DUAL GENDER IDENTITY SPECIFIC INTERACTIVE DROPDOWNS */}
+              {/* 🚀 FIXED: Split into a beautiful horizontal row grid containing a prefix hub and a conditional term list */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
-                <div className="relative">
-				  <select
-                    onChange={(e) => setGenderIdentity(e.target.value)}
-                    className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold text-gray-800 focus:outline-none focus:bg-white appearance-none transition cursor-pointer"
-                  >
-                    {IDENTITY_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>{opt}</option>
-                    ))}
-                  </select>
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[9px] font-bold">▼</span>
+                
+                <div className="flex items-center space-x-3 w-full">
+                  
+                  {/* LEFT DROPDOWN: Core Prefix Selection (Cis / Trans / Non-Binary) */}
+                  <div className="relative flex-1">
+                     {
+                        const nextPrefix = e.target.value;
+                        setIdentityPrefix(nextPrefix);
+                        // Safe fallback: If user flips to Non-Binary, clear out the right selection term data context
+                        if (nextPrefix === "Non-Binary") {
+                          setIdentityTerm("");
+                        } else if (!identityTerm) {
+                          setIdentityTerm("woman"); // Default fallback term if they switch back
+                        }
+                      }}
+                      className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold text-gray-800 focus:outline-none focus:bg-white appearance-none transition cursor-pointer shadow-sm"
+                    >
+                      {PREFIX_OPTIONS.map((opt) => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[8px] font-bold">▼</span>
+                  </div>
+
+                  {/* RIGHT DROPDOWN: Core Term Selection (man / woman / boy / girl) */}
+                  <div className="relative flex-1">
+                     setIdentityTerm(e.target.value)}
+                      // 🚀 CONDITIONAL INTERCEPTOR: Lock down and dim the dropdown completely if "Non-Binary" is selected!
+                      disabled={identityPrefix === "Non-Binary"}
+                      className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
+                        identityPrefix === "Non-Binary"
+                          ? "bg-gray-100 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
+                          : "bg-gray-50 border-gray-200 text-gray-800 focus:outline-none focus:bg-white cursor-pointer"
+                      }`}
+                    >
+                      {identityPrefix === "Non-Binary" ? (
+                        <option value="">Not Applicable</option>
+                      ) : (
+                        GENDER_OPTIONS.map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[8px] font-bold">▼</span>
+                  </div>
+
                 </div>
               </div>
 
