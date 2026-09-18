@@ -259,7 +259,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   <div className="relative flex-1">
 				    <select value={identityTerm} 
                       onChange={(e) => setIdentityTerm(e.target.value)}
-                      disabled={identityPrefix === "Non-Binary" || nextPrefix === "Crossdresser"}
+                      disabled={identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
                         identityPrefix === "Non-Binary"
                           ? "bg-gray-100 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
