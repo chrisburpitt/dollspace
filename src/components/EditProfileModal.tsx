@@ -49,7 +49,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   
   // 🚀 C. STATE HOOKS INITIALIZED FROM YOUR COUPLING PARSER
   const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
-  const [identityTerm, setIdentityTerm] = useState<string>(identityTerm || initialIdentity.term);
+  const [identityTerm, setIdentityTerm] = useState<string>(initialIdentity.term);
 
   const [selectedLookingFor, setSelectedLookingFor] = useState<string[]>(
     user.lookingFor ? user.lookingFor.split(",").map((s: string) => s.trim()).filter(Boolean) : []
