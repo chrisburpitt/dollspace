@@ -20,42 +20,36 @@ interface EditProfileModalProps {
 }
 
 const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery"];
+const PREFIX_OPTIONS = ["Cis", "Trans", "Non-Binary"];
+const GENDER_OPTIONS = ["man", "woman", "boy", "girl"];
 
-  // 🚀 CHOOSE OPTIONS DATA STRUCTURES
-  const PREFIX_OPTIONS = ["Cis", "Trans", "Non-Binary"];
-  const GENDER_OPTIONS = ["man", "woman", "boy", "girl"];
-
-  // HELPER FUNCTION: Parses incoming combined database strings (e.g., "Trans woman" -> prefix: "Trans", term: "woman")
-  const parseInitialIdentity = (dbValue: string | null) => {
-    if (!dbValue) return { prefix: "Trans", term: "woman" };
-    if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
-    
-    // Splits by space: "Cis man" -> ["Cis", "man"]
-    const parts = dbValue.split(" ");
-    return {
-      prefix: parts[0] || "Cis",
-      term: parts[1] || "man"
-    };
+const parseInitialIdentity = (dbValue: string | null) => {
+  if (!dbValue) return { prefix: "Trans", term: "woman" };
+  if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
+  
+  const parts = dbValue.split(" ");
+  return {
+    prefix: parts[0] || "Cis",
+    term: parts[1] || "man"
   };
-
-  const initialIdentity = parseInitialIdentity(user.genderIdentity);
-
-  // 🚀 CONVERT TO TWO SEPARATE INTERNAL STATES
-  const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
-  const [identityTerm, setIdentityTerm] = useState<string>(initialIdentity.term);
+};
 
 export default function EditProfileModal({ user }: EditProfileModalProps) {
   const router = useRouter(); 
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-
-  // 🚀 INTERCEPTOR REF: Pinned directly onto the inner dialog card container body
   const modalInnerContentRef = useRef<HTMLDivElement>(null);
+
+  // 🚀 B. MOVED INSIDE THE FUNCTION BODY: Now it can locate the 'user' prop seamlessly!
+  const initialIdentity = parseInitialIdentity(user.genderIdentity);
 
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
   const [location, setLocation] = useState(user.location || "");
-  const [genderIdentity, setGenderIdentity] = useState(user.genderIdentity || "Trans woman");
+  
+  // 🚀 C. STATE HOOKS INITIALIZED FROM YOUR COUPLING PARSER
+  const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
+  const [identityTerm, setIdentityTerm] = useState<string>(identityTerm || initialIdentity.term);
 
   const [selectedLookingFor, setSelectedLookingFor] = useState<string[]>(
     user.lookingFor ? user.lookingFor.split(",").map((s: string) => s.trim()).filter(Boolean) : []
