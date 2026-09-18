@@ -22,15 +22,14 @@ interface EditProfileModalProps {
 const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery"];
 const PREFIX_OPTIONS = ["Cis", "Trans", "Non-Binary"];
 const GENDER_OPTIONS = ["man", "woman", "boy", "girl"];
-
 const parseInitialIdentity = (dbValue: string | null) => {
   if (!dbValue) return { prefix: "Trans", term: "woman" };
   if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
   
   const parts = dbValue.split(" ");
   return {
-    prefix: parts[0] || "Cis",
-    term: parts[1] || "man"
+    prefix: parts[0] || "Trans",
+    term: parts[1] || "woman"
   };
 };
 
@@ -39,10 +38,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const modalInnerContentRef = useRef<HTMLDivElement>(null);
-
-  // 🚀 B. MOVED INSIDE THE FUNCTION BODY: Now it can locate the 'user' prop seamlessly!
   const initialIdentity = parseInitialIdentity(user.genderIdentity);
-
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
   const [location, setLocation] = useState(user.location || "");
@@ -51,15 +47,11 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const locationContainerRef = useRef<HTMLDivElement>(null);
-  
-  // 🚀 C. STATE HOOKS INITIALIZED FROM YOUR COUPLING PARSER
   const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
   const [identityTerm, setIdentityTerm] = useState<string>(initialIdentity.term);
-
   const [selectedLookingFor, setSelectedLookingFor] = useState<string[]>(
     user.lookingFor ? user.lookingFor.split(",").map((s: string) => s.trim()).filter(Boolean) : []
   );
-
   const initialDateStr = user.birthday ? new Date(user.birthday).toISOString().split("T")[0] : "";
   const [birthday, setBirthday] = useState(initialDateStr);
   const [instagramHandle, setInstagramHandle] = useState(user.instagramHandle || "");
@@ -138,10 +130,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       payload.append("displayName", displayName);
       payload.append("bio", bio);
       payload.append("location", location);
-      
-      // 🚀 Pass your compiled single token string securely to your server action!
       payload.append("genderIdentity", compiledIdentityString); 
-      
       payload.append("lookingFor", compiledLookingForString); 
       payload.append("birthday", birthday);
       payload.append("instagramHandle", instagramHandle);
