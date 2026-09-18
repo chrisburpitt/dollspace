@@ -62,7 +62,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   
   // 🚀 LIVE SEARCH TRIGGER: Contacts OpenStreetMap Nominatim endpoint dynamically
   useEffect(() => {
-    if ((!isUserActivelyTypingLocation || !locationSearchQuery.trim() || locationSearchQuery.length < 3) {
+    if (!isUserActivelyTypingLocation || !locationSearchQuery.trim() || locationSearchQuery.length < 3) {
       setLocationSuggestions([]);
       setShowLocationDropdown(false);
       return;
