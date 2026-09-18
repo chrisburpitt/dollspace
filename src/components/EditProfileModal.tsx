@@ -19,12 +19,13 @@ interface EditProfileModalProps {
   };
 }
 
-const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery", "Chat", "Resources"];
+const LOOKING_FOR_TILES = ["Friends", "Support", "Chat", "Discovery, "Learning", "Resources", "Relationship"];
 const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
 const GENDER_OPTIONS = ["woman", "girl", "man", "boy"];
 const parseInitialIdentity = (dbValue: string | null) => {
   if (!dbValue) return { prefix: "Trans", term: "woman" };
   if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
+  if (dbValue === "Crossdresser") return { prefix: "Crossdresser", term: "" };
   
   const parts = dbValue.split(" ");
   return {
