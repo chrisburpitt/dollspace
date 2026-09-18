@@ -20,8 +20,8 @@ interface EditProfileModalProps {
 }
 
 const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery"];
-const PREFIX_OPTIONS = ["Cis", "Trans", "Non-Binary"];
-const GENDER_OPTIONS = ["man", "woman", "boy", "girl"];
+const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Cis"];
+const GENDER_OPTIONS = ["woman", "girl", "man", "boy"];
 const parseInitialIdentity = (dbValue: string | null) => {
   if (!dbValue) return { prefix: "Trans", term: "woman" };
   if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
