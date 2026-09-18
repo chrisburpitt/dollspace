@@ -262,14 +262,12 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                       onChange={(e) => setIdentityTerm(e.target.value)}
                       disabled={identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
-                        identityPrefix === "Non-Binary" || "Crossdresser"
+                        identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser"
                           ? "bg-gray-100 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
                           : "bg-gray-50 border-gray-200 text-gray-800 focus:outline-none focus:bg-white cursor-pointer"
                       }`}
                     >
-                      {identityPrefix === "Non-Binary" ? (
-                        <option value="">Not Applicable</option>
-					  {identityPrefix === "Crossdresser" ? (
+                      {identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser" ? (
                         <option value="">Not Applicable</option>
                       ) : (
                         GENDER_OPTIONS.map((opt) => (
