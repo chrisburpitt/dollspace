@@ -46,6 +46,11 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
   const [location, setLocation] = useState(user.location || "");
+  const [locationSearchQuery, setLocationSearchQuery] = useState(user.location || "");
+  const [locationSuggestions, setLocationSuggestions] = useState<any[]>([]);
+  const [isSearchingLocation, setIsSearchingLocation] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const locationContainerRef = useRef<HTMLDivElement>(null);
   
   // 🚀 C. STATE HOOKS INITIALIZED FROM YOUR COUPLING PARSER
   const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
@@ -59,6 +64,43 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [birthday, setBirthday] = useState(initialDateStr);
   const [instagramHandle, setInstagramHandle] = useState(user.instagramHandle || "");
   const [facebookHandle, setFacebookHandle] = useState(user.facebookHandle || "");
+  
+  // 🚀 LIVE SEARCH TRIGGER: Contacts OpenStreetMap Nominatim endpoint dynamically
+  useEffect(() => {
+    if (!locationSearchQuery.trim() || locationSearchQuery.length < 3) {
+      setLocationSuggestions([]);
+      setShowLocationDropdown(false);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(async () => {
+      setIsSearchingLocation(true);
+      try {
+        // Fetch matching geometry coordinates and address strings securely
+        const response = await fetch(
+          `https://openstreetmap.org{encodeURIComponent(locationSearchQuery)}&addressdetails=1&limit=5`,
+          { headers: { "User-Agent": "DollspaceApp/1.0" } } // Nominatim requires a User-Agent header string
+        );
+        const data = await response.json();
+        
+        // Format the geography objects array cleanly
+        const formattedSuggestions = data.map((item: any) => ({
+          id: item.place_id,
+          display_name: item.display_name,
+          city: item.address.city || item.address.town || item.address.village || item.address.suburb || item.address.state || ""
+        }));
+
+        setLocationSuggestions(formattedSuggestions);
+        setShowLocationDropdown(true);
+      } catch (err) {
+        console.error("Predictive location autocomplete search fetch broke:", err);
+      } finally {
+        setIsSearchingLocation(false);
+      }
+    }, 400); // 400ms Debounce buffer limits API spam while they type rapidly!
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [locationSearchQuery]);
 
   // 🚀 CLICK-OUTSIDE EVENT LISTENER: Shuts modal if a user clicks outside the inner ref boundaries
   useEffect(() => {
@@ -74,7 +116,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     return () => {
       document.removeEventListener("mousedown", handleClickOutsideTheModalCard);
     };
-  }, [isOpen]);
+  }, [isOpen]); 
 
   const handleToggleTileSelection = (tile: string) => {
     setSelectedLookingFor((prev) =>
@@ -153,10 +195,51 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* 3. LOCATION SEARCH */}
-              <div>
+              {/* 3. LOCATION SEARCH (UPGRADED PREDICTIVE AUTOFILL INTERFACE) */}
+              {/* 🚀 FIXED: Wrapped inside an active relative element stack managing live autocomplete popup menus */}
+              <div className="space-y-1 relative" ref={locationContainerRef}>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Location</label>
-                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Brisbane, Australia 📍" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                
+                <div className="relative flex items-center">
+                  <input 
+                    type="text" 
+                    value={locationSearchQuery} 
+                    onChange={(e) => {
+                      setLocationSearchQuery(e.target.value);
+                      setLocation(e.target.value); // Sync target data to your submission string state
+                    }} 
+                    placeholder="Search city, town, or country... 📍" 
+                    className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition pr-10" 
+                  />
+                  
+                  {/* Live Search Loading Animation Node */}
+                  {isSearchingLocation && (
+                    <span className="absolute right-3 text-gray-400 animate-spin text-sm leading-none font-bold">
+                      ⏳
+                    </span>
+                  )}
+                </div>
+
+                {/* 🚀 AUTOFILL DROPDOWN PANEL OVERLAY CONTAINER */}
+                {showLocationDropdown && locationSuggestions.length > 0 && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-gray-50 p-1 animate-scale-up">
+                    {locationSuggestions.map((suggestion) => (
+                      <button
+                        key={suggestion.id}
+                        type="button"
+                        onClick={() => {
+                          // Clean up text format: Extracts full address but optimizes presentation view strings
+                          setLocationSearchQuery(suggestion.display_name);
+                          setLocation(suggestion.display_name); // Populates target database field configuration token
+                          setShowLocationDropdown(false);
+                        }}
+                        className="w-full text-left px-3 py-2.5 text-xs font-semibold text-gray-700 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition truncate block"
+                      >
+                        📍 {suggestion.display_name}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* 4. DUAL GENDER IDENTITY SPECIFIC INTERACTIVE DROPDOWNS */}
