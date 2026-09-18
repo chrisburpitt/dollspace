@@ -52,7 +52,9 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [selectedLookingFor, setSelectedLookingFor] = useState<string[]>(
     user.lookingFor ? user.lookingFor.split(",").map((s: string) => s.trim()).filter(Boolean) : []
   );
-  const initialDateStr = user.birthday ? new Date(user.birthday).toISOString().split("T")[0] : "";
+  const initialDateStr = user.birthday 
+    ? new Date(user.birthday).toISOString().substring(0, 10) 
+    : "";
   const [birthday, setBirthday] = useState(initialDateStr);
   const [instagramHandle, setInstagramHandle] = useState(user.instagramHandle || "");
   const [facebookHandle, setFacebookHandle] = useState(user.facebookHandle || "");
@@ -177,11 +179,10 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               {/* 2. DATE OF BIRTH */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Date of Birth</label>
-                <input type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" />
+                <input suppressHydrationWarning type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" />
               </div>
 
               {/* 3. LOCATION SEARCH (UPGRADED PREDICTIVE AUTOFILL INTERFACE) */}
-              {/* 🚀 FIXED: Wrapped inside an active relative element stack managing live autocomplete popup menus */}
               <div className="space-y-1 relative" ref={locationContainerRef}>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Location</label>
                 
@@ -234,7 +235,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 
                 <div className="flex items-center space-x-3 w-full">
                   
-                  {/* LEFT DROPDOWN: Core Prefix Selection (Cis / Trans / Non-Binary) */}
+                  {/* LEFT DROPDOWN: Core Prefix Selection (Trans / Non-Binary / Cis) */}
                   <div className="relative flex-1">
                      <select onChange={(e) => {
                         const nextPrefix = e.target.value;
