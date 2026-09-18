@@ -19,7 +19,7 @@ interface EditProfileModalProps {
   };
 }
 
-const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery"];
+const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery", "Chat", "Resources"];
 const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Cis"];
 const GENDER_OPTIONS = ["woman", "girl", "man", "boy"];
 const parseInitialIdentity = (dbValue: string | null) => {
