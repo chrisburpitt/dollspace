@@ -267,7 +267,9 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                           : "bg-gray-50 border-gray-200 text-gray-800 focus:outline-none focus:bg-white cursor-pointer"
                       }`}
                     >
-                      {identityPrefix === "Non-Binary" || "Crossdresser" ? (
+                      {identityPrefix === "Non-Binary" ? (
+                        <option value="">Not Applicable</option>
+					  {identityPrefix === "Crossdresser" ? (
                         <option value="">Not Applicable</option>
                       ) : (
                         GENDER_OPTIONS.map((opt) => (
