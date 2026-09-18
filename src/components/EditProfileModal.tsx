@@ -43,6 +43,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [bio, setBio] = useState(user.bio || "");
   const [location, setLocation] = useState(user.location || "");
   const [locationSearchQuery, setLocationSearchQuery] = useState(user.location || "");
+  const [isUserActivelyTypingLocation, setIsUserActivelyTypingLocation] = useState(false);
   const [locationSuggestions, setLocationSuggestions] = useState<any[]>([]);
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
@@ -61,7 +62,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   
   // 🚀 LIVE SEARCH TRIGGER: Contacts OpenStreetMap Nominatim endpoint dynamically
   useEffect(() => {
-    if (!locationSearchQuery.trim() || locationSearchQuery.length < 3) {
+    if ((!isUserActivelyTypingLocation || !locationSearchQuery.trim() || locationSearchQuery.length < 3) {
       setLocationSuggestions([]);
       setShowLocationDropdown(false);
       return;
@@ -70,10 +71,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     const delayDebounceFn = setTimeout(async () => {
       setIsSearchingLocation(true);
       try {
-        // 🚀 FIXED: Points to your new internal serverless api route proxy using real template string backticks!
         const response = await fetch(`/api/location/search?q=${encodeURIComponent(locationSearchQuery)}`);
         const data = await response.json();
-        
         if (Array.isArray(data)) {
           setLocationSuggestions(data);
           setShowLocationDropdown(true);
@@ -89,7 +88,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     }, 400);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [locationSearchQuery]);
+  }, [locationSearchQuery, isUserActivelyTypingLocation]);
 
 
   // 🚀 CLICK-OUTSIDE EVENT LISTENER: Shuts modal if a user clicks outside the inner ref boundaries
@@ -191,7 +190,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     type="text" 
                     value={locationSearchQuery} 
                     onChange={(e) => {
-                      setLocationSearchQuery(e.target.value);
+                      setIsUserActivelyTypingLocation(true);
+					  setLocationSearchQuery(e.target.value);
                       setLocation(e.target.value); // Sync target data to your submission string state
                     }} 
                     placeholder="Search city, town, or country... 📍" 
@@ -229,7 +229,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               </div>
 
               {/* 4. DUAL GENDER IDENTITY SPECIFIC INTERACTIVE DROPDOWNS */}
-              {/* 🚀 FIXED: Split into a beautiful horizontal row grid containing a prefix hub and a conditional term list */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
                 
@@ -237,14 +236,14 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   
                   {/* LEFT DROPDOWN: Core Prefix Selection (Trans / Non-Binary / Cis) */}
                   <div className="relative flex-1">
-                     <select onChange={(e) => {
-                        const nextPrefix = e.target.value;
+                    <select value={identityPrefix} 
+					  onChange={(e) => {
+                      const nextPrefix = e.target.value;
                         setIdentityPrefix(nextPrefix);
-                        // Safe fallback: If user flips to Non-Binary, clear out the right selection term data context
                         if (nextPrefix === "Non-Binary") {
                           setIdentityTerm("");
                         } else if (!identityTerm) {
-                          setIdentityTerm("woman"); // Default fallback term if they switch back
+                          setIdentityTerm("woman");
                         }
                       }}
                       className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold text-gray-800 focus:outline-none focus:bg-white appearance-none transition cursor-pointer shadow-sm"
@@ -258,9 +257,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
                   {/* RIGHT DROPDOWN: Core Term Selection (man / woman / boy / girl) */}
                   <div className="relative flex-1">
-				    <select
+				    <select value={identityTerm} 
                       onChange={(e) => setIdentityTerm(e.target.value)}
-                      // 🚀 CONDITIONAL INTERCEPTOR: Lock down and dim the dropdown completely if "Non-Binary" is selected!
                       disabled={identityPrefix === "Non-Binary"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
                         identityPrefix === "Non-Binary"
@@ -272,9 +270,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                         <option value="">Not Applicable</option>
                       ) : (
                         GENDER_OPTIONS.map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt}
-                          </option>
+                          <option key={opt} value={opt}>{opt}</option>
                         ))
                       )}
                     </select>
