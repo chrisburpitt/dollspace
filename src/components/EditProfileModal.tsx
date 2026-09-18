@@ -311,24 +311,25 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the community your sweet story..." className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition resize-none leading-relaxed" />
               </div>
 
-              {/* 7. INSTAGRAM SOCIAL CONTROL */}
+            {/* 7. SOCIAL CONTROLS */}			  
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Instagram Handle</label>
                 <input type="text" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="e.g. chloe_luxe" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
-              {/* 8. FACEBOOK SOCIAL CONTROL */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Facebook Handle / Username</label>
                 <input type="text" value={facebookHandle} onChange={(e) => setFacebookHandle(e.target.value)} placeholder="e.g. chloe.stevens.9" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
+			</div>
 
               {/* LOWER DOCK CONTROL BUTTONS */}
               <div className="flex space-x-2 pt-2 shrink-0">
                 <button type="button" onClick={() => setIsOpen(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-3 rounded-xl text-xs uppercase tracking-wider transition">Cancel</button>
                 <SubmitButton label="Save Changes" loadingLabel="Saving Vibe..." className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl text-xs uppercase tracking-wider transition shadow-sm" />
               </div>
-
+			
             </form>
           </div>
         </div>
