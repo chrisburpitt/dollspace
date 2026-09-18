@@ -138,7 +138,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
                 <div className="relative">
-                   setGenderIdentity(e.target.value)
+				  <select
+                    onChange={(e) => setGenderIdentity(e.target.value)}
                     className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold text-gray-800 focus:outline-none focus:bg-white appearance-none transition cursor-pointer"
                   >
                     {IDENTITY_OPTIONS.map((opt) => (
