@@ -174,7 +174,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   
                   {/* LEFT DROPDOWN: Core Prefix Selection (Cis / Trans / Non-Binary) */}
                   <div className="relative flex-1">
-                     {
+                     <select onChange={(e) => {
                         const nextPrefix = e.target.value;
                         setIdentityPrefix(nextPrefix);
                         // Safe fallback: If user flips to Non-Binary, clear out the right selection term data context
@@ -195,7 +195,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 
                   {/* RIGHT DROPDOWN: Core Term Selection (man / woman / boy / girl) */}
                   <div className="relative flex-1">
-                     setIdentityTerm(e.target.value)}
+				    <select
+                      onChange={(e) => setIdentityTerm(e.target.value)}
                       // 🚀 CONDITIONAL INTERCEPTOR: Lock down and dim the dropdown completely if "Non-Binary" is selected!
                       disabled={identityPrefix === "Non-Binary"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
