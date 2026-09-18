@@ -20,7 +20,7 @@ interface EditProfileModalProps {
 }
 
 const LOOKING_FOR_TILES = ["Friends", "Support", "Relationship", "Learning", "Discovery", "Chat", "Resources"];
-const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Cis"];
+const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
 const GENDER_OPTIONS = ["woman", "girl", "man", "boy"];
 const parseInitialIdentity = (dbValue: string | null) => {
   if (!dbValue) return { prefix: "Trans", term: "woman" };
@@ -240,7 +240,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
 					  onChange={(e) => {
                       const nextPrefix = e.target.value;
                         setIdentityPrefix(nextPrefix);
-                        if (nextPrefix === "Non-Binary") {
+                        if (nextPrefix === "Non-Binary" || nextPrefix === "Crossdresser") {
                           setIdentityTerm("");
                         } else if (!identityTerm) {
                           setIdentityTerm("woman");
@@ -259,7 +259,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   <div className="relative flex-1">
 				    <select value={identityTerm} 
                       onChange={(e) => setIdentityTerm(e.target.value)}
-                      disabled={identityPrefix === "Non-Binary"}
+                      disabled={identityPrefix === "Non-Binary" || nextPrefix === "Crossdresser"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
                         identityPrefix === "Non-Binary"
                           ? "bg-gray-100 border-gray-100 text-gray-400 cursor-not-allowed opacity-50"
