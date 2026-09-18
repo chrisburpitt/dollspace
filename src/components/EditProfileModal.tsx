@@ -68,31 +68,27 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     const delayDebounceFn = setTimeout(async () => {
       setIsSearchingLocation(true);
       try {
-        // Fetch matching geometry coordinates and address strings securely
-        const response = await fetch(
-          `https://openstreetmap.org{encodeURIComponent(locationSearchQuery)}&addressdetails=1&limit=5`,
-          { headers: { "User-Agent": "DollspaceApp/1.0" } } // Nominatim requires a User-Agent header string
-        );
+        // 🚀 FIXED: Points to your new internal serverless api route proxy using real template string backticks!
+        const response = await fetch(`/api/location/search?q=${encodeURIComponent(locationSearchQuery)}`);
         const data = await response.json();
         
-        // Format the geography objects array cleanly
-        const formattedSuggestions = data.map((item: any) => ({
-          id: item.place_id,
-          display_name: item.display_name,
-          city: item.address.city || item.address.town || item.address.village || item.address.suburb || item.address.state || ""
-        }));
-
-        setLocationSuggestions(formattedSuggestions);
-        setShowLocationDropdown(true);
+        if (Array.isArray(data)) {
+          setLocationSuggestions(data);
+          setShowLocationDropdown(true);
+        } else {
+          setLocationSuggestions([]);
+        }
       } catch (err) {
         console.error("Predictive location autocomplete search fetch broke:", err);
+        setLocationSuggestions([]);
       } finally {
         setIsSearchingLocation(false);
       }
-    }, 400); // 400ms Debounce buffer limits API spam while they type rapidly!
+    }, 400);
 
     return () => clearTimeout(delayDebounceFn);
   }, [locationSearchQuery]);
+
 
   // 🚀 CLICK-OUTSIDE EVENT LISTENER: Shuts modal if a user clicks outside the inner ref boundaries
   useEffect(() => {
