@@ -164,7 +164,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
           <div ref={modalInnerContentRef} className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col animate-scale-up">
             
             <div className="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
-              <h3 className="font-black text-lg text-gray-900 uppercase tracking-wide">Edit Custom Vibe</h3>
+              <h3 className="font-black text-lg text-gray-900 uppercase tracking-wide">Tell Us About YOU ✨</h3>
               <button type="button" onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold text-sm">✕</button>
             </div>
 
@@ -314,12 +314,12 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
             {/* 7. SOCIAL CONTROLS */}			  
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Instagram Handle</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">📸 Instagram Profe</label>
                 <input type="text" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="e.g. chloe_luxe" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Facebook Handle / Username</label>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">💙 Facebook Name</label>
                 <input type="text" value={facebookHandle} onChange={(e) => setFacebookHandle(e.target.value)} placeholder="e.g. chloe.stevens.9" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
               </div>
 			</div>
