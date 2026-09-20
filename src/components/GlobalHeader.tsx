@@ -1,4 +1,4 @@
-// src/components/GlobalHeader.tsx (SELF-AUTHENTICATING ROLE CHECK DECK)
+// src/components/GlobalHeader.tsx (DIRECT COMPONENT PROP LOCK)
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -13,6 +13,7 @@ interface GlobalHeaderProps {
     username?: string;
     displayName?: string;
     avatarUrl?: string | null;
+    role?: string; // 🚀 FIXED: Added optional role tracking property right inside your prop interface card!
   };
   notifications?: any[];
 }
@@ -21,29 +22,11 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
   const router = useRouter();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
-  
-  // 🚀 NEW SECURE ROLE TRACKING STATE HOOKS
-  const [userRole, setUserRole] = useState<string | null>(null);
 
   const statusMenuRef = useRef<HTMLDivElement>(null);
 
-  // 🚀 BACKGROUND ROLE CHECK ENGINE: Fetches the live role freshly from your profile data API on mount
-  useEffect(() => {
-    async function fetchActiveUserRoleContext() {
-      try {
-        const res = await fetch("/api/user/profile"); // Queries your active profile session data route
-        if (res.ok) {
-          const profileData = await res.json();
-          if (profileData?.role) {
-            setUserRole(profileData.role.toUpperCase());
-          }
-        }
-      } catch (err) {
-        console.error("Failed to authenticate administrative role context:", err);
-      }
-    }
-    fetchActiveUserRoleContext();
-  }, []);
+  // Normalize string definitions safely to ensure case-insensitive matching conditions pass
+  const normalizedUserRole = currentUser.role?.toUpperCase() || "";
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -82,12 +65,12 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
         {/* RIGHT: Menu Control Drawer Triggers */}
         <div className="flex items-center space-x-3 relative">
           
-          {/* 🚀 FIXED ADMINISTRATIVE HUD ICON LINK */}
-          {/* Uses the client-verified userRole state value hook to protect visibility */}
-          {(userRole === "ADMIN" || userRole === "MODERATOR") && (
+          {/* 🚀 FIXED SECURE ADMINISTRATIVE ICON LINK */}
+          {/* Renders perfectly and instantly if the server confirms your role matches ADMIN or MODERATOR */}
+          {(normalizedUserRole === "ADMIN" || normalizedUserRole === "MODERATOR") && (
             <Link
               href="/admin"
-              className="p-2.5 rounded-xl border border-gray-200 text-purple-600 bg-purple-50 hover:bg-purple-100 border-purple-200 transition text-sm flex items-center justify-center shadow-xs animate-scale-up cursor-pointer"
+              className="p-2.5 rounded-xl border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 transition text-sm flex items-center justify-center shadow-xs animate-scale-up cursor-pointer"
               title="Admin Command Panel"
             >
               <span>🛡️</span>

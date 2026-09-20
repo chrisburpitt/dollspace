@@ -25,7 +25,6 @@ export default async function AdminPage() {
     select: { role: true, username: true }
   });
 
-  // 🚀 FIXED: Instead of throwing an ambiguous 404, return a clear error view to identify token issues!
   if (dbUser?.role !== "ADMIN" && dbUser?.role !== "MODERATOR") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6 select-none text-left">
@@ -72,6 +71,7 @@ export default async function AdminPage() {
   const validatedHeaderUser = {
     id: currentUser.id,
     status: currentUser.status || "ONLINE"
+	role: dbUser?.role || "ADMIN" 
   };
 
   return (
