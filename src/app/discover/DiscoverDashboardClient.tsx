@@ -109,7 +109,7 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
             <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none h-11">
               <option value="ALL">✨ All Identities</option>
               <option value="TRANS">🏳️‍⚧️ Trans women</option>
-			  <option value="CD">👗 Crossdressers</option>
+			  <option value="CROSSDRESSER">👗 Crossdressers</option>
               <option value="MALE">🧔🏻‍♂️ Men</option>
               <option value="NON_BINARY">⚧️ Non-Binary</option>
             </select>

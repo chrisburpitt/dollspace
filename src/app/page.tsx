@@ -16,6 +16,7 @@ import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import { getPlatformDashboardMetrics } from "@/app/actions/platformMetrics";
 import PlatformMetricsCard from "@/components/PlatformMetricsCard";
 import MobileNavShell from "@/components/MobileNavShell"; 
+import DollOfTheWeekWidget from "@/components/DollOfTheWeekWidget";
 import { redirect } from "next/navigation";
 
  export const metadata: Metadata = {
@@ -30,6 +31,10 @@ export default async function HomePage() {
 
   const unreadMailCount = await getUnreadMailCount(); 
   const dashboardMetrics = await getPlatformDashboardMetrics(); 
+  
+  const dotwRecord = currentUser 
+  ? await prisma.dollOfTheWeekEntry.findUnique({ where: { userId: currentUser.id } })
+  : null;
   
     // 🚀 NEW: High-speed query pulls down accounts you follow to power your autocomplete tagging matrices
   const followingDollsList = await prisma.follow.findMany({
@@ -113,6 +118,9 @@ export default async function HomePage() {
             currentUsername={currentUser.username} 
             unreadMailCount={unreadMailCount} 
           />
+		  {currentUser && (
+            <DollOfTheWeekWidget currentUserEntry={dotwRecord} />
+          )}
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 

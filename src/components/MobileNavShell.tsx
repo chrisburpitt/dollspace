@@ -21,6 +21,7 @@ export default function MobileNavShell({ currentUsername, unreadMailCount }: Mob
     { label: "👑 Profile", path: `/${currentUsername}` },
     { label: "💬 Chat", path: "/chat" },
     { label: "💌 Mail", path: "/mail" },
+	{ label: "💌 Search", path: "/discover" },
     { label: "🔔 Notifications", path: "/notifications" },
     { label: "⚙️ Settings", path: "/settings" },
   ];

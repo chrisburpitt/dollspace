@@ -22,7 +22,6 @@ model User {
   displayName       String
   passwordHash      String
   status            String     @default("ONLINE")
-
 // Custom fields
   birthday          DateTime? 
   genderIdentity    String?    
@@ -35,14 +34,12 @@ model User {
   facebookHandle    String?
   createdAt         DateTime   @default(now())
   views             Int        @default(0)
-
   posts             Post[]
   comments          Comment[]  
   reactions         Reaction[]
   albums            Album[]    @relation("UserAlbums")
   followers         Follow[]   @relation("UserFollowers")
   following         Follow[]   @relation("UserFollowing")
-
   mailsSent             InternalMail[] @relation("MailsAsSender")
   mailsReceived         InternalMail[] @relation("MailsAsRecipient")
   messagesReceived      DirectMessage[] @relation("MessageRecipient")
@@ -50,11 +47,10 @@ model User {
   modMessages           ModMessage[]
   notificationsReceived Notification[] @relation("NotificationRecipient")
   notificationsSent     Notification[] @relation("NotificationTrigger")
-  
+  dollOfTheWeekEntry    DollOfTheWeekEntry?
   latitude          Float?
   longitude         Float?
   lastActive        DateTime       @default(now())
-  
   role              Role           @default(USER)
   isBanned          Boolean        @default(false)
   banReason         String?
@@ -235,4 +231,15 @@ model Notification {
 
   @@index([recipientId])
   @@index([issuerId])
+}
+
+model DollOfTheWeekEntry {
+  id          String   @id @default(uuid())
+  userId      String   @unique // Restricts each creator to exactly one submission entry per cycle
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imageUrl    String   // The image path uploaded for the week
+  dollVotes   Int      @default(0) // Counter tracking '✨ Doll' votes
+  dullVotes   Int      @default(0) // Counter tracking '🥀 Dull' votes
+  createdAt   DateTime @default(now())
+  votedEntryIds String[] // Tracks which other entries this user has already voted on so they aren't repeated
 }
