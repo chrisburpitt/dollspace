@@ -51,8 +51,8 @@ export default async function MailPage() {
   }));
 
   return (
-    /* 🚀 THE FIXED VIEWPORT LOCK: Enforces a strict, un-scrollable full-screen viewport boundary container layer */
-    <div className="fixed inset-0 w-screen h-screen max-h-screen overflow-hidden bg-gray-50 flex flex-col text-gray-900 select-none">
+    /* 🚀 FIXED RESPONSIVE WRAPPER LAYOUT LAYER: Converts to standard layout tracking blocks on desktop monitors to match your chat page exactly! */
+    <div className="fixed inset-0 w-screen h-screen max-h-screen overflow-hidden bg-gray-50 flex flex-col text-gray-900 select-none lg:static lg:w-full lg:h-auto lg:max-h-none lg:overflow-visible lg:min-h-screen">
       
       {/* Structural Headers fit neatly on top */}
       <div className="w-full shrink-0">
@@ -63,11 +63,11 @@ export default async function MailPage() {
         />
       </div>
 
-      {/* 🚀 THE GRID CONTAINER: Fills the exact remaining available screen acreage cleanly with zero bleed gaps */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-4 lg:pt-2 lg:pb-8 flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden mb-16 lg:mb-0">
+      {/* 🚀 THE PERFECTLY ALIGNED GRID CELL: Added 'lg:px-6 lg:py-8 lg:h-[calc(100vh-140px)]' to match your chat page spacing exactly */}
+      <div className="w-full max-w-7xl mx-auto px-4 pt-4 pb-4 flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden mb-16 lg:mb-0 lg:px-6 lg:py-8 lg:h-[calc(100vh-140px)] lg:max-h-none lg:overflow-visible relative z-10">
         
         {/* LEFT FIXED DESKTOP COLUMN PANEL */}
-        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 h-full overflow-y-auto pb-4 shrink-0">
+        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start shrink-0">
           <SidebarNav 
             currentUsername={currentUser.username} 
             unreadMailCount={unreadMailCount} 
@@ -75,8 +75,8 @@ export default async function MailPage() {
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* RIGHT FLEXIBLE VIEWPORT CONTAINER HUB (Locks dimensions tightly to form isolated scroll boxes) */}
-        <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm h-full max-h-full min-h-0 flex flex-col">
+        {/* RIGHT FLEXIBLE CONTAINER HUB (Inherits full height parameters cleanly) */}
+        <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm h-full max-h-full min-h-0 flex flex-col lg:h-[calc(100vh-140px)]">
           <MailDashboardClient 
             currentUser={currentUser} 
             initialMails={serializedMails}
