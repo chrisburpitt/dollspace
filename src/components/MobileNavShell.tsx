@@ -25,43 +25,77 @@ export default function MobileNavShell({ currentUsername, unreadMailCount }: Mob
     { label: "⚙️ Settings", path: "/settings" },
   ];
 
-  // 🚀 CRUCIAL FIX: DEEPLINK SNAP-SCROLL WATCHER ENGINE
-  // Listens directly to URL coordinate updates and forces smooth-scrolling onto matching target post elements!
+  // 🚀 FIXED: ASYNCHRONOUS MUTATION OBSERVER DEEPLINK SCANNER ENGINE
+  // Listens globally to hash strings and handles deferred scrolling triggers once database rows stream into view
   useEffect(() => {
-    function scrollToCurrentHashElement() {
-      const activeHashToken = window.location.hash;
-      if (!activeHashToken) return;
+    let observerInstance: MutationObserver | null = null;
+    let fallbackTimeout: NodeJS.Timeout | null = null;
 
-      // Clean the string token to pull matching document element reference containers (e.g., #post-xyz -> post-xyz)
+    function executeSmoothScrollToPost() {
+      const activeHashToken = window.location.hash;
+      if (!activeHashToken) return false;
+
       const sanitizedIdElement = activeHashToken.replace("#", "");
       const targetedPostDomNode = document.getElementById(sanitizedIdElement);
 
+      // If the post card exists in the DOM tree, execute the smooth slide down!
       if (targetedPostDomNode) {
-        // Wait a split-second for React to load the feed cards array cleanly on mount
+        // Clear any ongoing loops or observers cleanly
+        if (observerInstance) observerInstance.disconnect();
+        if (fallbackTimeout) clearTimeout(fallbackTimeout);
+
         setTimeout(() => {
           targetedPostDomNode.scrollIntoView({
             behavior: "smooth",
-            block: "center", // Puts the targeted post card right in the clean middle of the smartphone lens view screen area!
+            block: "center", // Perfectly centers the targeted card on smartphone displays
           });
           
-          // Flash accent feedback color line animation to draw focus onto the update item card
-          targetedPostDomNode.classList.add("ring-2", "ring-rose-400", "duration-500");
+          // Flash accent feedback line to draw focus onto the update item card container
+          targetedPostDomNode.classList.add("ring-4", "ring-rose-400", "duration-500", "transition-all");
           setTimeout(() => {
-            targetedPostDomNode.classList.remove("ring-2", "ring-rose-400");
+            targetedPostDomNode.classList.remove("ring-4", "ring-rose-400");
           }, 2000);
-        }, 150);
+        }, 100);
+
+        return true; // Success!
       }
+      return false; // Element not spawned yet
     }
 
-    // Trigger lookup instantly on component mount state loops
-    scrollToCurrentHashElement();
+    // 1. Initial Attempt: Check if the element is already rendered on screen
+    const handledInstantly = executeSmoothScrollToPost();
 
-    // Bind event hooks to pick up live clicks from the desktop header bar dropdown elements too
-    window.addEventListener("hashchange", scrollToCurrentHashElement);
+    // 2. Background Observer: If the element hasn't loaded yet, watch the document body for changes
+    if (!handledInstantly && window.location.hash) {
+      observerInstance = new MutationObserver(() => {
+        const structuralCheckSuccess = executeSmoothScrollToPost();
+        // Once found and scrolled, disconnect the observer to maximize phone battery and performance
+        if (structuralCheckSuccess && observerInstance) {
+          observerInstance.disconnect();
+        }
+      });
+
+      // Command the observer engine to monitor all incoming React streamed data nodes
+      observerInstance.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+
+      // Safety Fallback: Automatically cancel lookup after 4 seconds if the post was deleted or missing
+      fallbackTimeout = setTimeout(() => {
+        if (observerInstance) observerInstance.disconnect();
+      }, 4000);
+    }
+
+    // Bind event hooks to pick up live clicks from the desktop header bar dropdown links too
+    window.addEventListener("hashchange", executeSmoothScrollToPost);
     return () => {
-      window.removeEventListener("hashchange", scrollToCurrentHashElement);
+      window.removeEventListener("hashchange", executeSmoothScrollToPost);
+      if (observerInstance) observerInstance.disconnect();
+      if (fallbackTimeout) clearTimeout(fallbackTimeout);
     };
-  }, [pathname, searchParams]); // 🚀 Re-fires seamlessly whenever the user switches page directories!
+  }, [pathname, searchParams]);
+
 
   useEffect(() => {
     function handleOutsideClick(event: MouseEvent) {
