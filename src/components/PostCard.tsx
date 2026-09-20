@@ -59,7 +59,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   return (
     <div 
 	id={`post-${post.id}`} 
-	className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none"
+	className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none scroll-margin-top-24 transition-all duration-500"
 	>
       
       {/* AUTHOR HEADER PANEL */}
