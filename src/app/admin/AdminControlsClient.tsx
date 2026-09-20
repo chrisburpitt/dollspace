@@ -128,81 +128,7 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   return (
     <div className="space-y-6 text-left select-none animate-fade-in">
       
-      {/* 🚀 NEW ADMINISTRATIVE HUD WIDGET: DOLL OF THE WEEK CONTEST MANAGER ENGINE CARD */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="flex items-center justify-between border-b border-gray-50 pb-3">
-          <div className="flex items-center space-x-2">
-            <span className="text-xl">👑</span>
-            <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Doll of the Week Tournament Deck</h2>
-          </div>
-          <span className="bg-rose-50 border border-rose-100 text-rose-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-md shadow-2xs">
-            Live Cycle Engine
-          </span>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-          <div className="text-left space-y-0.5 max-w-xl">
-            <p className="text-xs font-black text-gray-800 uppercase tracking-wide">Manual End-Of-Week Process Trigger</p>
-            <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
-              Tally up all the accumulated <code className="bg-white px-1 border rounded text-rose-500 text-[10px]">✨ Doll</code> vote indexes across Neon server records. Clicking this will end the current cycle, create the timeline announcement post, and flush the contestant slots to start a clean new week.
-            </p>
-          </div>
-          
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={handleManualDotwResetClick}
-            className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-5 py-3 rounded-xl transition shadow-xs tracking-wider uppercase shrink-0 h-fit cursor-pointer disabled:opacity-50"
-          >
-            {isPending ? "Tallying System..." : "👑 Reset & Tally Week"}
-          </button>
-        </div>
-      </div>
-
-      {/* CARD A: DYNAMIC GLOBAL TRANSMISSION BROADCAST ENGINE */}
-      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
-        <div className="flex items-center space-x-2">
-          <span className="text-xl">📢</span>
-          <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Global System Broadcast</h2>
-        </div>
-        <p className="text-xs text-gray-400 font-semibold leading-relaxed">Type your message string below. Clicking dispatch will automatically distribute this to every registered member's mailbox simultaneously.</p>
-        
-        <form onSubmit={handleBroadcastSubmit} className="space-y-3">
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Broadcast Topic Title / Subject</label>
-            <input 
-              type="text"
-              value={broadcastSubject}
-              onChange={(e) => setBroadcastSubject(e.target.value)}
-              placeholder="e.g. Scheduled Network Server Maintenance Window 🛠️" 
-              className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Broadcast Body Content Description</label>
-            <textarea 
-              rows={4}
-              value={broadcastBody}
-              onChange={(e) => setBroadcastBody(e.target.value)}
-              required
-              placeholder="Type rich announcement content instructions details directly here..." 
-              className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition resize-none leading-relaxed" 
-            />
-          </div>
-          <div className="flex justify-end">
-            <SubmitButton 
-              label="Transmit Broadcast Alert 🚀" 
-              loadingLabel="Broadcasting Array Packages..." 
-              className="bg-gray-900 hover:bg-rose-500 text-white font-black text-xs px-6 py-3 rounded-xl transition shadow-sm tracking-wide" 
-            />
-          </div>
-        </form>
-      </div>
-
-
-      {/* src/app/admin/AdminControlsClient.tsx (PART 3 - USER ROSTER DIRECTORY LINK SLOTS) */}
+      {/* CARD A: USER DIRECTORY CONTROL PANEL */}
       <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between mb-1 border-b border-gray-50 pb-3">
           <div className="flex items-center space-x-2">
@@ -311,6 +237,79 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* CARD B: DYNAMIC GLOBAL TRANSMISSION BROADCAST ENGINE */}
+      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl">📢</span>
+          <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Global System Broadcast</h2>
+        </div>
+        <p className="text-xs text-gray-400 font-semibold leading-relaxed">Type your message string below. Clicking dispatch will automatically distribute this to every registered member's mailbox simultaneously.</p>
+        
+        <form onSubmit={handleBroadcastSubmit} className="space-y-3">
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Broadcast Topic Title / Subject</label>
+            <input 
+              type="text"
+              value={broadcastSubject}
+              onChange={(e) => setBroadcastSubject(e.target.value)}
+              placeholder="e.g. Scheduled Network Server Maintenance Window 🛠️" 
+              className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" 
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Broadcast Body Content Description</label>
+            <textarea 
+              rows={4}
+              value={broadcastBody}
+              onChange={(e) => setBroadcastBody(e.target.value)}
+              required
+              placeholder="Type rich announcement content instructions details directly here..." 
+              className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition resize-none leading-relaxed" 
+            />
+          </div>
+          <div className="flex justify-end">
+            <SubmitButton 
+              label="Transmit Broadcast Alert 🚀" 
+              loadingLabel="Broadcasting Array Packages..." 
+              className="bg-gray-900 hover:bg-rose-500 text-white font-black text-xs px-6 py-3 rounded-xl transition shadow-sm tracking-wide" 
+            />
+          </div>
+        </form>
+      </div>
+
+      {/* CARD C: DOLL OF THE WEEK CONTEST MANAGER ENGINE CARD */}
+      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xl">👑</span>
+            <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Doll of the Week Tournament Deck</h2>
+          </div>
+          <span className="bg-rose-50 border border-rose-100 text-rose-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-md shadow-2xs">
+            Live Cycle Engine
+          </span>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+          <div className="text-left space-y-0.5 max-w-xl">
+            <p className="text-xs font-black text-gray-800 uppercase tracking-wide">Manual End-Of-Week Process Trigger</p>
+            <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
+              Tally up all the accumulated <code className="bg-white px-1 border rounded text-rose-500 text-[10px]">✨ Doll</code> vote indexes across Neon server records. Clicking this will end the current cycle, create the timeline announcement post, and flush the contestant slots to start a clean new week.
+            </p>
+          </div>
+          
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={handleManualDotwResetClick}
+            className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-5 py-3 rounded-xl transition shadow-xs tracking-wider uppercase shrink-0 h-fit cursor-pointer disabled:opacity-50"
+          >
+            {isPending ? "Tallying System..." : "👑 Reset & Tally Week"}
+          </button>
         </div>
       </div>
 

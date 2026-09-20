@@ -1,4 +1,4 @@
-// src/components/GlobalHeader.tsx (UPDATED WITH OPTIONALS TYPE BLOCKS)
+// src/components/GlobalHeader.tsx (SELF-AUTHENTICATING ROLE CHECK DECK)
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -6,26 +6,28 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import InlineNotificationDropdown from "./InlineNotificationDropdown";
 
-// 🚀 FIXED TYPE INTERFACE: Added '?' marks and optional fallbacks to ensure compatibility across all parent routes!
 interface GlobalHeaderProps {
   currentUser: {
     id: string;
     status: string;
-    username?: string;     // 🎯 Made optional so basic sessions pass validation
-    displayName?: string;  // 🎯 Made optional
-    avatarUrl?: string | null; // 🎯 Made optional
+    username?: string;
+    displayName?: string;
+    avatarUrl?: string | null;
   };
-  notifications?: any[]; // 🚀 Made optional so existing pages compile cleanly without alterations
+  notifications?: any[];
 }
 
 export default function GlobalHeader({ currentUser, notifications = [] }: GlobalHeaderProps) {
   const router = useRouter();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
+  
+  // 🚀 NEW SECURE ROLE TRACKING STATE HOOKS
   const [userRole, setUserRole] = useState<string | null>(null);
 
   const statusMenuRef = useRef<HTMLDivElement>(null);
-  
+
+  // 🚀 BACKGROUND ROLE CHECK ENGINE: Fetches the live role freshly from your profile data API on mount
   useEffect(() => {
     async function fetchActiveUserRoleContext() {
       try {
@@ -91,7 +93,7 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
               <span>🛡️</span>
             </Link>
           )}
-		  
+          
           {/* WIDGET A: NOTIFICATION CENTER DROPDOWN BAR BUTTON */}
           <div className="hidden lg:block relative">
             <InlineNotificationDropdown 
