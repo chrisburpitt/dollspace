@@ -1,4 +1,4 @@
-// src/app/mail/MailDashboardClient.tsx (PART 1 - LIFECYCLE & FOLDER SIDEBAR)
+// src/app/mail/MailDashboardClient.tsx (PART 1 - DROP PACK MESSAGES IN COMPOSE)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -61,7 +61,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   return (
     <div className="flex h-full divide-x divide-gray-200 select-none w-full relative overflow-hidden">
       
-      {/* 📥 COLUMN 1: FOLDERS NAVIGATION (Maintains small mobile icon width on compose) */}
+      {/* 📥 COLUMN 1: FOLDERS NAVIGATION */}
       <div 
         className={`bg-white flex flex-col justify-between shrink-0 p-3 transition-all duration-300 lg:w-1/4 lg:p-3 lg:px-3 lg:items-start lg:flex ${
           mobileStage === "COMPOSE" || mobileStage === "READING"
@@ -115,10 +115,13 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
       </div>
 
 
-      {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST (Maintains compressed icons layout) */}
+      {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST */}
+      {/* 🚀 FIXED: Condition completely hides column 2 on mobile devices when mobileStage is 'COMPOSE' */}
       <div 
         className={`bg-gray-50/30 flex flex-col overflow-hidden transition-all duration-300 text-left lg:w-1/3 lg:border-r lg:flex ${
-          mobileStage === "COMPOSE" || mobileStage === "READING"
+          mobileStage === "COMPOSE"
+            ? "w-0 border-r-0 hidden p-0 opacity-0" 
+          : mobileStage === "READING"
             ? "w-[15%] items-center px-1 border-r"
             : mobileStage === "FOLDERS"
               ? "w-[34%] border-r"
@@ -150,14 +153,18 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
       </div>
 
 
-      {/* 📖 COLUMN 3: TEXT MAIN AREA DISPLAY CANVAS PANEL (Stretches text edge-to-edge) */}
+      {/* 📖 COLUMN 3: TEXT MAIN AREA DISPLAY CANVAS PANEL */}
+      {/* 🚀 FIXED: Expands to w-[90%] width on mobile compose because Column 2 is hidden completely! */}
       <div 
         className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 lg:w-auto ${
-          mobileStage === "COMPOSE" ? "w-[75%]" : mobileStage === "FOLDERS" ? "w-0 hidden lg:block" : "w-[75%]"
+          mobileStage === "COMPOSE" 
+            ? "w-[90%]" 
+            : mobileStage === "FOLDERS" 
+              ? "w-0 hidden lg:block" 
+              : "w-[75%]"
         }`}
       >
         {mobileStage === "COMPOSE" ? (
-          /* 🚀 EDGE-TO-EDGE COMPOSE LAYOUT: Fixed max-widths and outer centering to stretch 100% full width */
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full text-left">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 w-full">
               <div className="text-left">
@@ -186,7 +193,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               }}
               className="space-y-4 w-full text-left overflow-visible"
             >
-              {/* Every field wraps to use absolute full panel width */}
               <div className="w-full relative text-left">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 text-left">To Recipient Handle</label>
                 <input 
@@ -240,7 +246,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             </form>
           </div>
         ) : selectedMail ? (
-          /* STANDARD TEXT MESSAGE FULL VIEW PANEL SHEET */
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full text-left">
             <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
               <h3 className="text-lg font-black text-gray-900 leading-snug break-words tracking-tight w-full block text-left">
