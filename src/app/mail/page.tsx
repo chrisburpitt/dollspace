@@ -5,7 +5,6 @@ import { getCurrentUser } from "@/app/actions/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader";
-import Link from "next/link";
 import MailDashboardClient from "./MailDashboardClient";
 import { getUnreadMailCount } from "@/app/actions/mailCount"; 
 import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
@@ -25,13 +24,11 @@ export default async function MailPage() {
 
   const unreadMailCount = await getUnreadMailCount(); 
   
-  // Fetch all potential platform users to power our smart quick compose lookups list
   const registeredUsers = await prisma.user.findMany({
     where: { id: { not: currentUser.id } },
     select: { username: true, displayName: true }
   });
 
-  // Pull down every internal mail relating to this identity profile token
   const mailRecords = await prisma.internalMail.findMany({
     where: {
       OR: [
@@ -47,7 +44,6 @@ export default async function MailPage() {
     orderBy: { createdAt: "desc" }
   });
 
-  // Serialize records cleanly across server boundaries
   const serializedMails = mailRecords.map(m => ({
     ...m,
     createdAt: m.createdAt.toISOString(),
@@ -55,17 +51,23 @@ export default async function MailPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 overflow-x-hidden">
-      <GlobalHeader currentUser={currentUser} />
-      <MobileNavShell 
-        currentUsername={currentUser.username} 
-        unreadMailCount={unreadMailCount || 0} 
-      />
+    /* 🚀 THE FIXED VIEWPORT LOCK: Enforces a strict, un-scrollable full-screen viewport boundary container layer */
+    <div className="fixed inset-0 w-screen h-screen max-h-screen overflow-hidden bg-gray-50 flex flex-col text-gray-900 select-none">
+      
+      {/* Structural Headers fit neatly on top */}
+      <div className="w-full shrink-0">
+        <GlobalHeader currentUser={currentUser} />
+        <MobileNavShell 
+          currentUsername={currentUser.username} 
+          unreadMailCount={unreadMailCount || 0} 
+        />
+      </div>
 
-      {/* 🚀 FIXED CONTAINER LAYOUT: Swapped h-[calc(100vh-140px)] out for mobile-responsive max-height boundaries */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100dvh-70px)] lg:h-[calc(100vh-140px)]">
-        {/* LEFT COLUMN SIDEBAR PANEL */}
-        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
+      {/* 🚀 THE GRID CONTAINER: Fills the exact remaining available screen acreage cleanly with zero bleed gaps */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden mb-16 lg:mb-0">
+        
+        {/* LEFT FIXED DESKTOP COLUMN PANEL */}
+        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 h-full overflow-y-auto pb-4 shrink-0">
           <SidebarNav 
             currentUsername={currentUser.username} 
             unreadMailCount={unreadMailCount} 
@@ -73,14 +75,15 @@ export default async function MailPage() {
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* RIGHT CORE DASHBOARD COMPONENT HUB (Locks height tightly to prevent dynamic viewport overflows) */}
-        <main className="lg:col-span-9 bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm h-full max-h-full flex flex-col">
+        {/* RIGHT FLEXIBLE VIEWPORT CONTAINER HUB (Locks dimensions tightly to form isolated scroll boxes) */}
+        <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm h-full max-h-full min-h-0 flex flex-col">
           <MailDashboardClient 
             currentUser={currentUser} 
             initialMails={serializedMails}
             registeredUsers={registeredUsers}
           />
         </main>
+
       </div>
     </div>
   );
