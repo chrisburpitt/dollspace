@@ -1,20 +1,21 @@
-// src/components/GlobalHeader.tsx (REFACTORED WITH DEDICATED NOTIFICATIONS DROPDOWN)
+// src/components/GlobalHeader.tsx (UPDATED WITH OPTIONALS TYPE BLOCKS)
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import InlineNotificationDropdown from "./InlineNotificationDropdown"; // 🚀 Imported below
+import InlineNotificationDropdown from "./InlineNotificationDropdown";
 
+// 🚀 FIXED TYPE INTERFACE: Added '?' marks and optional fallbacks to ensure compatibility across all parent routes!
 interface GlobalHeaderProps {
   currentUser: {
     id: string;
-    username: string;
-    displayName: string;
-    avatarUrl: string | null;
     status: string;
+    username?: string;     // 🎯 Made optional so basic sessions pass validation
+    displayName?: string;  // 🎯 Made optional
+    avatarUrl?: string | null; // 🎯 Made optional
   };
-  notifications: any[]; // 🚀 Incoming data stream passed straight from your page.tsx layout
+  notifications?: any[]; // 🚀 Made optional so existing pages compile cleanly without alterations
 }
 
 export default function GlobalHeader({ currentUser, notifications = [] }: GlobalHeaderProps) {
@@ -24,7 +25,6 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
 
   const statusMenuRef = useRef<HTMLDivElement>(null);
 
-  // INTERCEPTOR SYSTEM: Handles status selection drops checks
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (statusMenuRef.current && !statusMenuRef.current.contains(event.target as Node)) {
@@ -62,8 +62,7 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
         {/* RIGHT: Menu Control Drawer Triggers */}
         <div className="flex items-center space-x-3 relative">
           
-          {/* 🚀 WIDGET A: NOTIFICATION INLINE MODULE OVERLAY */}
-          {/* Visible ONLY on desktop screens (hidden lg:block). Mobile users use the /notifications route path via crown navigation menu tray */}
+          {/* WIDGET A: NOTIFICATION CENTER DROPDOWN BAR BUTTON */}
           <div className="hidden lg:block relative">
             <InlineNotificationDropdown 
               currentUserId={currentUser.id} 
