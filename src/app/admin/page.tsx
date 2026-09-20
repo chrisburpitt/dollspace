@@ -70,7 +70,7 @@ export default async function AdminPage() {
 
   const validatedHeaderUser = {
     id: currentUser.id,
-    status: currentUser.status || "ONLINE"
+    status: currentUser.status || "ONLINE",
 	role: dbUser?.role || "ADMIN" 
   };
 
