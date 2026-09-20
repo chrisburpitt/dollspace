@@ -1,12 +1,15 @@
+// src/components/DollOfTheWeekWidget.tsx (UPGRADED WITH UPLOADTHING FILE PICKER)
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
 import { submitDotwPhoto, getRandomDotwCandidate, castDotwVote } from "@/app/actions/dotw";
+// 🚀 IMPORT EXISTING UPLOADTHING FILE PICKER UTILITIES
+// Assumes standard Next.js UploadThing routing path aliases are configured in your tree
+import { UploadButton } from "@/lib/uploadthing"; 
 
 export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserEntry: any }) {
   const [isPending, startTransition] = useTransition();
   const [hasEntered, setHasEntered] = useState(!!currentUserEntry);
-  const [inputUrl, setInputUrl] = useState("");
   
   // Competing candidate states
   const [activeCandidate, setActiveCandidate] = useState<any>(null);
@@ -28,22 +31,6 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
   useEffect(() => {
     if (hasEntered) loadNextBlindCandidate();
   }, [hasEntered]);
-
-  const handleEntrySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputUrl.trim()) return;
-
-    startTransition(async () => {
-      const res = await submitDotwPhoto(inputUrl.trim());
-      if (res.success) {
-        setHasEntered(true);
-        setInputUrl("");
-        alert("Yay! Your entry has been recorded. Now you can vote on others! 🩰");
-      } else if (res.error) {
-        alert(res.error);
-      }
-    });
-  };
 
   const handleVoteAction = (voteType: "DOLL" | "DULL") => {
     if (!activeCandidate) return;
@@ -67,29 +54,50 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
       </div>
 
       {!hasEntered ? (
-        /* PHASE 1: SUBMIT PHOTO ENTRY PROMPT PANEL FORM */
-        <form onSubmit={handleEntrySubmit} className="space-y-3 w-full text-left">
+        /* PHASE 1: UPLOADTHING INTEGRATED FILE PICKER HUD FORM */
+        <div className="space-y-4 w-full text-left animate-fade-in">
           <p className="text-gray-500 font-medium text-[11px] leading-relaxed">
-            Submit your best look this week to join the contest. Once submitted, you unlock the ability to vote on other participants!
+            Submit your best look this week to join the contest. Uploading your photo unlocks the ability to vote on other participants!
           </p>
-          <div className="space-y-1.5 w-full">
-            <input
-              type="url"
-              value={inputUrl}
-              onChange={(e) => setInputUrl(e.target.value)}
-              placeholder="Paste your image URL path link... 📸"
-              required
-              className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white text-gray-800 transition text-left"
+          
+          <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-6 bg-gray-50/50 hover:bg-gray-50 transition duration-200 min-h-[140px] text-center w-full">
+            {/* 🚀 THE FILE PICKER WIDGET CORE SLOT */}
+            <UploadButton
+              endpoint="imageUploader" // 🎯 Targets your exact core image route array from core.ts
+              onClientUploadComplete={(res: any) => {
+                const uploadedUrl = res?.[0]?.url;
+                if (!uploadedUrl) {
+                  alert("Failed to extract attachment path.");
+                  return;
+                }
+
+                // Automatically submit the raw file token link straight to your Neon DB entries table
+                startTransition(async () => {
+                  const submitRes = await submitDotwPhoto(uploadedUrl);
+                  if (submitRes.success) {
+                    setHasEntered(true);
+                    alert("Yay! Your look has been recorded successfully. Now you can vote! 🩰✨");
+                  } else if (submitRes.error) {
+                    alert(submitRes.error);
+                  }
+                });
+              }}
+              onUploadError={(error: Error) => {
+                alert(`Upload failed: ${error.message}`);
+              }}
+              appearance={{
+                button: "bg-rose-500 hover:bg-rose-600 text-white text-xs font-black px-5 py-2.5 rounded-xl transition shadow-sm uppercase tracking-wider cursor-pointer h-auto w-full max-w-[200px]",
+                allowedContent: "text-[10px] font-bold text-gray-400 uppercase tracking-wide mt-2 block"
+              }}
+              content={{
+                button({ ready }) {
+                  if (ready) return "📸 Select Photo";
+                  return "⏳ Initializing...";
+                }
+              }}
             />
-            <button
-              type="submit"
-              disabled={isPending}
-              className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black py-2.5 rounded-xl text-[10px] uppercase tracking-wider transition shadow-sm cursor-pointer"
-            >
-              {isPending ? "Uploading Entry..." : "Submit My Look 🚀"}
-            </button>
           </div>
-        </form>
+        </div>
       ) : activeCandidate ? (
         /* PHASE 2: BLIND GAMIFIED VOTING CAROUSEL ACTION AREA */
         <div className="flex flex-col gap-3.5 items-center w-full animate-scale-up">
@@ -120,7 +128,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
           </div>
         </div>
       ) : (
-        /* PHASE 3: COMPLETED CAP WINDOW MESSAGING BAR LAYOUTS */
+        /* PHASE 3: COMPLETED CAP WINDOW MESSAGING BAR */
         <div className="py-4 text-center text-[11px] font-semibold text-gray-400 leading-relaxed px-2 animate-fade-in">
           {statusMessage || "Syncing contestant data loop frequencies... 🌸"}
         </div>

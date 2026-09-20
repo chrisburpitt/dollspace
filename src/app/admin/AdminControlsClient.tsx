@@ -1,8 +1,10 @@
-// src/app/admin/AdminControlsClient.tsx (PART 1 - FIXED CLEAN COMPILE)
+// src/app/admin/AdminControlsClient.tsx (PART 1 - DOTW CONTROLLER CORE)
 "use client";
 
 import { useState, useTransition } from "react";
 import { banUserProfile, unbanUserProfile, dispatchGlobalSystemBroadcast } from "@/app/actions/moderation";
+// 🚀 IMPORT NEW COMPETITION ACTIONS: Pulls your weekly reset script into the admin dashboard area
+import { compileWeeklyDotwWinnerAndReset } from "@/app/actions/dotw";
 import SubmitButton from "@/components/SubmitButton";
 import Link from "next/link";
 
@@ -18,11 +20,8 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   // Broadcast Input States
   const [broadcastSubject, setBroadcastSubject] = useState("");
   const [broadcastBody, setBroadcastBody] = useState("");
-
-  // Live search text tracking state
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 🚀 LIVE SEARCH FILTER ENGINE: Matches text query string parameters instantly in 0ms
   const filteredUsers = users.filter((u) => {
     const searchString = searchTerm.trim().toLowerCase();
     if (!searchString) return true;
@@ -31,6 +30,20 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
       u.username.toLowerCase().includes(searchString)
     );
   });
+
+  // 🚀 NEW TRIGGER: FIRES THE WEEKLY RESET ENGINE ON-DEMAND FROM THE PANEL
+  const handleManualDotwResetClick = () => {
+    if (!confirm("🚨 WARNING ADMINISTRATIVE TRACE:\n\nAre you sure you want to manually trigger the Doll of the Week reset transaction?\n\nThis will calculate the winner, fire the public image post announcement onto the homepage timeline feed, and empty the staging tables immediately.")) return;
+
+    startTransition(async () => {
+      const res = await compileWeeklyDotwWinnerAndReset();
+      if (res?.success) {
+        alert(`👑 TOURNAMENT RESET CONCLUDED SUCCESSFULLY!\n\nThe winner (@${res.winner}) has been crowned and announced to the platform timeline!`);
+      } else if (res?.error) {
+        alert(`❌ Operation Failed: ${res.error}`);
+      }
+    });
+  };
 
   const handleBanToggle = (userId: string, currentBanState: boolean, name: string) => {
     if (userId === currentUserId) return;
@@ -76,7 +89,8 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
     });
   };
 
-  // src/app/admin/AdminControlsClient.tsx (PART 2 - FIXED CLEAN COMPILE)
+
+  // src/app/admin/AdminControlsClient.tsx (PART 2 - COMPETITION HUD CARD)
   
   const handleRoleChange = (userId: string, currentRole: string, newRole: string, name: string) => {
     if (userId === currentUserId) return;
@@ -114,6 +128,39 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
   return (
     <div className="space-y-6 text-left select-none animate-fade-in">
       
+      {/* 🚀 NEW ADMINISTRATIVE HUD WIDGET: DOLL OF THE WEEK CONTEST MANAGER ENGINE CARD */}
+      <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex items-center justify-between border-b border-gray-50 pb-3">
+          <div className="flex items-center space-x-2">
+            <span className="text-xl">👑</span>
+            <h2 className="font-black text-base text-gray-900 uppercase tracking-wide">Doll of the Week Tournament Deck</h2>
+          </div>
+          <span className="bg-rose-50 border border-rose-100 text-rose-500 text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded-md shadow-2xs">
+            Live Cycle Engine
+          </span>
+        </div>
+        
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+          <div className="text-left space-y-0.5 max-w-xl">
+            <p className="text-xs font-black text-gray-800 uppercase tracking-wide">Manual End-Of-Week Process Trigger</p>
+            <p className="text-[11px] text-gray-400 font-medium leading-relaxed">
+              Tally up all the accumulated <code className="bg-white px-1 border rounded text-rose-500 text-[10px]">✨ Doll</code> vote indexes across Neon server records. Clicking this will end the current cycle, create the timeline announcement post, and flush the contestant slots to start a clean new week.
+            </p>
+          </div>
+          
+          <button
+            type="button"
+            disabled={isPending}
+            onClick={handleManualDotwResetClick}
+            className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-5 py-3 rounded-xl transition shadow-xs tracking-wider uppercase shrink-0 h-fit cursor-pointer disabled:opacity-50"
+          >
+            {isPending ? "Tallying System..." : "👑 Reset & Tally Week"}
+          </button>
+        </div>
+      </div>
+
       {/* CARD A: DYNAMIC GLOBAL TRANSMISSION BROADCAST ENGINE */}
       <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center space-x-2">
@@ -154,8 +201,8 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
         </form>
       </div>
 
-      {/* src/app/admin/AdminControlsClient.tsx (PART 3 - FIXED CLEAN COMPILE) */}
-      {/* CARD B: USER ROSTER MANAGEMENT & MODERATION ACCOUNT GRID LIST */}
+
+      {/* src/app/admin/AdminControlsClient.tsx (PART 3 - USER ROSTER DIRECTORY LINK SLOTS) */}
       <div className="bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
         <div className="flex items-center justify-between mb-1 border-b border-gray-50 pb-3">
           <div className="flex items-center space-x-2">
@@ -167,7 +214,6 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
           </span>
         </div>
 
-        {/* Real-time Client Search Input Field */}
         <div className="w-full">
           <input
             type="text"
@@ -178,9 +224,7 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
           />
         </div>
 
-        {/* Directory Member List Cards Stream */}
         <div className="divide-y divide-gray-100 max-h-[550px] overflow-y-auto pr-1 space-y-2">
-          {/* 🚀 FIXED LOGIC: Loops through the clean client filtered array exclusively */}
           {filteredUsers.map((profile) => {
             const isSelf = profile.id === currentUserId;
             const mappedRoleDisplay = profile.role === "MODERATOR" ? "MOD" : profile.role;
@@ -188,7 +232,6 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
             return (
               <div key={profile.id} className="py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-2 rounded-2xl hover:bg-gray-50/60 transition border border-transparent hover:border-gray-100/50">
                 
-                {/* MEMBER DETAILS LEFT BLOCK */}
                 <div className="flex items-center space-x-3 min-w-0">
                   {profile.avatarUrl ? (
                     <img src={profile.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
@@ -216,10 +259,7 @@ export default function AdminControlsClient({ initialUsers, currentUserId }: Adm
                   </div>
                 </div>
 
-                {/* ADMINISTRATIVE CONTROLS ACTIONS PANEL */}
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                  
-                  {/* ROLE SELECTION DROPDOWN WIDGET */}
                   <div className="flex items-center space-x-1 bg-gray-50 px-2 py-1.5 rounded-xl border border-gray-100 shadow-inner">
                     <span className="text-[9px] uppercase font-black text-gray-400 pl-1 tracking-wider">Role:</span>
                     <select
