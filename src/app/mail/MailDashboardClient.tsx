@@ -62,7 +62,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   };
 
   return (
-    <div className="flex h-full divide-x divide-gray-200 select-none w-full relative overflow-hidden">
+    <div className="flex h-full max-h-full min-h-0 divide-x divide-gray-200 select-none w-full relative overflow-hidden items-stretch">
       
       {/* 📥 COLUMN 1: FOLDERS NAVIGATION */}
       <div 
@@ -197,12 +197,12 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
 
       {/* 📖 COLUMN 3: TEXT MAIN AREA DISPLAY CANVAS PANEL */}
       <div 
-        className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 ${
+        className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 lg:flex-1 h-full max-h-full min-h-0 ${
           mobileStage === "COMPOSE" ? "w-[90%] lg:w-auto" : mobileStage === "FOLDERS" ? "w-0 hidden lg:block lg:w-auto" : "w-[75%] lg:w-auto"
         }`}
       >
         {mobileStage === "COMPOSE" ? (
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full text-left">
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full min-h-0 text-left">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 w-full">
               <div className="text-left">
                 <h4 className="font-black text-sm text-gray-900 uppercase tracking-wide">Create New Mail</h4>
@@ -265,7 +265,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
           </div>
         ) : selectedMail ? (
           /* 📖 CORE READING WORKSPACE CANVAS WITH NEW TOOLBOX ACTIONS */
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full text-left">
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full min-h-0 text-left">
             <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
               <div className="flex flex-col gap-3 w-full">
                 <h3 className="text-xl font-black text-gray-900 leading-snug break-words tracking-tight w-full block text-left">{selectedMail.subject}</h3>

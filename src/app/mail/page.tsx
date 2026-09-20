@@ -55,15 +55,16 @@ export default async function MailPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen bg-gray-50 text-gray-900 overflow-x-hidden">
       <GlobalHeader currentUser={currentUser} />
       <MobileNavShell 
         currentUsername={currentUser.username} 
         unreadMailCount={unreadMailCount || 0} 
       />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated) */}
+      {/* 🚀 FIXED CONTAINER LAYOUT: Swapped h-[calc(100vh-140px)] out for mobile-responsive max-height boundaries */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100dvh-70px)] lg:h-[calc(100vh-140px)]">
+        {/* LEFT COLUMN SIDEBAR PANEL */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav 
             currentUsername={currentUser.username} 
@@ -72,8 +73,8 @@ export default async function MailPage() {
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* RIGHT CORE DASHBOARD COMPONENT HUB */}
-        <main className="lg:col-span-9 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm h-[calc(100vh-140px)]">
+        {/* RIGHT CORE DASHBOARD COMPONENT HUB (Locks height tightly to prevent dynamic viewport overflows) */}
+        <main className="lg:col-span-9 bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm h-full max-h-full flex flex-col">
           <MailDashboardClient 
             currentUser={currentUser} 
             initialMails={serializedMails}
