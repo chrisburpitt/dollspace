@@ -1,23 +1,27 @@
-// src/app/discover/DiscoverDashboardClient.tsx (PART 1 - LOCATION FILTER BARS)
+// src/app/discover/DiscoverDashboardClient.tsx (PART 1 - PARAMETER PARSERS)
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
 import { searchDollsRegistry } from "@/app/actions/search";
 import { toggleBlockUser } from "@/app/actions/block";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import LocationAutofill from "@/components/LocationAutofill"; 
 
 export default function DiscoverDashboardClient({ currentUserId }: { currentUserId: string }) {
   const [isPending, startTransition] = useTransition();
   const [registryUsers, setRegistryUsers] = useState<any[]>([]);
+  const searchParams = useSearchParams();
 
   // Search filter configuration states
   const [textQuery, setTextQuery] = useState("");
   const [genderFilter, setGenderFilter] = useState("ALL");
   const [lookingFilter, setLookingFilter] = useState("ALL");
   
-  // 🚀 NEW PROXIMITY LOCATION TRACKERS
-  const [townQuery, setTownQuery] = useState("");
-  const [radiusFilter, setRadiusFilter] = useState("0");
+  // 🚀 EXTENDED INITIAL STATE ENGINE: Detects incoming deep-links to seed values dynamically
+  const initialLocationParam = searchParams.get("location") || "";
+  const [townQuery, setTownQuery] = useState(initialLocationParam);
+  const [radiusFilter, setRadiusFilter] = useState(initialLocationParam ? "25" : "0");
 
   const [activeMenuUserId, setActiveMenuUserId] = useState<string | null>(null);
   const menuContainerRef = useRef<HTMLDivElement>(null);
@@ -27,7 +31,7 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
       query: textQuery.trim() || undefined,
       genderIdentity: genderFilter !== "ALL" ? genderFilter : undefined,
       lookingFor: lookingFilter !== "ALL" ? lookingFilter : undefined,
-      town: townQuery.trim() || undefined,
+      town: townQuery.split(",")[0]?.trim() || undefined,
       radiusKm: radiusFilter !== "0" ? parseInt(radiusFilter) : undefined
     };
 
@@ -39,10 +43,20 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
     });
   };
 
-  // Automatically refresh feed view windows whenever dropdown choices are clicked
+  // Re-fire search queries automatically on selection shifts
   useEffect(() => {
     runRegistrySearch();
-  }, [genderFilter, lookingFilter, radiusFilter]);
+  }, [genderFilter, lookingFilter, radiusFilter, townQuery]);
+
+  // 🚀 PARAMETER SYNCHRONIZATION EFFECT: Ensures incoming query alterations update filter values in real-time
+  useEffect(() => {
+    const incomingUrlLocation = searchParams.get("location");
+    if (incomingUrlLocation) {
+      setTownQuery(incomingUrlLocation);
+      setRadiusFilter("25"); // Anchor search field directly to 25 KMs threshold
+      runRegistrySearch();
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -64,8 +78,7 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
   };
 
 
-
-  // src/app/discover/DiscoverDashboardClient.tsx (PART 2 - LAYOUT OVERLAYS)
+  // src/app/discover/DiscoverDashboardClient.tsx (PART 2 - AUTOFILTER BAR LAYOUTS)
   return (
     <div className="space-y-6 text-left animate-fade-in select-none" ref={menuContainerRef}>
       
@@ -90,14 +103,14 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
           </button>
         </div>
 
-        {/* 🚀 EXTENDED GRID: Reconfigured into a clean 4-column search control bar panel */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Gender Identity</label>
-            <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none">
+            <select value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none h-11">
               <option value="ALL">✨ All Identities</option>
-              <option value="FEMALE">🚺 Female</option>
-              <option value="MALE">🚹 Male</option>
+              <option value="TRANS">🏳️‍⚧️ Trans women</option>
+			  <option value="CD">👗 Crossdressers</option>
+              <option value="MALE">🧔🏻‍♂️ Men</option>
               <option value="NON_BINARY">⚧️ Non-Binary</option>
             </select>
           </div>
@@ -105,31 +118,30 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Looking For</label>
             <select value={lookingFilter} onChange={(e) => setLookingFilter(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none">
-              <option value="ALL">🌟 Anything</option>
+              <option value="ALL">✨ Anything</option>
               <option value="Friends">👥 Friends</option>
+			  <option value="Support">🫂 Support</option>
+			  <option value="Chat">💬 Chat</option>
+			  <option value="Discovery">💼 Discovery</option>
+			  <option value="Learning">📖 Learning</option>
+			  <option value="Resources">🖊️ Resources</option>
               <option value="Relationship">❤️ Relationship</option>
-              <option value="Chat">💬 Chat</option>
-              <option value="Discovery">💼 Discovery</option>
             </select>
           </div>
 
-          {/* 🚀 NEW TOWN INPUT PARAMETER CELL */}
-          <div>
+          {/* 🚀 THE SMART SLOT: Replaced the old text field with your actual predictive LocationAutofill dropdown tracker component module! */}
+          <div className="relative">
             <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">City / Town Name</label>
-            <input
-              type="text"
-              value={townQuery}
-              onChange={(e) => setTownQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && runRegistrySearch()}
-              placeholder="e.g. Brisbane"
-              className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold text-gray-800 focus:outline-none"
+            <LocationAutofill 
+              value={townQuery} 
+              onChange={(val) => setTownQuery(val)} 
+              hideLabel={true} // 🎯 Flag maps into your component below to prevent title duplication anomalies!
             />
           </div>
 
-          {/* 🚀 NEW PROXIMITY RADIUS FILTER DROPDOWN */}
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Proximity Radius</label>
-            <select value={radiusFilter} onChange={(e) => setRadiusFilter(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none">
+            <select value={radiusFilter} onChange={(e) => setRadiusFilter(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none h-11">
               <option value="0">🌐 Everywhere Global</option>
               <option value="10">📍 Within 10 KMs</option>
               <option value="25">📍 Within 25 KMs</option>
@@ -140,7 +152,8 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
         </div>
       </div>
 
-      {/* PROFILE DIRECTORY REGISTRY CARDS GRID */}
+
+      {/* src/app/discover/DiscoverDashboardClient.tsx (PART 3 - CARDS COMPILING CANVAS) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {isPending ? (
           <div className="col-span-full py-20 text-center font-bold text-gray-400 uppercase tracking-widest text-xs animate-pulse">
@@ -155,7 +168,6 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
           registryUsers.map((user) => (
             <div key={user.id} className="bg-white border border-gray-200 p-5 rounded-3xl shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4 relative overflow-visible animate-scale-up group">
               
-              {/* 🚀 NEW PROXIMITY GEOTAG BADGE BULB LAYER OVERLAY */}
               {user.distanceAway !== undefined && user.distanceAway !== null && (
                 <span className="absolute top-3.5 right-12 bg-rose-50 text-rose-500 font-black text-[8px] px-2 py-0.5 rounded-md border border-rose-100 uppercase tracking-wide">
                   📍 {user.distanceAway} KM AWAY
@@ -202,7 +214,6 @@ export default function DiscoverDashboardClient({ currentUserId }: { currentUser
                 )}
               </div>
 
-              {/* Trait Badges Summary rows */}
               <div className="flex flex-wrap gap-1 text-[9px] font-black uppercase tracking-wide">
                 {user.genderIdentity && <span className="bg-rose-50 text-rose-500 px-2 py-0.5 rounded-md border border-rose-100">{user.genderIdentity.replace(/_/g, ' ')}</span>}
                 {user.lookingFor && (

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 interface LocationAutofillProps {
   value: string;
   onChange: (val: string) => void;
+  hideLabel?: boolean; 
 }
 
 export default function LocationAutofill({ value, onChange }: LocationAutofillProps) {
@@ -62,15 +63,25 @@ export default function LocationAutofill({ value, onChange }: LocationAutofillPr
   }, [value]);
 
   return (
-    <div className="relative">
-      <label className="text-xs font-bold text-gray-500 uppercase block mb-1">Location</label>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Start typing your town or state..."
-        className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition"
-      />
+    <div className="relative w-full text-left">
+      {/* 🚀 CONDITIONAL LABELLING: Automatically hides the label if passed inside the filter bar grid cell slots! */}
+      {!hideLabel && (
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Location</label>
+          <button type="button" onClick={handleCaptureDeviceLocationCoords} className="text-[9px] font-black uppercase text-rose-500 hover:text-rose-600 transition flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100/60 cursor-pointer shadow-2xs">
+            📍 Use My Location
+          </button>
+        </div>
+      )}
+
+      <div className="relative flex items-center w-full">
+        <input
+          type="text"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="e.g. Brisbane" // 🚀 Updated to match your mock input field box watermark style precisely!
+          className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition text-left h-11" // Added h-11 to align matching drop box heights perfectly
+        />
       
       {isSearching && (
         <span className="absolute right-4 bottom-3.5 text-[10px] text-rose-500 font-black animate-pulse bg-rose-50 px-2 py-0.5 rounded-md shadow-sm z-10">
