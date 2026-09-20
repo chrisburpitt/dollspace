@@ -1,4 +1,4 @@
-// src/app/mail/MailDashboardClient.tsx (PART 1 - DROP PACK MESSAGES IN COMPOSE)
+// src/app/mail/MailDashboardClient.tsx (PART 1 - FULL FIXED RESPONSIVE MATRIX)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -17,7 +17,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileStage, setMobileStage] = useState<MobileViewStage>("FOLDERS");
 
-  // 🚀 FOLDER ROUTER FILTER: Segregates mails precisely based on independent folder states
+  // FOLDER ROUTER FILTER: Segregates mails precisely based on independent folder states
   const filteredMails = initialMails.filter((mail: any) => {
     const isSender = mail.senderId === currentUser.id;
     const isRecipient = mail.recipientId === currentUser.id;
@@ -116,52 +116,95 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
 
 
       {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST */}
-      {/* 🚀 FIXED: Condition completely hides column 2 on mobile devices when mobileStage is 'COMPOSE' */}
+      {/* 🚀 FIXED: Added 'mobileStage === "COMPOSE" ? "hidden w-0 p-0 opacity-0 border-r-0" : ...' to hide Column 2 globally on desktop and mobile when writing a mail */}
       <div 
-        className={`bg-gray-50/30 flex flex-col overflow-hidden transition-all duration-300 text-left lg:w-1/3 lg:border-r lg:flex ${
+        className={`bg-gray-50/30 flex flex-col overflow-hidden transition-all duration-300 text-left ${
           mobileStage === "COMPOSE"
-            ? "w-0 border-r-0 hidden p-0 opacity-0" 
-          : mobileStage === "READING"
-            ? "w-[15%] items-center px-1 border-r"
-            : mobileStage === "FOLDERS"
-              ? "w-[34%] border-r"
-              : "w-[71%] border-r"
+            ? "hidden w-0 p-0 opacity-0 border-r-0" 
+            : mobileStage === "READING"
+              ? "w-[15%] lg:w-1/3 items-center lg:items-stretch px-1 lg:px-2 border-r"
+              : mobileStage === "FOLDERS"
+                ? "w-[34%] lg:w-1/3 border-r"
+                : "w-[71%] lg:w-1/3 border-r"
         }`}
       >
-        <div className="p-4 border-b border-gray-100 bg-white font-black text-xs uppercase text-gray-400 truncate text-center lg:text-left w-full shrink-0">
-          ✉️
+        <div className={`p-4 border-b border-gray-100 bg-white font-black text-xs uppercase text-gray-400 truncate w-full shrink-0 ${
+          mobileStage === "READING" ? "text-center lg:text-left lg:px-4" : "text-left px-4"
+        }`}>
+          {mobileStage === "READING" ? <span className="lg:hidden">✉️</span> : null}
+          <span className={`lg:inline ${mobileStage === "READING" ? "hidden" : "inline"}`}>{activeFolder} Messages</span>
         </div>
+        
         <div className="flex-1 overflow-y-auto p-2 space-y-1 w-full">
           {filteredMails.map((mail: any) => {
             const partner = mail.senderId === currentUser.id ? mail.recipient : mail.sender;
+            const isUnreadInboxItem = mail.recipientId === currentUser.id && !mail.isRead;
+            const isSelected = selectedMail?.id === mail.id;
+
             return (
               <button
                 key={mail.id}
                 type="button"
                 onClick={() => handleMailItemSelect(mail)}
-                className={`w-full rounded-xl border transition flex flex-col gap-1 items-center justify-center h-12 p-2 ${
-                  selectedMail?.id === mail.id ? "bg-rose-50/50 border-rose-200 shadow-sm" : "bg-white border-transparent"
+                className={`w-full rounded-xl border transition flex flex-col gap-1 relative overflow-hidden lg:p-3 lg:text-left ${
+                  mobileStage === "READING" ? "p-2 items-center justify-center h-12 lg:h-auto lg:p-3 lg:text-left lg:items-start" : "p-3 text-left"
+                } ${
+                  isSelected 
+                    ? "bg-rose-50/50 border-rose-200 shadow-sm" 
+                    : isUnreadInboxItem ? "bg-white border-gray-200 font-bold" : "bg-white border-transparent hover:bg-gray-50/50"
                 }`}
+                title={mail.subject}
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs border bg-white border-gray-200 uppercase shrink-0">
-                  {partner.displayName.charAt(0)}
+                {isUnreadInboxItem && (mobileStage !== "READING" || isSelected) && (
+                  <span className="absolute top-3.5 right-3 w-2 h-2 bg-rose-500 rounded-full lg:block"></span>
+                )}
+                
+                {/* 🚀 FIXED: Added 'lg:block' so desktop view ALWAYS renders the rich full textual name layout details! */}
+                <div className={`lg:block ${mobileStage === "READING" ? "hidden" : "block"}`}>
+                  <div className="flex justify-between items-center min-w-0">
+                    <span className="text-xs font-black text-gray-900 truncate flex-1 pr-4">{partner.displayName}</span>
+                    <span className="text-[9px] text-gray-400 font-bold shrink-0">{new Date(mail.createdAt).toLocaleDateString()}</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-gray-700 truncate leading-tight">{mail.subject}</h4>
+                  <p className="text-[11px] text-gray-400 line-clamp-1 leading-snug">{mail.body}</p>
+                </div>
+
+                {/* Compressed avatar circle shown ONLY on mobile during active reading splits */}
+                <div className={`lg:hidden ${mobileStage === "READING" ? "block" : "hidden"}`}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs border bg-white uppercase shrink-0 shadow-sm ${
+                    isSelected ? "bg-rose-500 text-white border-rose-600" : "text-gray-700 border-gray-200"
+                  }`}>
+                    {partner.displayName.charAt(0)}
+                  </div>
                 </div>
               </button>
             );
           })}
         </div>
+
+        {/* Mobile View Step-Back Controller Trigger Button */}
+        {mobileStage === "READING" && (
+          <button 
+            type="button"
+            onClick={() => setMobileStage("MESSAGES")}
+            className="mx-auto my-3 w-8 h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-xs font-bold shadow-sm transition lg:hidden"
+            title="Back to Messages"
+          >
+            ⬅️
+          </button>
+        )}
       </div>
 
 
       {/* 📖 COLUMN 3: TEXT MAIN AREA DISPLAY CANVAS PANEL */}
-      {/* 🚀 FIXED: Expands to w-[90%] width on mobile compose because Column 2 is hidden completely! */}
+      {/* 🚀 FIXED: On desktop compose mode, it takes up the entire remaining space right next to the folder icons list (lg:flex-1) */}
       <div 
-        className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 lg:w-auto ${
+        className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 ${
           mobileStage === "COMPOSE" 
-            ? "w-[90%]" 
+            ? "w-[90%] lg:w-auto" 
             : mobileStage === "FOLDERS" 
-              ? "w-0 hidden lg:block" 
-              : "w-[75%]"
+              ? "w-0 hidden lg:block lg:w-auto" 
+              : "w-[75%] lg:w-auto"
         }`}
       >
         {mobileStage === "COMPOSE" ? (
@@ -191,7 +234,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   alert(res.error);
                 }
               }}
-              className="space-y-4 w-full text-left overflow-visible"
+              className="space-y-4 w-full text-left overflow-visible max-w-3xl"
             >
               <div className="w-full relative text-left">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 text-left">To Recipient Handle</label>
@@ -230,7 +273,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               
               <div className="w-full text-left">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 text-left">Rich Content Body</label>
-                <textarea name="body" rows={6} required placeholder="Type message data parameter values straight here..." className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none resize-none leading-relaxed focus:bg-white transition text-left" />
+                <textarea name="body" rows={8} required placeholder="Type message data parameter values straight here..." className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none resize-none leading-relaxed focus:bg-white transition text-left" />
               </div>
 
               <div className="w-full">
@@ -246,7 +289,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             </form>
           </div>
         ) : selectedMail ? (
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full text-left">
+          /* VIEW ARCHITECTURE CONFIG B: STANDARD MAIL MESSAGE DOCUMENT READING WORKSPACE */
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 animate-fade-in w-full h-full text-left">
             <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
               <h3 className="text-lg font-black text-gray-900 leading-snug break-words tracking-tight w-full block text-left">
                 {selectedMail.subject}
