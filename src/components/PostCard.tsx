@@ -57,7 +57,10 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   };
 
   return (
-    <div className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none">
+    <div 
+	id={`post-${post.id}`} 
+	className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none"
+	>
       
       {/* AUTHOR HEADER PANEL */}
       <div className="flex items-center justify-between mb-4">

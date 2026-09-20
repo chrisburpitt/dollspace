@@ -1,28 +1,47 @@
-
-// src/components/InlineNotificationDropdown.tsx
+// src/components/InlineNotificationDropdown.tsx (AUTO-FETCHING REMEDY)
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { markNotificationsAsRead, markSingleNotificationRead, removeNotification } from "@/app/actions/notifications";
 import Link from "next/link";
 
-export default function InlineNotificationDropdown({ currentUserId, notifications: initialNotifications }: any) {
+export default function InlineNotificationDropdown({ currentUserId, notifications: initialNotifications = [] }: any) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [localNotifications, setLocalNotifications] = useState<any[]>(initialNotifications);
+  const [isLoading, setIsLoading] = useState(false); // 🚀 Tracks background data fetching state
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const unreadCount = localNotifications.filter(n => !n.isRead).length;
 
-  useEffect(() => { setLocalNotifications(initialNotifications); }, [initialNotifications]);
+  // 🚀 BACKGROUND SYNC: Pulls live notifications on demand when clicking the bell icon
+  const handleToggleOpen = async () => {
+    const nextOpenState = !isOpen;
+    setIsOpen(nextOpenState);
 
-  // Click Outside Closure Listener Hook
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+    if (nextOpenState) {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/user/notifications");
+        if (response.ok) {
+          const freshData = await response.json();
+          setLocalNotifications(freshData);
+        }
+      } catch (err) {
+        console.error("Failed to sync client notification streams:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
+  };
+
+  useEffect(() => { handleClickOutside; }, []);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setIsOpen(false);
+  };
+
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -47,7 +66,7 @@ export default function InlineNotificationDropdown({ currentUserId, notification
   return (
     <div className="relative" ref={dropdownRef}>
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleOpen} // 🚀 Calls your safe, on-demand data fetcher!
         className={`p-2.5 rounded-xl border transition relative text-sm cursor-pointer ${
           isOpen ? "bg-rose-50 border-rose-200 text-rose-500" : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
         }`}
@@ -61,19 +80,18 @@ export default function InlineNotificationDropdown({ currentUserId, notification
       </button>
 
       {isOpen && (
-        /* 🚀 RESOLVED HEIGHTS: Fixed clipping frames preventing any empty height scaling leaks underneath header */
         <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl w-80 h-auto max-h-[380px] flex flex-col z-50 p-2 animate-scale-up text-left overflow-hidden min-h-0">
           <div className="px-3 py-2 border-b border-gray-50 flex items-center justify-between shrink-0">
             <span className="text-xs font-black text-gray-900 uppercase tracking-wider">Recent Activity</span>
-            {unreadCount > 0 ? (
+            {unreadCount > 0 && !isLoading && (
               <button onClick={handleMarkAllAsRead} className="bg-rose-50 hover:bg-rose-100 text-rose-500 font-bold text-[9px] px-2 py-0.5 rounded-full transition uppercase tracking-wide cursor-pointer">Clear All 🎯</button>
-            ) : (
-              <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">All Caught Up</span>
             )}
           </div>
 
           <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-gray-50 mt-1 pr-0.5 w-full max-h-full">
-            {localNotifications.length === 0 ? (
+            {isLoading ? (
+              <p className="text-gray-400 text-xs text-center py-10 font-medium animate-pulse">Syncing timeline alerts... 👑</p>
+            ) : localNotifications.length === 0 ? (
               <p className="text-gray-400 text-xs text-center py-10 font-medium">Your notification center is clear! 🌸</p>
             ) : (
               localNotifications.map((notif) => {
@@ -109,7 +127,6 @@ export default function InlineNotificationDropdown({ currentUserId, notification
                       </div>
                     </Link>
 
-                    {/* ACTION OVERLAYS HOVER TOOLS PANEL */}
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity duration-200 z-10">
                       {!notif.isRead && (
                         <button type="button" onClick={(e) => handleMarkAsReadInline(e, notif.id)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 hover:bg-rose-50 text-gray-400 hover:text-rose-500 flex items-center justify-center text-[10px] cursor-pointer" title="Mark Read">✓</button>
