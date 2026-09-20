@@ -1,11 +1,10 @@
-// src/components/DollOfTheWeekWidget.tsx (UPGRADED WITH UPLOADTHING FILE PICKER)
+// src/components/DollOfTheWeekWidget.tsx (FIXED UPLOADTHING CORE IMPORT SYNTAX)
 "use client";
 
 import { useState, useEffect, useTransition } from "react";
 import { submitDotwPhoto, getRandomDotwCandidate, castDotwVote } from "@/app/actions/dotw";
-// 🚀 IMPORT EXISTING UPLOADTHING FILE PICKER UTILITIES
-// Assumes standard Next.js UploadThing routing path aliases are configured in your tree
-import { UploadButton } from "@/lib/uploadthing"; 
+// 🚀 FIXED: Swapped out the ghost alias path line for the raw underlying official UploadThing framework entry module!
+import { UploadButton } from "@uploadthing/react"; 
 
 export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserEntry: any }) {
   const [isPending, startTransition] = useTransition();
@@ -61,13 +60,17 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
           </p>
           
           <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl p-6 bg-gray-50/50 hover:bg-gray-50 transition duration-200 min-h-[140px] text-center w-full">
-            {/* 🚀 THE FILE PICKER WIDGET CORE SLOT */}
+            {/* 🚀 THE FILE PICKER WIDGET CORE CUSTOMIZATION SLOT */}
             <UploadButton
-              endpoint="imageUploader" // 🎯 Targets your exact core image route array from core.ts
+              url="/api/uploadthing" // 🎯 Explicitly anchors the payload network pipe to hit your app's core endpoint layout
+              endpoint="imageUploader" // Targets your matching configuration file row selector token from core.ts
               onClientUploadComplete={(res: any) => {
-                const uploadedUrl = res?.[0]?.url;
+                // Safely handles array or single object format models returned from the storage nodes
+                const firstFile = Array.isArray(res) ? res[0] : res;
+                const uploadedUrl = firstFile?.url;
+                
                 if (!uploadedUrl) {
-                  alert("Failed to extract attachment path.");
+                  alert("Failed to extract the secure attachment storage path.");
                   return;
                 }
 
@@ -130,7 +133,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
       ) : (
         /* PHASE 3: COMPLETED CAP WINDOW MESSAGING BAR */
         <div className="py-4 text-center text-[11px] font-semibold text-gray-400 leading-relaxed px-2 animate-fade-in">
-          {statusMessage || "Syncing contestant data loop frequencies... 🌸"}
+          {statusMessage || "Syncing contestant data data loops... 🌸"}
         </div>
       )}
     </div>
