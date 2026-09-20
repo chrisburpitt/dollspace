@@ -79,13 +79,14 @@ export default function NotificationCenter({ currentUserId, notifications: initi
     });
   };
 
-  // src/components/NotificationCenter.tsx (PART 2 - DRAWER OVERLAY MARKUP MATRIX)
+
+// src/components/NotificationCenter.tsx (PART 2 - STABILIZED LAYOUT & DEEPLINK LINKS)
   return (
-    <div className="relative">
+    <div className="relative inline-block text-left">
       {/* The Notification Bell Button Anchor Icon Element */}
       <button
         onClick={handleToggleOpen}
-        className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center transition relative"
+        className="w-10 h-10 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center transition relative cursor-pointer"
       >
         <span className="text-lg">🔔</span>
         
@@ -99,8 +100,10 @@ export default function NotificationCenter({ currentUserId, notifications: initi
 
       {/* Floating Alerts Drawer Stack List Dropdown Panel Card */}
       {isOpen && (
-        <div className="absolute top-12 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl w-80 max-h-96 overflow-y-auto z-50 p-2 animate-scale-up text-left">
-          <div className="px-3 py-2 border-b border-gray-50 flex items-center justify-between">
+        /* 🚀 FIXED HEIGHT BLOCK: Swapped max-h-96 out for h-auto max-h-[380px] flex flex-col to force rigid box clipping bounds */
+        <div className="absolute top-12 right-0 bg-white border border-gray-200 rounded-2xl shadow-xl w-80 h-auto max-h-[380px] flex flex-col z-50 p-2 animate-scale-up text-left overflow-hidden min-h-0">
+          
+          <div className="px-3 py-2 border-b border-gray-50 flex items-center justify-between shrink-0">
             <span className="text-xs font-black text-gray-900 uppercase tracking-wider">Recent Activity</span>
             {unreadCount > 0 ? (
               <button 
@@ -114,17 +117,20 @@ export default function NotificationCenter({ currentUserId, notifications: initi
             )}
           </div>
 
-          <div className="divide-y divide-gray-50 mt-1">
+          {/* 🚀 FIXED HEIGHT SCROLL ZONE: Wrapped with flex-1 min-h-0 overflow-y-auto to stop empty spacing bleeds completely */}
+          <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-gray-50 mt-1 pr-0.5 w-full max-h-full">
             {localNotifications.length === 0 ? (
-              <p className="text-gray-400 text-xs text-center py-8 font-medium">Your notification center is clear! 🌸</p>
+              <p className="text-gray-400 text-xs text-center py-10 font-medium">Your notification center is clear! 🌸</p>
             ) : (
               localNotifications.map((notif) => {
-                const targetLinkUrl = notif.type === "FOLLOW" 
+                // 🚀 FIXED RESOLVER LINK LOGIC: Forces uppercase validation rules to guarantee deep linking hits every time!
+                const normalisedType = notif.type.toUpperCase();
+                const targetLinkUrl = normalisedType === "FOLLOW" 
                   ? `/${notif.issuer.username}` 
                   : `/#post-${notif.postId}`;
 
                 return (
-                  <div key={notif.id} className="relative group/item">
+                  <div key={notif.id} className="relative group/item w-full block">
                     <Link
                       href={targetLinkUrl}
                       onClick={() => setIsOpen(false)} 
@@ -140,42 +146,38 @@ export default function NotificationCenter({ currentUserId, notifications: initi
                         </div>
                       )}
                       
-                      <div className="flex-1 min-w-0 text-xs">
-                        <p className="text-gray-800 leading-normal font-medium">
+                      <div className="flex-1 min-w-0 text-xs text-left">
+                        <p className="text-gray-800 leading-normal font-medium break-words text-left w-full block">
                           <strong className="font-black text-gray-900">
                             {notif.issuer.displayName}
                           </strong>{" "}
-                          {notif.type === "FOLLOW" && "started following your profile card."}
-                          {notif.type === "COMMENT" && "replied to one of your timeline updates."}
-                          {notif.type === "LIKE" && "liked your update post."}
-                          {notif.type === "MENTION" && "tagged you inside a timeline discussion comment."}
+                          {normalisedType === "FOLLOW" && "started following your profile card."}
+                          {normalisedType === "COMMENT" && "replied to one of your timeline updates."}
+                          {normalisedType === "LIKE" && "liked your update post."}
+                          {normalisedType === "MENTION" && "tagged you inside a timeline discussion comment."}
                         </p>
-                        <span className="text-[10px] text-gray-400 font-semibold block mt-0.5">
+                        <span className="text-[10px] text-gray-400 font-semibold block mt-0.5 text-left">
                           {new Date(notif.createdAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                     </Link>
 
-                    {/* 🚀 ACTION HUB BUTTON OVERLAYS: Floats inline on the right of each row card */}
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity duration-200">
-                      
-                      {/* Individual Read Action Check Indicator Toggle */}
+                    {/* ACTION HUB BUTTON OVERLAYS */}
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity duration-200 z-10">
                       {!notif.isRead && (
                         <button
                           type="button"
                           onClick={(e) => handleMarkAsReadInline(e, notif.id)}
-                          className="w-6 h-6 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-rose-50 hover:border-rose-300 text-gray-400 hover:text-rose-500 transition flex items-center justify-center text-[10px]"
+                          className="w-6 h-6 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-rose-50 hover:border-rose-300 text-gray-400 hover:text-rose-500 transition flex items-center justify-center text-[10px] cursor-pointer"
                           title="Mark as Read"
                         >
                           ✓
                         </button>
                       )}
-
-                      {/* Remove / Clear Trashing Action Cross Toggle */}
                       <button
                         type="button"
                         onClick={(e) => handleRemoveInline(e, notif.id)}
-                        className="w-6 h-6 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-red-50 hover:border-red-300 text-gray-400 hover:text-red-500 transition flex items-center justify-center text-[11px]"
+                        className="w-6 h-6 rounded-lg bg-white border border-gray-200 shadow-xs hover:bg-red-50 hover:border-red-300 text-gray-400 hover:text-red-500 transition flex items-center justify-center text-[11px] cursor-pointer"
                         title="Remove Notification"
                       >
                         ✕
