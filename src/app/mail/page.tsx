@@ -64,7 +64,7 @@ export default async function MailPage() {
       </div>
 
       {/* 🚀 THE GRID CONTAINER: Fills the exact remaining available screen acreage cleanly with zero bleed gaps */}
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden mb-16 lg:mb-0">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-4 pb-4 lg:pt-2 lg:pb-8 flex-1 min-h-0 h-full grid grid-cols-1 lg:grid-cols-12 gap-8 overflow-hidden mb-16 lg:mb-0">
         
         {/* LEFT FIXED DESKTOP COLUMN PANEL */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 h-full overflow-y-auto pb-4 shrink-0">
