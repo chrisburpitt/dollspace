@@ -26,7 +26,8 @@ export default async function DiscoverPage() {
 
   const validatedHeaderUser = {
     id: currentUser.id,
-    status: currentUser.status || "ONLINE"
+    status: currentUser.status || "ONLINE",
+	role: currentUser.role || "USER"
   };
 
   return (

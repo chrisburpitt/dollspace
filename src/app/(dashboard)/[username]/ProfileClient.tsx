@@ -79,7 +79,9 @@ export default function ProfileClient({
 
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
-            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0"><AvatarUpload user={user} /></div>
+            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md overflow-hidden w-28 h-28 flex items-center justify-center shrink-0">
+			  <AvatarUpload user={user} isOwner={isOwner} />
+			</div>
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 mt-4">
               <div className="flex-1 w-full">
