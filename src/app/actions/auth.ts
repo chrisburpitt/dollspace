@@ -1,4 +1,3 @@
-// src/app/actions/auth.ts
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -11,9 +10,7 @@ import { Resend } from "resend";
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-dollspace-key-12345";
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// src/app/actions/auth.ts
-
-// 🚀 1.1 UPGRADED REGISTRATION ACTION WITH AUTOMATED EMAIL ENGINE
+// 🚀 1. REGISTRATION ACTION WITH AUTOMATED EMAIL ENGINE
 export async function registerUser(prevState: any, formData: FormData) {
   const username = (formData.get("username") as string)?.trim();
   const email = (formData.get("email") as string)?.trim().toLowerCase();
@@ -40,7 +37,7 @@ export async function registerUser(prevState: any, formData: FormData) {
     data: { username, email, displayName, passwordHash },
   });
 
-  // 1.2 DISPATCH THE TRANSACTION WELCOME EMAIL PIPELINE
+  // DISPATCH THE TRANSACTION WELCOME EMAIL PIPELINE
   try {
     await resend.emails.send({
       from: "Dollspace <onboarding@resend.dev>", // Default free sandbox testing address sender
@@ -78,12 +75,11 @@ export async function registerUser(prevState: any, formData: FormData) {
   return { success: true };
 }
 
-// 2. Update loginUser to also use loose return mapping for the form action type bypass
+// 🚀 2. LOGIN USER ACTION WITH ACCESS GATEKEEPER INTEGRATION
 export async function loginUser(prevState: any, formData: FormData) {
   const username = (formData.get("username") as string)?.trim();
   const password = formData.get("password") as string;
 
-  // 🚀 RETURN PLAIN ERROR OBJECTS INSTEAD OF BREAKING THE ROUTER REDIRECT
   if (!username || !password) {
     return { error: "Missing username or password fields." };
   }
@@ -91,6 +87,11 @@ export async function loginUser(prevState: any, formData: FormData) {
   const user = await prisma.user.findUnique({ where: { username } });
   if (!user) {
     return { error: "Invalid username or password credentials." };
+  }
+
+  // 🎯 FRONT-GATE PROTECTION: Instantly block login configurations if user status flag is BANNED
+  if (user.status === "BANNED" || user.status === "DELETED") {
+    return { error: "🚫 ACCESS DENIED: This account has been permanently blacklisted due to moderation guidelines citations." };
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
@@ -112,8 +113,9 @@ export async function loginUser(prevState: any, formData: FormData) {
 
   // Successful logins redirect smoothly straight to the feed
   redirect("/");
+}
 
-}// 3. UTILITY: Retrieve the currently validated user session from server components
+// 🚀 3. UTILITY: RETRIEVE CURRENT USER & FORCE LOGOUT IF BANNED
 export async function getCurrentUser() {
   try {
     const cookieStore = await cookies();
@@ -121,14 +123,14 @@ export async function getCurrentUser() {
 
     if (!token) return null;
 
-    // 🚀 FIX: Decrypt and extract user parameters from payload string cleanly
+    // Decrypt and extract user parameters from payload string cleanly
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
 
     if (!decoded || !decoded.userId) return null;
 
     // Fetch account attributes from Neon with recent notification arrays pre-loaded
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }, // 🎯 FIXED: Correctly targets 'decoded' variable
+      where: { id: decoded.userId },
       include: {
         notificationsReceived: {
           include: {
@@ -142,6 +144,18 @@ export async function getCurrentUser() {
       }
     });
 
+    if (!user) return null;
+
+    // 🚨 REAL-TIME BAN BOOTER ROUTINE
+    // The exact moment an administrative ban hits Neon, their next page action clears cookies and locks them out.
+    if (user.status === "BANNED" || user.status === "DELETED") {
+      console.warn(`Administrative Alert: Evicted banned user @${user.username} from active server instance layout.`);
+      
+      // Wipe the authentication session cookie cleanly
+      cookieStore.delete("auth_token");
+      return null; 
+    }
+
     return user;
   } catch (error) {
     console.error("Session verification token crashed:", error);
@@ -149,7 +163,7 @@ export async function getCurrentUser() {
   }
 }
 
-// 4. ACTION: Clear cookies and log out instantly
+// 🚀 4. ACTION: Clear cookies and log out instantly
 export async function logoutUser() {
   const cookieStore = await cookies();
   cookieStore.delete("auth_token");
