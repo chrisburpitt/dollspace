@@ -1,4 +1,4 @@
-// party/server.ts (SYNCHRONIZED REAL-TIME SYSTEM ARCHITECTURE)
+// src/server.ts (PERFECTLY BALANCED REAL-TIME PLATFORM ARCHITECTURE)
 import { Server } from "partyserver";
 
 interface ActiveChatter {
@@ -8,7 +8,7 @@ interface ActiveChatter {
   avatarUrl: string | null;
   isTyping?: boolean;
   currentRoom?: string;
-  status: string; 
+  status: string; // 🎯 Strict site-wide presence indicator tracking
 }
 
 interface ConnectionAttachment {
@@ -33,35 +33,38 @@ export default class ChatServer extends Server {
           displayName: profile.displayName || "Anonymous Doll",
           avatarUrl: profile.avatarUrl || null,
           isTyping: !!profile.isTyping,
-          currentRoom: profile.currentRoom || "PUBLIC_LOUNGE"
+          currentRoom: profile.currentRoom || "PUBLIC_LOUNGE",
+          status: profile.status || "ONLINE"
         });
       }
     }
 
-    // 🎯 SYNCHRONIZED FRONTEND ALIGNMENT: Match the precise "presence_update" object structure your client expects!
+    // Broadcast the exact payload structure your frontend client layout expects
     this.broadcast(JSON.stringify({ 
       type: "presence_update", 
       users: Array.from(usersMap.values()) 
     }));
   }
 
-  async function onConnect(connection: any, ctx: any) {
-    const url = new URL(ctx.request.url || "http://localhost");
-    const extractedProfile: ActiveChatter = {
-      id: url.searchParams.get("id") || connection.id,
-      username: url.searchParams.get("username") || "anonymous",
-      displayName: url.searchParams.get("displayName") || "Guest User",
-      avatarUrl: url.searchParams.get("avatarUrl") || null,
-      isTyping: false,
-      currentRoom: url.searchParams.get("currentRoom") || "PUBLIC_LOUNGE",
-      status: url.searchParams.get("status") || "ONLINE" // 🎯 Captures their baseline indicator state
-    };
+  // 🔌 Triggered instantly upon user websocket handshake connection initialization
+  async onConnect(connection: any, ctx: any) {
+    try {
+      const url = new URL(ctx.request.url || "http://localhost");
+      
+      const extractedProfile: ActiveChatter = {
+        id: url.searchParams.get("id") || connection.id,
+        username: url.searchParams.get("username") || "anonymous",
+        displayName: url.searchParams.get("displayName") || "Guest User",
+        avatarUrl: url.searchParams.get("avatarUrl") || null,
+        isTyping: false,
+        currentRoom: url.searchParams.get("currentRoom") || "PUBLIC_LOUNGE",
+        status: url.searchParams.get("status") || "ONLINE"
+      };
 
       connection.state = {
         userId: extractedProfile.id,
         profile: extractedProfile
       };
-
     } catch (e) {
       console.error("Socket query capture error:", e);
     }
@@ -69,27 +72,31 @@ export default class ChatServer extends Server {
     this.broadcastPresence();
   }
 
+  // 🚪 Wipes disconnected users cleanly out of rosters when their window tab exits
   async onClose() {
     this.broadcastPresence();
   }
 
+  // ✉️ Intercepts outgoing client command streams and updates state matrices
   async onMessage(connection: any, message: string) {
     try {
       const data = JSON.parse(message);
       const customState = (connection.state || {}) as ConnectionAttachment;
+      
       if (!customState.profile) return;
       const currentProfile = customState.profile;
-	  
-	  if (data.type === "status_switch") {
-        connection.state = {
-        ...connection.state,
-        profile: { ...currentProfile, status: data.newStatus } // Overwrites "ONLINE", "AWAY", "BUSY", or "OFFLINE" instantly
-      };
-      this.broadcastPresence(); // Sends updated list down to all user dashboard roster sidebars in real time!
-      return;
-    }
 
-      // 🚀 ROOM CHANNEL SWAPS
+      // 🚀 1. LIVE SITE-WIDE STATUS menu dropdown sync
+      if (data.type === "status_switch") {
+        connection.state = {
+          ...connection.state,
+          profile: { ...currentProfile, status: data.newStatus }
+        };
+        this.broadcastPresence();
+        return;
+      }
+
+      // 🚀 2. ROOM INTERFACE TAB CHANNEL SWAPS
       if (data.type === "room_switch") {
         connection.state = {
           ...connection.state,
@@ -99,7 +106,7 @@ export default class ChatServer extends Server {
         return;
       }
 
-      // ⌨️ TYPING STATE CAPTURE INJECTIONS (Hooks directly into ChatPresenceKeeper)
+      // 🚀 3. LIVE KEYBOARD TYPING INDICATOR CHECKS
       if (data.type === "typing_start" || data.type === "typing_stop") {
         const typingStateFlag = data.type === "typing_start";
         connection.state = {
@@ -110,11 +117,10 @@ export default class ChatServer extends Server {
         return;
       }
       
-      // 🌍 PUBLIC LOUNGE / MOD CHAT ROOM BROADCAST ENGINE
+      // 🚀 4. PUBLIC CHAT ROOM MESSAGE DELIVERY PASSTHROUGH LAYER
       if (data.type === "chat_message") {
         const messagePacket = {
           id: data.id || `msg-${Math.random().toString()}`,
-          // 🎯 SYNCHRONIZED ALIGNMENT: Passes back the "incoming_message" event type
           type: "incoming_message",
           content: data.content,
           createdAt: new Date().toISOString(),
@@ -128,13 +134,13 @@ export default class ChatServer extends Server {
         };
 
         this.broadcast(JSON.stringify(messagePacket));
+        return;
       }
 
-      // 🔒 SINGLE-INSTANCE ENCRYPTED PRIVATE DIRECT MESSAGING BROADCAST PIPELINE
+      // 🚀 5. PRIVATE DIRECT MESSAGE TARGET DISTRIBUTION LOOPS
       if (data.type === "direct_message") {
         const dmPacket = {
           id: data.id || `msg-${Math.random().toString()}`,
-          // 🎯 SYNCHRONIZED ALIGNMENT: Passes back the "incoming_direct_message" event type
           type: "incoming_direct_message",
           content: data.content,
           createdAt: data.createdAt || new Date().toISOString(),
@@ -143,7 +149,6 @@ export default class ChatServer extends Server {
           roomToken: data.roomToken
         };
 
-        // Efficiently pass the secret packet ONLY to the sender and target recipient
         for (const client of this.getConnections()) {
           const clientState = (client.state || {}) as ConnectionAttachment;
           const targetUserId = clientState.userId;
@@ -152,6 +157,7 @@ export default class ChatServer extends Server {
             client.send(JSON.stringify(dmPacket));
           }
         }
+        return;
       }
     } catch (err) {
       console.error("Server packet identity routing failure:", err);
