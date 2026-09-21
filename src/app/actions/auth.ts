@@ -75,7 +75,7 @@ export async function registerUser(prevState: any, formData: FormData) {
   return { success: true };
 }
 
-// 🚀 2. LOGIN USER ACTION WITH ACCESS GATEKEEPER INTEGRATION
+// 🚀 2. LOGIN USER ACTION WITH EXACT SCHEMA CHECK
 export async function loginUser(prevState: any, formData: FormData) {
   const username = (formData.get("username") as string)?.trim();
   const password = formData.get("password") as string;
@@ -89,9 +89,9 @@ export async function loginUser(prevState: any, formData: FormData) {
     return { error: "Invalid username or password credentials." };
   }
 
-  // 🎯 FRONT-GATE PROTECTION: Instantly block login configurations if user status flag is BANNED
-  if (user.status === "BANNED" || user.status === "DELETED") {
-    return { error: "🚫 ACCESS DENIED: This account has been permanently blacklisted due to moderation guidelines citations." };
+  // 🎯 FIX: Matches your exact Prisma boolean ban column layout!
+  if (user.isBanned) {
+    return { error: `🚫 ACCESS DENIED: This account is permanently blacklisted. Reason: ${user.banReason || "Moderation rule violation"}` };
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
@@ -111,11 +111,10 @@ export async function loginUser(prevState: any, formData: FormData) {
     path: "/",
   });
 
-  // Successful logins redirect smoothly straight to the feed
   redirect("/");
 }
 
-// 🚀 3. UTILITY: RETRIEVE CURRENT USER & FORCE LOGOUT IF BANNED
+// 🚀 3. GET CURRENT USER WITH REAL-TIME BOOTER LOGIC
 export async function getCurrentUser() {
   try {
     const cookieStore = await cookies();
@@ -123,35 +122,27 @@ export async function getCurrentUser() {
 
     if (!token) return null;
 
-    // Decrypt and extract user parameters from payload string cleanly
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
-
     if (!decoded || !decoded.userId) return null;
 
-    // Fetch account attributes from Neon with recent notification arrays pre-loaded
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: {
         notificationsReceived: {
-          include: {
-            issuer: true // Automatically bundles author profile cards and avatar images
-          },
-          orderBy: {
-            createdAt: "desc" // Display the newest alerts at the very top of the drawer first
-          },
-          take: 15 // Limits response payloads to lock-in lightning-fast load times
+          include: { issuer: true },
+          orderBy: { createdAt: "desc" },
+          take: 15
         }
       }
     });
 
     if (!user) return null;
 
-    // 🚨 REAL-TIME BAN BOOTER ROUTINE
-    // The exact moment an administrative ban hits Neon, their next page action clears cookies and locks them out.
-    if (user.status === "BANNED" || user.status === "DELETED") {
-      console.warn(`Administrative Alert: Evicted banned user @${user.username} from active server instance layout.`);
+    // 🚨 FIX: Evict the user instantly if their database record row marks them as banned!
+    if (user.isBanned) {
+      console.warn(`Administrative Alert: Evicted banned user @${user.username} instantly.`);
       
-      // Wipe the authentication session cookie cleanly
+      // Destroy their active authentication cookie securely
       cookieStore.delete("auth_token");
       return null; 
     }

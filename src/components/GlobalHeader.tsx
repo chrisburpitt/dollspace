@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import InlineNotificationDropdown from "./InlineNotificationDropdown";
+import { logoutUser } from "@/app/actions/auth"; 
 
 interface GlobalHeaderProps {
   currentUser: {
@@ -126,12 +127,15 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
           </div>
 
           {/* LOGOUT SECURE ACTION LINK TRIGGER */}
-          <Link 
-            href="/logout" 
-            className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm"
+          <button 
+            type="button"
+            onClick={async () => {
+              await logoutUser();
+            }}
+            className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm cursor-pointer"
           >
             Logout
-          </Link>
+          </button>
 
         </div>
       </div>

@@ -1,11 +1,11 @@
-// src/app/actions/moderation.ts
+// src/app/actions/moderation.ts (REINFORCED CACHE PURGING)
 "use server";
 
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
 
-// Helper Check: Validates if the active session possesses high-level admin authorization tokens
+// Helper Check
 async function verifyAdminCheckpoint() {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return null;
@@ -19,7 +19,7 @@ async function verifyAdminCheckpoint() {
   return sessionUser;
 }
 
-// 1. ACTION: Ban and blacklist a disruptive profile permanently out of the cluster database
+// 1. ACTION: Ban user profile
 export async function banUserProfile(targetUserId: string, reason: string) {
   const admin = await verifyAdminCheckpoint();
   if (!admin) return { error: "Unauthorized access path: Admin permissions required." };
@@ -32,13 +32,13 @@ export async function banUserProfile(targetUserId: string, reason: string) {
         isBanned: true,
         banReason: reason || "Violation of platform community standard rules.",
         bannedAt: new Date(),
-        status: "OFFLINE" // Force active indicators cold
+        status: "OFFLINE" // Force active indicators cold instantly
       }
     });
 
-    // Wipe out active session logs cleanly
-    revalidatePath("/");
-    revalidatePath("/discover");
+    // 🎯 REGENERATE ALL LAYOUTS GLOBALLY: Tells Next.js to dump its router cache 
+    // for all logged-in profiles. This forces our fresh getCurrentUser checkpoint to execute.
+    revalidatePath("/", "layout"); 
     return { success: true };
   } catch (err) {
     console.error("Administrative ban execution failed:", err);
@@ -46,7 +46,7 @@ export async function banUserProfile(targetUserId: string, reason: string) {
   }
 }
 
-// 2. ACTION: Lift a profile ban restrictions safely
+// 2. ACTION: Unban profile user securely
 export async function unbanUserProfile(targetUserId: string) {
   const admin = await verifyAdminCheckpoint();
   if (!admin) return { error: "Unauthorized." };
@@ -57,11 +57,14 @@ export async function unbanUserProfile(targetUserId: string) {
       data: {
         isBanned: false,
         banReason: null,
-        bannedAt: null
+        bannedAt: null,
+        // Optional Configuration: If they get stuck offline, you can let them default to "OFFLINE" 
+        // until they load the page naturally, or force-reset it here!
       }
     });
 
-    revalidatePath("/discover");
+    // 🎯 REGENERATE ALL LAYOUTS GLOBALLY: Fixes the unban-stuck-offline status list glitch!
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (err) {
     return { error: "Failed to unban profile user." };
