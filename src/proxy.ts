@@ -1,16 +1,17 @@
-// src/middleware.ts
+// src/proxy.ts (NEXT.JS 16 STANDARD ARCHITECTURE)
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/request";
-import * as jose from "jose"; // Using jose for lightweight edge runtime token decryption
+import type { NextRequest } from "next/server"; // 🎯 FIXED: Imported natively from 'next/server' instead of 'next/request'
+import * as jose from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super-secret-dollspace-key-12345"
 );
 
-export async function middleware(request: NextRequest) {
+// Next.js 16 looks for an exported proxy function loop
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip asset files, login endpoints, and the banned page itself to avoid loops
+  // Skip assets, api calls, login, and the banned view to bypass loop bugs
   if (
     pathname.startsWith("/_next") || 
     pathname.startsWith("/api") ||
@@ -24,18 +25,21 @@ export async function middleware(request: NextRequest) {
 
   if (token) {
     try {
-      // Decode the JWT token smoothly on the edge runtime framework layer
       const { payload } = await jose.jwtVerify(token, JWT_SECRET);
       
-      // If our auth server action flags the session payload parameter matrix as banned, 
-      // instantly reroute them straight to the clean, non-crashing /banned viewport canvas!
+      // Intercept execution and push banned accounts cleanly out to the safety canvas route
       if (payload && (payload as any).isBanned === true) {
         return NextResponse.redirect(new URL("/banned", request.url));
       }
     } catch (err) {
-      // Invalid token, allow normal path routing fallthrough to catch redirects naturally
+      // Allow catch fallbacks to execute naturally
     }
   }
 
   return NextResponse.next();
 }
+
+// 🚀 CRITICAL CONFIG: Force Edge runtime execution profile context rules
+export const config = {
+  runtime: "edge",
+};
