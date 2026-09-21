@@ -32,7 +32,7 @@ export default async function HomePage() {
   const unreadMailCount = await getUnreadMailCount(); 
   const waitingDMsCount = await prisma.directMessage.count({
     where: {
-      recipientId: sessionUser.id,
+      recipientId: currentUser.id,
       isRead: false
     }
   });

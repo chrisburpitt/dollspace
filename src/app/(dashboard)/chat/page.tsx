@@ -69,18 +69,8 @@ export default async function ChatPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <GlobalHeader 
-        currentUser={currentUser} 
-        onStatusChange={(selectedStatus) => {
-          // The absolute second a user alters their status dot in the header, 
-          // stream it straight into the active socket pool globally!
-          socket.send(JSON.stringify({
-            type: "status_switch",
-            newStatus: selectedStatus
-          }));
-        }}
-      />
-      <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
+    <GlobalHeader currentUser={currentUser} />
+    <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
@@ -93,7 +83,7 @@ export default async function ChatPage() {
             currentUser={currentUser}
             platformUsers={platformUsers}
             initialDMs={serializedDMs}
-            initialModMessages={serializedModHistory} // 🚀 PASS ARCHIVE TO CLIENT
+            initialModMessages={serializedModHistory}
           />
         </main>
       </div>
