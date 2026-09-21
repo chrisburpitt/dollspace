@@ -153,7 +153,7 @@ export async function getCurrentUser() {
         banReason: user.banReason || "Violation of platform community standard rules.",
         bannedAt: user.bannedAt ? user.bannedAt.toISOString() : new Date().toISOString(),
         bannedBy: "An Administrator", // Replace with user.bannedBy?.displayName if mapped in Prisma
-      };
+      } as any;
     }
 
     return user;
