@@ -114,7 +114,7 @@ export async function loginUser(prevState: any, formData: FormData) {
   redirect("/");
 }
 
-// 🚀 3. GET CURRENT USER WITH REAL-TIME BOOTER LOGIC
+// 🚀 3. RETRIEVE CURRENT USER & FORCE AUTOMATED INSTANT RE-ROUTING IF BANNED
 export async function getCurrentUser() {
   try {
     const cookieStore = await cookies();
@@ -125,39 +125,43 @@ export async function getCurrentUser() {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
     if (!decoded || !decoded.userId) return null;
 
-    // Fetch user details along with ban fields from Neon PostgreSQL
+    // Fetch account attributes from Neon with recent notification arrays pre-loaded
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      select: {
-        id: true,
-        username: true,
-        displayName: true,
-        avatarUrl: true,
-        role: true,
-        status: true,
-        isBanned: true,
-        banReason: true,
-        bannedAt: true,
-        // If you track who banned them via a relation (e.g., bannedBy), include it here:
-        // bannedBy: { select: { displayName: true } } 
+      include: {
+        notificationsReceived: {
+          include: {
+            issuer: true
+          },
+          orderBy: {
+            createdAt: "desc"
+          },
+          take: 15
+        }
       }
     });
 
     if (!user) return null;
 
-    // 🚨 PASS BAN METADATA DOWN INSTEAD OF SILENT DELETION
-    // This allows the frontend client side layout to render the warning modal card cleanly first!
+    // 🚨 THE UN-BYPASSABLE BAN GATEKEEPER:
+    // If the database marks them as banned, we halt page execution immediately
+    // and force a clean server-side redirect to the dedicated banned screen route.
     if (user.isBanned) {
-      return {
-        isBanned: true,
-        banReason: user.banReason || "Violation of platform community standard rules.",
-        bannedAt: user.bannedAt ? user.bannedAt.toISOString() : new Date().toISOString(),
-        bannedBy: "An Administrator", // Replace with user.bannedBy?.displayName if mapped in Prisma
-      } as any;
+      console.warn(`Administrative Alert: Evicted banned user @${user.username} from system.`);
+      
+      // We explicitly check if we are already heading to the banned page or login to avoid redirect loops
+      // Since this is a server action called on components, Next.js will stop processing the target page component layout immediately.
+      redirect("/banned");
     }
 
     return user;
   } catch (error) {
+    // If it's a Next.js redirect exception, we MUST let it throw so Next.js can handle the rerouting!
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
+    }
+    
+    // Catch standard cryptographic decoding crashes safely
     console.error("Session verification token crashed:", error);
     return null;
   }
