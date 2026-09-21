@@ -1,13 +1,12 @@
-// src/proxy.ts (NEXT.JS 16 STANDARD ARCHITECTURE)
+// src/proxy.ts (DELETING THE UNNECCESSARY EDGE CONFIG BLOCK)
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server"; // 🎯 FIXED: Imported natively from 'next/server' instead of 'next/request'
+import type { NextRequest } from "next/server"; 
 import * as jose from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "super-secret-dollspace-key-12345"
 );
 
-// Next.js 16 looks for an exported proxy function loop
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -39,7 +38,5 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// 🚀 CRITICAL CONFIG: Force Edge runtime execution profile context rules
-export const config = {
-  runtime: "edge",
-};
+// 🎯 FIX: The explicit 'config' field with runtime: 'edge' has been removed!
+// Next.js 16 handles the stable Node.js proxy container behind the scenes natively.
