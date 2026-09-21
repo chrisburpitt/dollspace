@@ -1,7 +1,7 @@
 // src/app/(dashboard)/[username]/ProfileClient.tsx (PART 1)
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import AvatarUpload from "@/components/AvatarUpload";
 import BannerUpload from "@/components/BannerUpload";
@@ -15,6 +15,7 @@ import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import MobileNavShell from "@/components/MobileNavShell"; 
 import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
 import PlatformMetricsCard from "@/components/PlatformMetricsCard"; 
+import { incrementProfileViews } from "@/app/actions/profile"; 
 
 interface ProfileClientProps {
   user: any;
@@ -49,6 +50,12 @@ export default function ProfileClient({
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "TAGGED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
+  
+  useEffect(() => {
+    if (user?.id && sessionUser?.id) {
+      incrementProfileViews(user.id, sessionUser.id);
+    }
+  }, [user?.id, sessionUser?.id]);
   
   const calculatedAgeValue = calculateAgeFromBirthday(user.birthday);
   const filteredAlbums = (user.albums || []).filter((a: any) => isOwner || !a.isPrivate);

@@ -57,7 +57,8 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
       username: currentUser.username,
       displayName: currentUser.displayName,
       avatarUrl: currentUser.avatarUrl || "",
-      currentRoom: selectedChannel
+      currentRoom: selectedChannel,
+      status: currentUser.status || "ONLINE" // 🎯 Passes the site-wide state value upon socket handshake mount
     },
     onMessage(event) {
       try {

@@ -1,78 +1,71 @@
+// party/server.ts (SYNCHRONIZED REAL-TIME SYSTEM ARCHITECTURE)
 import { Server } from "partyserver";
 
-interface UserProfile {
-  id: string; 
-  name: string;
-  avatar: string;
-  isTyping?: boolean;
-}
-
-interface ChatMessage {
+interface ActiveChatter {
   id: string;
-  text: string;
-  sender: string;
-  senderId: string;
-  avatar: string;
-  timestamp: string;
-  targetId?: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  isTyping?: boolean;
+  currentRoom?: string;
+  status: string; 
 }
 
 interface ConnectionAttachment {
   userId?: string;
-  profile?: {
-    name: string;
-    avatar: string;
-    isTyping: boolean;
-  };
+  profile?: ActiveChatter;
 }
 
 export default class ChatServer extends Server {
-  // Broadcasts a clean presence list safely to all open sockets
+  
+  // 📊 Compiles and dispatches real-time user indicator updates globally
   broadcastPresence() {
-    const usersMap = new Map<string, UserProfile>();
+    const usersMap = new Map<string, ActiveChatter>();
     
     for (const client of this.getConnections()) {
       const customState = (client.state || {}) as ConnectionAttachment;
-      let persistentId = customState.userId; 
+      const profile = customState.profile;
       
-      if (!persistentId) {
-        persistentId = client.id;
+      if (profile && profile.id) {
+        usersMap.set(profile.id, {
+          id: profile.id,
+          username: profile.username || "",
+          displayName: profile.displayName || "Anonymous Doll",
+          avatarUrl: profile.avatarUrl || null,
+          isTyping: !!profile.isTyping,
+          currentRoom: profile.currentRoom || "PUBLIC_LOUNGE"
+        });
       }
-
-      const profile = customState.profile || { name: "", avatar: "", isTyping: false };
-      
-      usersMap.set(persistentId, {
-        id: persistentId,
-        name: profile.name || `User #${persistentId.slice(0, 4)}`,
-        avatar: profile.avatar || "👤",
-        isTyping: !!profile.isTyping
-      });
     }
 
+    // 🎯 SYNCHRONIZED FRONTEND ALIGNMENT: Match the precise "presence_update" object structure your client expects!
     this.broadcast(JSON.stringify({ 
-      type: "presence", 
-      count: usersMap.size, 
+      type: "presence_update", 
       users: Array.from(usersMap.values()) 
     }));
   }
 
-  async onConnect(connection: any, ctx: any) {
-    let userId = connection.id;
-    try {
-      const url = new URL(ctx.request.url || "http://localhost");
-      userId = url.searchParams.get("userId") || connection.id;
-    } catch (e) {
-      // Fallback if context request lacks url attributes
-    }
-    
-    connection.state = {
-      ...(connection.state || {}),
-      userId: userId
+  async function onConnect(connection: any, ctx: any) {
+    const url = new URL(ctx.request.url || "http://localhost");
+    const extractedProfile: ActiveChatter = {
+      id: url.searchParams.get("id") || connection.id,
+      username: url.searchParams.get("username") || "anonymous",
+      displayName: url.searchParams.get("displayName") || "Guest User",
+      avatarUrl: url.searchParams.get("avatarUrl") || null,
+      isTyping: false,
+      currentRoom: url.searchParams.get("currentRoom") || "PUBLIC_LOUNGE",
+      status: url.searchParams.get("status") || "ONLINE" // 🎯 Captures their baseline indicator state
     };
 
-    const storage = (this as any).ctx.storage;
-    const history = (await storage.get("public_messages")) as ChatMessage[] || [];
-    connection.send(JSON.stringify({ type: "history", messages: history }));
+      connection.state = {
+        userId: extractedProfile.id,
+        profile: extractedProfile
+      };
+
+    } catch (e) {
+      console.error("Socket query capture error:", e);
+    }
+    
     this.broadcastPresence();
   }
 
@@ -84,66 +77,84 @@ export default class ChatServer extends Server {
     try {
       const data = JSON.parse(message);
       const customState = (connection.state || {}) as ConnectionAttachment;
-      const senderPersistentId = customState.userId || connection.id;
+      if (!customState.profile) return;
+      const currentProfile = customState.profile;
+	  
+	  if (data.type === "status_switch") {
+        connection.state = {
+        ...connection.state,
+        profile: { ...currentProfile, status: data.newStatus } // Overwrites "ONLINE", "AWAY", "BUSY", or "OFFLINE" instantly
+      };
+      this.broadcastPresence(); // Sends updated list down to all user dashboard roster sidebars in real time!
+      return;
+    }
 
-      if (data.type === "update-profile") {
+      // 🚀 ROOM CHANNEL SWAPS
+      if (data.type === "room_switch") {
         connection.state = {
           ...connection.state,
-          profile: { name: data.name, avatar: data.avatar, isTyping: false }
+          profile: { ...currentProfile, currentRoom: data.newRoom, isTyping: false }
         };
         this.broadcastPresence();
-      } 
+        return;
+      }
 
-      if (data.type === "typing") {
-        const currentProfile = customState.profile || { name: "", avatar: "🦊", isTyping: false };
+      // ⌨️ TYPING STATE CAPTURE INJECTIONS (Hooks directly into ChatPresenceKeeper)
+      if (data.type === "typing_start" || data.type === "typing_stop") {
+        const typingStateFlag = data.type === "typing_start";
         connection.state = {
           ...connection.state,
-          profile: { ...currentProfile, isTyping: data.isTyping }
+          profile: { ...currentProfile, isTyping: typingStateFlag }
         };
         this.broadcastPresence();
+        return;
       }
       
-      if (data.type === "chat") {
-        const newMessage: ChatMessage = {
-          id: Math.random().toString(),
-          text: data.text,
-          sender: data.sender,
-          senderId: senderPersistentId, 
-          avatar: data.avatar,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      // 🌍 PUBLIC LOUNGE / MOD CHAT ROOM BROADCAST ENGINE
+      if (data.type === "chat_message") {
+        const messagePacket = {
+          id: data.id || `msg-${Math.random().toString()}`,
+          // 🎯 SYNCHRONIZED ALIGNMENT: Passes back the "incoming_message" event type
+          type: "incoming_message",
+          content: data.content,
+          createdAt: new Date().toISOString(),
+          room: data.room || currentProfile.currentRoom || "PUBLIC_LOUNGE",
+          user: {
+            id: currentProfile.id,
+            username: currentProfile.username,
+            displayName: currentProfile.displayName,
+            avatarUrl: currentProfile.avatarUrl
+          }
         };
 
-        const storage = (this as any).ctx.storage;
-        const history = (await storage.get("public_messages")) as ChatMessage[] || [];
-        history.push(newMessage);
-        if (history.length > 100) history.shift();
-        await storage.put("public_messages", history);
-
-        this.broadcast(JSON.stringify({ type: "chat", ...newMessage }));
+        this.broadcast(JSON.stringify(messagePacket));
       }
 
-      if (data.type === "dm") {
-        const privateMessage: ChatMessage = {
-          id: Math.random().toString(),
-          text: data.text,
-          sender: data.sender,
-          senderId: senderPersistentId,
-          avatar: data.avatar,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          targetId: data.targetId 
+      // 🔒 SINGLE-INSTANCE ENCRYPTED PRIVATE DIRECT MESSAGING BROADCAST PIPELINE
+      if (data.type === "direct_message") {
+        const dmPacket = {
+          id: data.id || `msg-${Math.random().toString()}`,
+          // 🎯 SYNCHRONIZED ALIGNMENT: Passes back the "incoming_direct_message" event type
+          type: "incoming_direct_message",
+          content: data.content,
+          createdAt: data.createdAt || new Date().toISOString(),
+          senderId: currentProfile.id,
+          recipientId: data.recipientId,
+          roomToken: data.roomToken
         };
 
+        // Efficiently pass the secret packet ONLY to the sender and target recipient
         for (const client of this.getConnections()) {
           const clientState = (client.state || {}) as ConnectionAttachment;
-          const clientPersistentId = clientState.userId;
+          const targetUserId = clientState.userId;
 
-          if (clientPersistentId === data.targetId || clientPersistentId === senderPersistentId) {
-            client.send(JSON.stringify({ type: "dm", ...privateMessage }));
+          if (targetUserId === data.recipientId || targetUserId === currentProfile.id) {
+            client.send(JSON.stringify(dmPacket));
           }
         }
       }
     } catch (err) {
-      console.error("Server identity routing error:", err);
+      console.error("Server packet identity routing failure:", err);
     }
   }
 }

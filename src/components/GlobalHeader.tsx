@@ -17,16 +17,21 @@ interface GlobalHeaderProps {
     role?: string; // 🚀 FIXED: Added optional role tracking property right inside your prop interface card!
   };
   notifications?: any[];
+  onStatusChange?: (newStatus: string) => void; 
 }
 
-export default function GlobalHeader({ currentUser, notifications = [] }: GlobalHeaderProps) {
+export default function GlobalHeader({ currentUser, notifications = [], onStatusChange }: GlobalHeaderProps) {
   const router = useRouter();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
+  
+  useEffect(() => {
+    if (currentUser.status) {
+      setCurrentStatus(currentUser.status);
+    }
+  }, [currentUser.status]);
 
   const statusMenuRef = useRef<HTMLDivElement>(null);
-
-  // Normalize string definitions safely to ensure case-insensitive matching conditions pass
   const normalizedUserRole = currentUser.role?.toUpperCase() || "";
 
   useEffect(() => {
@@ -42,6 +47,10 @@ export default function GlobalHeader({ currentUser, notifications = [] }: Global
   const handleStatusChange = async (newStatus: string) => {
     setCurrentStatus(newStatus);
     setShowStatusMenu(false);
+	if (onStatusChange) {
+      onStatusChange(newStatus);
+    }
+	
     try {
       await fetch("/api/user/status", {
         method: "POST",

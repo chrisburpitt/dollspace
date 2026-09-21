@@ -69,7 +69,17 @@ export default async function ChatPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
-      <GlobalHeader currentUser={currentUser} />
+      <GlobalHeader 
+        currentUser={currentUser} 
+        onStatusChange={(selectedStatus) => {
+          // The absolute second a user alters their status dot in the header, 
+          // stream it straight into the active socket pool globally!
+          socket.send(JSON.stringify({
+            type: "status_switch",
+            newStatus: selectedStatus
+          }));
+        }}
+      />
       <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">

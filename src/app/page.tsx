@@ -30,7 +30,18 @@ export default async function HomePage() {
   if (!currentUser) redirect("/login");
 
   const unreadMailCount = await getUnreadMailCount(); 
-  const dashboardMetrics = await getPlatformDashboardMetrics(); 
+  const waitingDMsCount = await prisma.directMessage.count({
+    where: {
+      recipientId: sessionUser.id,
+      isRead: false
+    }
+  });
+  
+  const dashboardMetrics = {
+    onlineCount: await prisma.user.count({ where: { status: "ONLINE", isBanned: false } }),
+    unreadMailCount: await prisma.internalMail.count({ where: { recipientId: currentUser.id, isRead: false } }),
+    waitingDMsCount: waitingDMsCount // 🔥 Populates your card metric instantly!
+  };
   
   const dotwRecord = currentUser 
   ? await prisma.dollOfTheWeekEntry.findUnique({ where: { userId: currentUser.id } })

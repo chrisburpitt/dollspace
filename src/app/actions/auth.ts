@@ -91,7 +91,7 @@ export async function loginUser(prevState: any, formData: FormData) {
 
   // 🎯 FIX: Matches your exact Prisma boolean ban column layout!
   if (user.isBanned) {
-    return { error: `🚫 ACCESS DENIED: This account is permanently blacklisted. Reason: ${user.banReason || "Moderation rule violation"}` };
+    return { error: `🚫 ACCESS DENIED: This account is currently banned. Reason: ${user.banReason || "Moderation rule violation"}\nPlease email chloeannabrookes@outlook.com to appeal this decision.` };
   }
 
   const isValidPassword = await bcrypt.compare(password, user.passwordHash);
