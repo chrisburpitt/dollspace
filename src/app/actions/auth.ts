@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Resend } from "resend"; 
 
@@ -130,12 +130,8 @@ export async function getCurrentUser() {
       where: { id: decoded.userId },
       include: {
         notificationsReceived: {
-          include: {
-            issuer: true
-          },
-          orderBy: {
-            createdAt: "desc"
-          },
+          include: { issuer: true },
+          orderBy: { createdAt: "desc" },
           take: 15
         }
       }
@@ -143,25 +139,31 @@ export async function getCurrentUser() {
 
     if (!user) return null;
 
-    // 🚨 THE UN-BYPASSABLE BAN GATEKEEPER:
-    // If the database marks them as banned, we halt page execution immediately
-    // and force a clean server-side redirect to the dedicated banned screen route.
+    // 🚨 BREAK THE REDIRECT LOOP TRAP
     if (user.isBanned) {
-      console.warn(`Administrative Alert: Evicted banned user @${user.username} from system.`);
+      // 🎯 Read the active target pathname from server header configuration blocks
+      const headerList = await headers();
+      const currentUrlPath = headerList.get("x-url") || headerList.get("referer") || "";
       
-      // We explicitly check if we are already heading to the banned page or login to avoid redirect loops
-      // Since this is a server action called on components, Next.js will stop processing the target page component layout immediately.
+      console.warn(`Administrative Safeguard: Tracking blacklisted login routing profile: @${user.username}`);
+
+      // If the browser is already sitting on the /banned landing zone, 
+      // STOP redirecting and safely return the user context block so the page can mount!
+      if (currentUrlPath.includes("/banned")) {
+        return user;
+      }
+
+      // Otherwise, if they are trying to click onto home, discover, or chat feeds, bounce them out!
       redirect("/banned");
     }
 
     return user;
   } catch (error) {
-    // If it's a Next.js redirect exception, we MUST let it throw so Next.js can handle the rerouting!
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+    // If it's a genuine Next.js redirect execution instruction, pass it along!
+    if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
       throw error;
     }
     
-    // Catch standard cryptographic decoding crashes safely
     console.error("Session verification token crashed:", error);
     return null;
   }
