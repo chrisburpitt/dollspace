@@ -58,8 +58,7 @@ export async function unbanUserProfile(targetUserId: string) {
         isBanned: false,
         banReason: null,
         bannedAt: null,
-        // Optional Configuration: If they get stuck offline, you can let them default to "OFFLINE" 
-        // until they load the page naturally, or force-reset it here!
+		status: "ONLINE"
       }
     });
 
@@ -67,6 +66,7 @@ export async function unbanUserProfile(targetUserId: string) {
     revalidatePath("/", "layout");
     return { success: true };
   } catch (err) {
+    console.error("Administrative unban sequence failed:", err);
     return { error: "Failed to unban profile user." };
   }
 }

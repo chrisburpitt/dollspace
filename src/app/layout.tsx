@@ -1,8 +1,10 @@
 // src/app/layout.tsx
-import type { Metadata, Viewport } from "next"; // 🚀 Added Viewport type tracking
+import type { Metadata, Viewport } from "next"; 
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { touchUserPresenceHeartbeat } from "@/app/actions/presence";
+import { getCurrentUser } from "@/app/actions/auth"; // 🎯 1. IMPORT SESSION CHECKER
+import BanGuardModal from "@/components/BanGuardModal"; // 🎯 2. IMPORT POPUP MODAL WIDGET
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,7 +17,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// 🚀 1. INDEPENDENT VIEWPORT EXPORT: Keeps layout configs clean and tells Android Chrome to scale content at a true 1:1 mobile layout ratio!
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -23,7 +24,6 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-// 🚀 2. CLEAN METADATA CONFIGURATION: Merged flawlessly and free from nested bracket trailing comma errors
 export const metadata: Metadata = {
   title: "Dollspace",
   description: "A Space for the Dolls, by the Dolls",
@@ -38,14 +38,33 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // Fires instantly in the background thread on every single page render hit
   await touchUserPresenceHeartbeat();
 
+  // 🎯 3. RESOLVE AUTHENTICATION STATUS ON INITIAL LAYOUT RENDER
+  const userSession = await getCurrentUser();
+
+  // 🚨 4. THE POPUP INTERCEPT ROUTINE:
+  // If the user's status flag is checked as banned, this completely intercepts the view 
+  // tree, hides the sub-level pages, and renders your appeal popup window.
+  const isUserBanned = userSession && "isBanned" in userSession && userSession.isBanned;
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="antialiased overflow-x-hidden w-full max-w-full bg-gray-50">
-        {children}
-	    <Analytics />
+        {isUserBanned ? (
+          <>
+            {/* Renders the non-dismissible popup over a blurred backdrop placeholder layout */}
+            <BanGuardModal banData={userSession} />
+            <div className="blur-md pointer-events-none opacity-40 select-none max-h-screen overflow-hidden">
+              {children}
+            </div>
+          </>
+        ) : (
+          // Otherwise, render standard access paths seamlessly
+          children
+        )}
+        <Analytics />
       </body>
     </html>
   );

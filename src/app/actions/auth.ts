@@ -125,26 +125,35 @@ export async function getCurrentUser() {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
     if (!decoded || !decoded.userId) return null;
 
+    // Fetch user details along with ban fields from Neon PostgreSQL
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
-      include: {
-        notificationsReceived: {
-          include: { issuer: true },
-          orderBy: { createdAt: "desc" },
-          take: 15
-        }
+      select: {
+        id: true,
+        username: true,
+        displayName: true,
+        avatarUrl: true,
+        role: true,
+        status: true,
+        isBanned: true,
+        banReason: true,
+        bannedAt: true,
+        // If you track who banned them via a relation (e.g., bannedBy), include it here:
+        // bannedBy: { select: { displayName: true } } 
       }
     });
 
     if (!user) return null;
 
-    // 🚨 FIX: Evict the user instantly if their database record row marks them as banned!
+    // 🚨 PASS BAN METADATA DOWN INSTEAD OF SILENT DELETION
+    // This allows the frontend client side layout to render the warning modal card cleanly first!
     if (user.isBanned) {
-      console.warn(`Administrative Alert: Evicted banned user @${user.username} instantly.`);
-      
-      // Destroy their active authentication cookie securely
-      cookieStore.delete("auth_token");
-      return null; 
+      return {
+        isBanned: true,
+        banReason: user.banReason || "Violation of platform community standard rules.",
+        bannedAt: user.bannedAt ? user.bannedAt.toISOString() : new Date().toISOString(),
+        bannedBy: "An Administrator", // Replace with user.bannedBy?.displayName if mapped in Prisma
+      };
     }
 
     return user;
