@@ -104,6 +104,11 @@ export async function deleteComment(commentId: string, currentUserId: string) {
     const comment = await prisma.comment.findUnique({ where: { id: commentId } });
     if (!comment || comment.userId !== currentUserId) return { error: "Unauthorised." };
 
+    await prisma.user.update({
+      where: { id: senderId },
+      data: { lastActive: new Date(), status: "ONLINE" } // Refreshes their lease!
+    });
+
     await prisma.comment.delete({ where: { id: commentId } });
 
     revalidatePath("/");

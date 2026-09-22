@@ -54,7 +54,7 @@ export default function PlatformMetricsCard({ metrics, liveSocketCount }: Platfo
         {/* Total Registered Dolls on the Network */}
         <div className="flex items-center justify-between p-2 rounded-xl border border-transparent text-gray-500">
           <span className="flex items-center space-x-2">
-            <span>✨ Total dolls registered:</span>
+            <span>✨ Registered Dollspace users:</span>
           </span>
           <span className="text-gray-400 font-bold px-2 py-0.5 text-[11px]">
             {totalUsers}

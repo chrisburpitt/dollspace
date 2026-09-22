@@ -85,6 +85,11 @@ export async function toggleMailState(mailId: string, actionType: "ARCHIVE" | "D
     if (isRecipient) updateData.recipientDeleted = true;
   }
 
+  await prisma.user.update({
+    where: { id: senderId },
+    data: { lastActive: new Date(), status: "ONLINE" } // Refreshes their lease!
+  });
+
   await prisma.internalMail.update({
     where: { id: mailId },
     data: updateData
