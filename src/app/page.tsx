@@ -125,7 +125,7 @@ export default async function HomePage() {
 
   const validatedHeaderUser = {
     id: currentUser.id,
-    status: currentUser.status || "ONLINE",
+    status: currentUser.status,
 	role: currentUser.role || "USER"
   };
 

@@ -131,7 +131,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const validatedHeaderUser = {
     id: sessionUser.id,
-    status: sessionUser.status || "ONLINE",
+    status: sessionUser.status,
     role: sessionUser.role || "USER",
     notificationsReceived: sessionUser.notificationsReceived || []
   };
