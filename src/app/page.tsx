@@ -37,10 +37,26 @@ export default async function HomePage() {
     }
   });
   
+  // 🚀 THE COUNTER REMEDY: Compile real-time profile metrics from Neon tables
+  const totalUsersCount = await prisma.user.count({
+    where: { isBanned: false } // Exclude banned rule violations from public metrics
+  });
+
+  const activeDollsOnlineCount = await prisma.user.count({
+    where: {
+      isBanned: false,
+      status: {
+        // 🎯 CATCHES ACTIVE SELECTIONS: Pulls ONLINE, AWAY, and BUSY profiles seamlessly!
+        notIn: ["OFFLINE", "BANNED"] 
+      }
+    }
+  });
+  
   const dashboardMetrics = {
-    onlineCount: await prisma.user.count({ where: { status: "ONLINE", isBanned: false } }),
+    onlineCount: activeDollsOnlineCount, // 🔥 True active indicator sum
+    totalUsers: totalUsersCount,         // 🔥 🚀 NEW: Tracks total directory registration depth
     unreadMailCount: await prisma.internalMail.count({ where: { recipientId: currentUser.id, isRead: false } }),
-    waitingDMsCount: waitingDMsCount // 🔥 Populates your card metric instantly!
+    waitingDMsCount: waitingDMsCount 
   };
   
   const dotwRecord = currentUser 

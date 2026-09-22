@@ -6,6 +6,7 @@ import Link from "next/link";
 interface PlatformMetricsCardProps {
   metrics: {
     onlineCount: number;
+	totalUsers: number; 
     unreadMailCount: number;
     waitingDMsCount: number;
   };
@@ -22,7 +23,17 @@ export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProp
       
       <div className="space-y-1 text-xs font-semibold text-gray-600">
         
-        {/* Metric 1: Online Users */}
+        {/* 🚀 NEW Metric: Total Registered Dolls on the Network */}
+        <div className="flex items-center justify-between p-2 rounded-xl border border-transparent text-gray-500">
+          <span className="flex items-center space-x-2">
+            <span>✨ Total dolls registered:</span>
+          </span>
+          <span className="text-gray-400 font-bold px-2 py-0.5 text-[11px]">
+            {totalUsers}
+          </span>
+        </div>
+		
+		{/* Metric 1: Online Users */}
         <Link href="/discover" className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100 block">
           <span className="flex items-center space-x-2">
             <span className="relative flex h-2 w-2">
