@@ -199,7 +199,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   const activeChatFeedDMs = privateMessages.filter(m => m.roomToken === currentRoomToken);
 
   return (
-    <div className="flex h-full w-full bg-white select-none relative overflow-hidden">
+    <div className="flex h-full w-full bg-white select-none relative overflow-hidden max-h-full">
       <ChatPresenceKeeper typingInputId="chat-message-input" />
       
       {/* 📱 COLS 1: SLIDING MOTION SIDEBAR GRID CELL */}
