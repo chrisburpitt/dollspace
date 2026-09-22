@@ -117,8 +117,6 @@ export default async function PrivacyPage() {
           </section>
 
 
-// src/app/privacy/page.tsx (PART 2 - CLOSING DATA STRUCTURES)
-
           {/* Section 4 */}
           <section className="space-y-3">
             <h2 id="whoshare" className="text-lg font-black tracking-tight text-gray-900 flex items-center gap-2">

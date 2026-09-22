@@ -76,8 +76,6 @@ function AuthFormContent() {
         </div>
 
 
-// src/app/login/page.tsx (PART 2 - POINTER WRAPPER LOCKOUT BYPASS)
-
         {isRegisterMode && (
           <>
             <div>

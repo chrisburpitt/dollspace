@@ -109,8 +109,6 @@ export default async function TermsPage() {
           </section>
 
 
-// src/app/terms/page.tsx (PART 2 - CLOSING LAYOUT ELEMENTS)
-
           {/* Section 3 */}
           <section className="space-y-3">
             <h2 className="text-lg font-black tracking-tight text-gray-900 flex items-center gap-2">
