@@ -1,4 +1,4 @@
-// src/app/[username]/page.tsx
+// src/app/[username]/page.tsx (PART 1 - CONSOLIDATED METADATA & PROFILE QUERIES)
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
@@ -36,6 +36,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const onlineUsers = await getOnlineDollsRoster();
   const dashboardMetrics = await getPlatformDashboardMetrics();
   
+  // 🎯 1. UNIQUE PROFILE RESOLUTION SLOT: Fetches the primary target account row natively
   const user = await prisma.user.findUnique({
     where: { username },
     include: {
@@ -49,14 +50,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   });
 
   // 🛑 Safety Halt: If the user doesn't exist on the network, drop out to a 404
-  if (!user) return <div>Profile Not Found</div>; // Or your custom 404 page redirect
+  if (!user) notFound();
 
-  // 🚀 2. SECOND: Now that 'user' is safely defined, it is completely typesafe to read user.id!
+  // 🚀 2. TYPESAFE WIDGET HOOK: Now fully authorized to read user.id without null compiler conflicts!
   const dotwRecord = await prisma.dollOfTheWeekEntry.findUnique({
     where: { userId: user.id } 
   });
 
-  // 🚀 FIX: Pre-fetch your complete permanent network directory layout natively
+  // 🚀 Autocomplete array flat-mapper pipeline
   const absoluteFollowersList = await prisma.follow.findMany({
     where: { followerId: sessionUser.id },
     select: {
@@ -69,20 +70,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     }
   }).then(relations => relations.map(r => r.following));
 
-  const user = await prisma.user.findUnique({
-    where: { username },
-    include: { 
-      _count: { 
-        select: { followers: true, following: true, posts: true } 
-      },
-      albums: {
-        include: { photos: true },
-        orderBy: { createdAt: "desc" }
-      }
-    }
-  });
 
-  if (!user) notFound();
+// src/app/[username]/page.tsx (PART 2 - TIMELINES & RENDERING CONSOLE)
 
   const sharedPostInclusions = {
     user: { select: { id: true, username: true, displayName: true, avatarUrl: true } }, 
@@ -91,6 +80,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     comments: { include: { user: true }, orderBy: { createdAt: "asc" as const } }
   };
 
+  // Fetch timeline logs posted by the card owner profile
   const userPosts = await prisma.post.findMany({
     where: { userId: user.id },
     include: sharedPostInclusions,
@@ -98,6 +88,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     take: 20 
   });
 
+  // Fetch timeline logs mentioning the target username string parameter
   const taggedPosts = await prisma.post.findMany({
     where: {
       content: {
@@ -110,6 +101,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     take: 20
   });
 
+  // Calculate connection statuses to power follow/unfollow toggle actions
   const isFollowingResult = await prisma.follow.findUnique({
     where: {
       followerId_followingId: {
@@ -141,8 +133,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       unreadMailCount={unreadMailCount}
       onlineUsers={onlineUsers} 
       followersList={absoluteFollowersList}
-	  dotwRecord={dotwRecord} 
-	  dashboardMetrics={dashboardMetrics} 
+      dotwRecord={dotwRecord} 
+      dashboardMetrics={dashboardMetrics} 
     />
   );
 }
