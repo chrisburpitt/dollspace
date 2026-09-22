@@ -171,10 +171,7 @@ export default async function HomePage() {
             <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Platform Hub</h3>
             <p className="text-xs text-gray-400 font-semibold leading-relaxed">Welcome back to Dollspace {currentUser.displayName}! Share stories, pictures or links directly to your feed for your followers to see ✨</p>
           </div>
-		  <PlatformMetricsCard 
-            metrics={dashboardMetrics} 
-            liveSocketCount={activePresence.length} 
-          />
+		  <PlatformMetricsCard metrics={dashboardMetrics} />
         </aside>
 
       </div>
