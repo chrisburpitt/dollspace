@@ -22,8 +22,8 @@ export default async function TermsPage() {
         
         {/* Top Header Card Bracket */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-black tracking-tight text-gray-950 mb-2">
-            Terms & <span className="text-rose-500">Conditions</span> 👑
+          <h1 className="text-4xl font-black tracking-tight text-rose-500 mb-2">
+            Terms <span className="text-gray-950">& Conditions</span> 👑
           </h1>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
             Last updated: September 14, 2026

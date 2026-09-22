@@ -21,8 +21,8 @@ export default async function PrivacyPage() {
         
         {/* Top Branding Section Bracket */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-black tracking-tight text-gray-950 mb-2">
-            Privacy <span className="text-rose-500">Notice</span> 🔒
+          <h1 className="text-4xl font-black tracking-tight text-rose-500 mb-2">
+            Privacy <span className="text-gray-950">Notice</span> 🔒
           </h1>
           <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">
             Last updated: September 14, 2026
