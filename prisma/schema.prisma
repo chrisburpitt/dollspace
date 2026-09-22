@@ -62,6 +62,7 @@ model User {
   // 🛡️ Content Safety Filters
   swearFilter     Boolean  @default(true)
   xxxFilter       Boolean  @default(true)
+  blockMaleAttention Boolean @default(false)
 
   // 💌 Email Notification Controls
   notifComments   Boolean  @default(false)

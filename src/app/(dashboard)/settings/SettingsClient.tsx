@@ -1,13 +1,12 @@
-// src/app/settings/SettingsClient.tsx (PART 1 - SYSTEM INTEGRATION)
+// src/app/settings/SettingsClient.tsx (PART 1 - EXPANDED STATES MATRIX)
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
 import MobileNavShell from "@/components/MobileNavShell";
 import Link from "next/link";
-import { saveUserSettingsAction } from "@/app/actions/settings";
+import { saveUserSettingsAction, changeUserHandleUsernameAction } from "@/app/actions/settings";
 
 interface SettingsClientProps {
   currentUser: any;
@@ -16,16 +15,25 @@ interface SettingsClientProps {
 
 export default function SettingsClient({ currentUser, unreadMailCount }: SettingsClientProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [isChangingUsername, setIsChangingUsername] = useState(false);
 
+  // Core preferences states
   const [isDarkMode, setIsDarkMode] = useState(currentUser.isDarkMode ?? false);
   const [swearFilter, setSwearFilter] = useState(currentUser.swearFilter ?? true);
   const [xxxFilter, setXxxFilter] = useState(currentUser.xxxFilter ?? true);
+  
+  // 🎯 THE NEW PREFERENCE TOGGLE STATE (Hydrates natively from your Neon columns)
+  const [blockMaleAttention, setBlockMaleAttention] = useState(currentUser.blockMaleAttention ?? true);
 
+  // Email Notification states
   const [notifComments, setNotifComments] = useState(currentUser.notifComments ?? false);
   const [notifReactions, setNotifReactions] = useState(currentUser.notifReactions ?? false);
   const [notifFollows, setNotifFollows] = useState(currentUser.notifFollows ?? false);
   const [notifMail, setNotifMail] = useState(currentUser.notifMail ?? false);
   const [notifDms, setNotifDms] = useState(currentUser.notifDms ?? false);
+
+  // Username input selector states
+  const [usernameInput, setUsernameInput] = useState(currentUser.username || "");
 
   const handleSaveSettings = async () => {
     setIsSaving(true);
@@ -34,25 +42,41 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
         isDarkMode,
         swearFilter,
         xxxFilter,
+        blockMaleAttention, // 🎯 Commited to the database
         notifComments,
         notifReactions,
         notifFollows,
         notifMail,
         notifDms
       });
-
-      if (result.success) {
-        alert("Configuration changes saved successfully onto the database! ✨");
-      } else {
-        alert(`Error: ${result.error || "Failed to commit settings."}`);
-      }
+      if (result.success) alert("Configuration preferences saved successfully! ✨");
     } catch (err) {
-      console.error("Settings transaction failure:", err);
+      console.error(err);
     } finally {
       setIsSaving(false);
     }
   };
-  const router = useRouter();
+
+  const handleUsernameChangeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!usernameInput.trim()) return;
+    setIsChangingUsername(true);
+
+    try {
+      const res = await changeUserHandleUsernameAction(usernameInput);
+      if (res.success) {
+        alert(`Success! Your account username handle has been safely changed to: @${res.updatedHandle} 🌸`);
+        window.location.reload(); // Performs a clean route refresh to pull down fresh headers
+      } else {
+        alert(`❌ Availability Block: ${res.error}`);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsChangingUsername(false);
+    }
+  };
+
 
   return (
     <div className={`min-h-screen font-sans antialiased transition-colors duration-300 ${
@@ -62,13 +86,17 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
       <MobileNavShell currentUsername={currentUser?.username} unreadMailCount={unreadMailCount} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+        
+        {/* LEFT COLUMN: Main App Navigation Drawer */}
         <aside className="hidden lg:block lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav currentUsername={currentUser?.username} unreadMailCount={unreadMailCount} />
         </aside>
 
+        {/* RIGHT COLUMN: Settings Dashboard Panel Frame */}
         <main className={`col-span-1 lg:col-span-9 border transition-colors duration-300 rounded-3xl p-6 sm:p-10 shadow-sm text-left space-y-8 ${
           isDarkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
         }`}>
+          
           <div>
             <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
               Account <span className="text-rose-500">Settings</span> 👑
@@ -78,8 +106,9 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </p>
           </div>
 
+          {/* SECTION 1: INTERFACE THEME PREFERENCES */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Interface Theme</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Interface Theme</h2>
             <div className={`p-4 rounded-2xl flex items-center justify-between border ${
               isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
             }`}>
@@ -89,42 +118,20 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               </div>
               <button
                 type="button"
-                onClick={async () => {
-                  const nextThemeState = !isDarkMode;
-                  setIsDarkMode(nextThemeState); // Optimistic UI flip
-    
-                  // 🎯 WRITE DIRECTLY TO NEON POSTGRESQL LIVE
-                  const result = await saveUserSettingsAction({
-                    isDarkMode: nextThemeState,
-                    swearFilter,
-                    xxxFilter,
-                    notifComments,
-                    notifReactions,
-                    notifFollows,
-                    notifMail,
-                    notifDms
-                  });
-
-                  if (result?.success) {
-                    // 🚀 THE LIFESAVER CHANGE: Force Next.js to drop its browser memory data caches!
-                    // This forces your root layout.tsx and page.tsx files to pull down the newly 
-                    // updated user row variables from the database immediately on click!
-                    router.refresh();
-                  }
-                }}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
-                  isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"
-                }`}
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
               >
                 <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
               </button>
             </div>
           </section>
 
-
+          {/* SECTION 2: CONTENT MODERATION & SAFETY FILTERS */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Content Moderation Filters</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🛡️ Content Moderation Filters</h2>
             <div className="space-y-3">
+              
+              {/* Filter 1: Swear Word Filter */}
               <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
                   <span className="text-xs font-black block">Swear Word Filter (Default On)</span>
@@ -133,6 +140,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 <button type="button" onClick={() => setSwearFilter(!swearFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${swearFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
               </div>
 
+              {/* Filter 2: XXX Nudity Filter */}
               <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
                   <span className="text-xs font-black block">XXX / Nudity Filter (Default On)</span>
@@ -140,8 +148,25 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 </div>
                 <button type="button" onClick={() => setXxxFilter(!xxxFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${xxxFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
               </div>
+
+              {/* 🎯 Filter 3: THE BRAND NEW MALE ATTENTION SWITCH */}
+              <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
+                <div>
+                  <span className="text-xs font-black block">Switch OFF Male Attention (Default On)</span>
+                  <span className="text-[10px] font-bold text-gray-400 block">Filters out interaction notifications, feed pings, and tracking logs coming directly from verified male accounts.</span>
+                </div>
+                <button 
+                  type="button" 
+                  onClick={() => setBlockMaleAttention(!blockMaleAttention)} 
+                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${blockMaleAttention ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
+                >
+                  <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
+                </button>
+              </div>
+
             </div>
           </section>
+
 
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Email Dispatch Notifications</h2>
@@ -177,83 +202,77 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
+// src/app/settings/SettingsClient.tsx (PART 3 - CREDENTIALS & SECURITY HANDSHAKES)
 
-          {/* SECTION 5: SECURITY & PROFILE CREDENTIALS */}
-          <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500 flex items-center gap-2">
-              🔑 Security & Credentials
-            </h2>
+          <section className="space-y-6 border-t border-gray-100 dark:border-gray-800 pt-6">
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔑 Security & Credentials</h2>
             
-            {/* 🎯 THE TWO-COLUMN MATCH REFACTOR: 
-                Splits the forms into a strict side-by-side structural layout. 
-                Each action button now sits directly underneath its respective fields! */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start text-left">
-              
-              {/* LEFT COLUMN: Change Password Box Form */}
-              <form 
-                onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} 
-                className="space-y-3"
-              >
-                <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">
-                  Change Password
+            {/* 🎯 THE WIDE SINGLE-COLUMN CHANGE USERNAME CARD */}
+            {/* Embedded perfectly right above your secondary side-by-side credential forms */}
+            <form onSubmit={handleUsernameChangeSubmit} className="space-y-3 w-full border-b border-gray-100 dark:border-gray-800/60 pb-6">
+              <div>
+                <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block mb-1 tracking-wider">
+                  Change Account Username Handle
                 </label>
-                <div className="space-y-2">
+                <div className="relative max-w-full">
+                  <span className="absolute left-3 top-3 text-xs font-bold text-gray-400">@</span>
                   <input 
-                    type="password" 
+                    type="text" 
                     required
-                    placeholder="Current account password" 
-                    className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${
-                      isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"
-                    }`}
-                  />
-                  <input 
-                    type="password" 
-                    required
-                    placeholder="New secure password" 
-                    className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    placeholder="Enter your unique handle name" 
+                    className={`w-full border rounded-xl p-3 pl-7 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${
                       isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"
                     }`}
                   />
                 </div>
-                <button 
-                  type="submit" 
-                  className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer mt-1"
-                >
-                  Update Password
-                </button>
+                <span className="text-[10px] font-bold text-gray-400 block mt-1">
+                  Changing your username handle will instantly rewrite your timeline URLs and chat tags.
+                </span>
+              </div>
+              <button 
+                type="submit" 
+                disabled={isChangingUsername}
+                className={`text-white text-[10px] font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition shadow-sm ${
+                  isChangingUsername ? "bg-gray-400 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
+                }`}
+              >
+                {isChangingUsername ? "Verifying Availability..." : "Check Availability & Confirm Change ✨"}
+              </button>
+            </form>
+
+            {/* SECONDARY LEVEL: THE SIDE-BY-SIDE RESPONSIVE CARD FIELDS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start text-left pt-2">
+              
+              {/* LEFT COLUMN: Change Password Box Form */}
+              <form onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} className="space-y-3">
+                <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block tracking-wider">
+                  Change Password
+                </label>
+                <div className="space-y-2">
+                  <input type="password" required placeholder="Current account password" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
+                  <input type="password" required placeholder="New secure password" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
+                </div>
+                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer mt-1">Update Password</button>
               </form>
 
               {/* RIGHT COLUMN: Update Email Address Box Form */}
-              <form 
-                onSubmit={(e) => { e.preventDefault(); alert("Email update token dispatched securely."); }} 
-                className="space-y-3"
-              >
+              <form onSubmit={(e) => { e.preventDefault(); alert("Email update token dispatched securely."); }} className="space-y-3">
                 <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">
                   Update Email Address
                 </label>
                 <div className="space-y-2">
-                  <input 
-                    type="email" 
-                    required
-                    placeholder="New email address" 
-                    className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${
-                      isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"
-                    }`}
-                  />
-                  {/* Invisible spacer input maintains perfect horizontal row height alignment on desktop monitors */}
+                  <input type="email" required placeholder="New email handle address" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                   <div className="hidden md:block w-full h-11 pointer-events-none select-none" />
                 </div>
-                <button 
-                  type="submit" 
-                  className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer mt-1"
-                >
-                  Save New Email
-                </button>
+                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer mt-1">Save New Email</button>
               </form>
 
             </div>
           </section>
 
+          {/* SECTION 6: LIFECYCLE DANGER ZONE GATES */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-red-500">Danger Zone</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -262,7 +281,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <span className="text-xs font-black block text-amber-600">Pause Account Pool</span>
                   <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Temporarily deactivate your profile card. This hides your feed updates.</span>
                 </div>
-                <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs">Pause Account</button>
+                <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Pause Account</button>
               </div>
 
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-red-950/10 border-red-900/30" : "bg-red-50/30 border-red-100"}`}>
@@ -270,11 +289,12 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <span className="text-xs font-black block text-red-600">Delete Account Permanently</span>
                   <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Atomically purge your profile table row from Neon PostgreSQL. Action cannot be undone.</span>
                 </div>
-                <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs">Delete Account</button>
+                <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Delete Account</button>
               </div>
             </div>
           </section>
 
+          {/* GLOBAL PREFERENCES SAVE ROW TRIGGER */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-6 flex justify-end">
             <button 
               type="button" 
