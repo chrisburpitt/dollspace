@@ -79,19 +79,22 @@ export default async function ChatPage() {
       <GlobalHeader currentUser={currentUser} />
       <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
-      {/* 🎯 THE OVERFLOW CONTROLLER: We adjust 'py-0 lg:py-6' to ensure it starts crisp on desktop cells */}
-      <div className="w-full max-w-none lg:max-w-7xl mx-auto px-0 lg:px-6 py-0 lg:py-6 relative z-10 flex-1 min-h-0 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 pb-14 lg:pb-0">
+      {/* 🎯 THE ALIGNMENT REMEDY CONTAINER:
+          By adding 'lg:mb-6' and setting an explicit, bounded layout threshold on big screens,
+          we lift the bottom of the chat app card up away from the bottom viewport limit, 
+          making it mirror your Mailbox dashboard cards perfectly! */}
+      <div className="w-full max-w-none lg:max-w-7xl mx-auto px-0 lg:px-6 py-0 lg:py-6 relative z-10 flex-1 min-h-0 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 pb-14 lg:pb-0 lg:mb-6">
         
-        {/* 🎯 THE DESKTOP FIX: 
-            We change 'lg:top-20' to 'lg:top-0' or remove excessive artificial padding limits.
-            This brings your SidebarNav card straight up to align flat with your chat lounge console! */}
+        {/* Desktop Sidebar Column Layout layout cards */}
         <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-0 h-full max-h-full overflow-y-auto pr-1">
           <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* Dynamic client panel area box locks precisely inside its container grid boundary layout */}
-        <main className="col-span-1 lg:col-span-9 bg-white border-0 lg:border border-gray-200 rounded-none lg:rounded-3xl overflow-hidden shadow-none lg:shadow-sm h-full flex flex-col min-h-0">
+        {/* 🎯 THE CHAT CARD ENVELOPE OVERRIDE:
+            Added 'lg:max-h-[calc(100vh-128px)]' to explicitly constrain the desktop height boundary,
+            guaranteeing it matches your Mailbox card box line precisely! */}
+        <main className="col-span-1 lg:col-span-9 bg-white border-0 lg:border border-gray-200 rounded-none lg:rounded-3xl overflow-hidden shadow-none lg:shadow-sm h-full flex flex-col min-h-0 lg:max-h-[calc(100vh-128px)]">
           <UnifiedMessengerClient 
             currentUser={currentUser}
             platformUsers={platformUsers}

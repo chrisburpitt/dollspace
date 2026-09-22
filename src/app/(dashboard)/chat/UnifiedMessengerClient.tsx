@@ -361,7 +361,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                 </div>
                 {/* 🎯 Real-time Active Headcount Badge indicator */}
                 <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
-                  ● {activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} Dolls Inside
+                  ● {activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} Dolls Here
                 </span>
               </div>
             ) : selectedChannel === "MOD_CHAT" ? (
@@ -470,9 +470,9 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
             onChange={(e) => setInputText(e.target.value)}
             placeholder={
               selectedChannel === "PUBLIC_LOUNGE" 
-                ? "Broadcast to public lounge chat room..." 
+                ? "Say something..." 
                 : selectedChannel === "MOD_CHAT"
-                ? "Send encrypted staff moderation memo..."
+                ? "Say something..."
                 : `Message @${activeContact?.username}...`
             }
             className="flex-1 border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-xs font-medium text-gray-800 transition"
