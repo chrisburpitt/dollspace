@@ -197,8 +197,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   const activeChatFeedDMs = privateMessages.filter(m => m.roomToken === currentRoomToken);
 
 
-// src/app/chat/UnifiedMessengerClient.tsx (PART 2 - NAVIGATION LISTS)
-
   return (
     <div className="flex h-full w-full bg-white select-none relative overflow-hidden max-h-full">
       <ChatPresenceKeeper typingInputId="chat-message-input" />
@@ -373,11 +371,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
 
       {/* 💬 MAIN CHAT WORKSPACE CONSOLE VIEW */}
       {/* Dynamic dynamic layout takes up full space on mobile device triggers */}
-      <div 
-        className={`flex flex-col bg-gray-50/50 overflow-hidden h-full max-h-full transition-all duration-300 ease-in-out flex-1 ${
-          !isChatSelected ? "hidden md:flex" : "flex"
-        }`}
-      >
+      <div className={`flex flex-col bg-gray-50/50 h-full w-full min-h-0 flex-1 relative ${!isChatSelected ? "hidden md:flex" : "flex"}`}>
         {/* 🎯 THE REFINED HEADER ROW: Restructured onto a flat single line across the screen */}
         <div className="p-4 py-2 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14 overflow-hidden">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
@@ -433,15 +427,18 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         </div>
 
         {/* Live Scrollable Chat Bubble Roster Stream */}
-        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 w-full bg-gray-50/30 max-h-full">
-          {selectedChannel === "PUBLIC_LOUNGE" || selectedChannel === "MOD_CHAT" ? (
-            /* MODE A: PUBLIC LOUNGE / STAFF MOD ROOM VIEWS */
-            (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                <span className="text-4xl mb-2">{selectedChannel === "MOD_CHAT" ? "🔒" : "👋"}</span>
-                <p className="font-bold text-xs uppercase tracking-wider">This room is clear</p>
-                <p className="text-[11px] mt-0.5">Type a message below to broadcast securely.</p>
-              </div>
+        <div className="flex-1 min-h-0 w-full relative bg-gray-50/30">
+          <div className="absolute inset-0 overflow-y-auto p-4 space-y-3 flex flex-col">
+            {selectedChannel === "PUBLIC_LOUNGE" || selectedChannel === "MOD_CHAT" ? (
+              /* MODE A: PUBLIC LOUNGE / STAFF MOD ROOM VIEWS */
+              (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                  <span className="text-4xl mb-2">{selectedChannel === "MOD_CHAT" ? "🔒" : "👋"}</span>
+                  <p className="font-bold text-xs uppercase tracking-wider">This room is clear</p>
+                  <p className="text-[11px] mt-0.5">Type a message below to broadcast securely.</p>
+                </div>
+			  <div ref={messagesEndRef} />
+			</div>
             ) : (
               (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).map((msg) => {
                 const isMe = msg.user?.id === currentUser.id;
