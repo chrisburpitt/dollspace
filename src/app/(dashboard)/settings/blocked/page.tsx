@@ -49,8 +49,8 @@ export default async function BlockedSettingsPage() {
             {restrictionsList.length === 0 ? (
               <div className="border border-dashed border-gray-200 p-16 rounded-2xl text-center text-gray-400">
                 <span className="text-3xl block mb-2">🌸</span>
-                <p className="font-black text-xs uppercase tracking-wider text-gray-400">Your block circle is clear</p>
-                <p className="text-[11px] mt-0.5 font-medium">You haven't ignored or blocked any dolls on the network yet.</p>
+                <p className="font-black text-xs uppercase tracking-wider text-gray-400">Your burn book is empty 🔥</p>
+                <p className="text-[11px] mt-0.5 font-medium">You haven't ignored or blocked any users on Dollspace yet.</p>
               </div>
             ) : (
               <div className="space-y-3">

@@ -379,7 +379,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         }`}
       >
         {/* 🎯 THE REFINED HEADER ROW: Restructured onto a flat single line across the screen */}
-        <div className="p-4 bg-white border-b border-gray-100 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14">
+        <div className=p-4 py-2 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14 overflow-hidden">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             
             {/* 📱 ROOMS BACK BUTTON: Mounted cleanly into the room list layout row block */}
@@ -400,7 +400,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                   <span className="font-black text-xs text-gray-900 block truncate leading-none">Public Lounge Chat Room</span>
                 </div>
                 {/* 🎯 Real-time Active Headcount Badge indicator */}
-                <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
+                <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-1 rounded-md shrink-0 whitespace-nowrap ml-2 leading-none flex items-center">
                   ● {activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} Dolls Here
                 </span>
               </div>
