@@ -1,12 +1,13 @@
-// src/components/PlatformMetricsCard.tsx
+// src/components/PlatformMetricsCard.tsx (POLLING HYDRATION FIXED)
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface PlatformMetricsCardProps {
   metrics: {
     onlineCount: number;
-	totalUsers: number; 
+    totalUsers: number;
     unreadMailCount: number;
     waitingDMsCount: number;
   };
@@ -15,7 +16,32 @@ interface PlatformMetricsCardProps {
 
 export default function PlatformMetricsCard({ metrics, liveSocketCount }: PlatformMetricsCardProps) {
   const { onlineCount, totalUsers, unreadMailCount, waitingDMsCount } = metrics;
-  const displayOnlineCount = typeof liveSocketCount === "number" ? liveSocketCount : onlineCount;
+  
+  // 🎯 LOCAL HYDRATION STATE: Initializes with your fallback prop baseline data
+  const [liveOnlineCount, setLiveOnlineCount] = useState(onlineCount);
+
+  useEffect(() => {
+    // If we pass an active socket presence hook directly (like inside your Chat lounge), use it!
+    if (typeof liveSocketCount === "number") {
+      setLiveOnlineCount(liveSocketCount);
+      return;
+    }
+
+    // 🚀 Otherwise, fetch fresh un-cached stats directly from our live endpoint on mount
+    async function fetchFreshPresenceIndex() {
+      try {
+        const response = await fetch("/api/user/online-count");
+        if (response.ok) {
+          const data = await response.json();
+          setLiveOnlineCount(data.onlineCount);
+        }
+      } catch (err) {
+        console.error("Metrics layout hydration lookup paused:", err);
+      }
+    }
+
+    fetchFreshPresenceIndex();
+  }, [liveSocketCount]);
 
   return (
     <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm text-left select-none animate-fade-in space-y-4">
@@ -25,7 +51,7 @@ export default function PlatformMetricsCard({ metrics, liveSocketCount }: Platfo
       
       <div className="space-y-1 text-xs font-semibold text-gray-600">
         
-        {/* 🚀 NEW Metric: Total Registered Dolls on the Network */}
+        {/* Total Registered Dolls on the Network */}
         <div className="flex items-center justify-between p-2 rounded-xl border border-transparent text-gray-500">
           <span className="flex items-center space-x-2">
             <span>✨ Total dolls registered:</span>
@@ -34,8 +60,8 @@ export default function PlatformMetricsCard({ metrics, liveSocketCount }: Platfo
             {totalUsers}
           </span>
         </div>
-		
-		{/* Metric 1: Online Users */}
+
+        {/* Metric 1: Online Users */}
         <Link href="/discover" className="flex items-center justify-between p-2 rounded-xl hover:bg-gray-50 transition border border-transparent hover:border-gray-100 block">
           <span className="flex items-center space-x-2">
             <span className="relative flex h-2 w-2">
@@ -44,8 +70,8 @@ export default function PlatformMetricsCard({ metrics, liveSocketCount }: Platfo
             </span>
             <span>Dolls online right now:</span>
           </span>
-          <span className="text-gray-900 font-black bg-rose-100 text-rose-600 px-2 py-0.5 rounded-lg text-[11px] animate-fade-in">
-            {displayOnlineCount} {typeof liveSocketCount === "number" && "⚡ LIVE"}
+          <span className="text-gray-900 font-black bg-rose-100 text-rose-600 px-2 py-0.5 rounded-lg text-[11px]">
+            {liveOnlineCount} {typeof liveSocketCount === "number" && "⚡ LIVE"}
           </span>
         </Link>
 
