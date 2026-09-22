@@ -17,13 +17,13 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
     const isActive = pathname === targetPath || (targetPath !== "/" && pathname.startsWith(targetPath));
     return `px-4 py-2.5 font-bold rounded-xl text-sm transition flex items-center justify-between ${
       isActive 
-        ? "bg-rose-50 text-rose-500 border border-rose-100/50 shadow-sm" 
-        : "text-gray-600 hover:bg-gray-50 font-semibold"
+        ? "bg-rose-50 dark:bg-rose-950/20 text-rose-500 border border-rose-100/50 dark:border-rose-900/30 shadow-sm" 
+        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 font-semibold"
     }`;
   };
 
   return (
-    <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm w-full">
+    <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm w-full transition-colors">
       <nav className="flex flex-col space-y-1">
         
         <Link href="/" className={getLinkStyle("/")}>

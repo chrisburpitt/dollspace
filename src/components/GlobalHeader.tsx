@@ -69,10 +69,8 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
   };
 
 
-// src/components/GlobalHeader.tsx (PART 2 - INTERACTIVE MARKUP LOOP)
-
   return (
-    <header className="w-full h-16 bg-white border-b border-gray-200 sticky top-0 z-40 select-none">
+    <header className="w-full h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 select-none transition-colors">
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         
         {/* LEFT: Branding Core logo mark */}
@@ -106,8 +104,8 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
           <div className="relative" ref={statusMenuRef}>
             <button 
               onClick={() => setShowStatusMenu(!showStatusMenu)}
-              className="flex items-center space-x-2 bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-black text-gray-700 hover:bg-gray-50 transition shadow-sm"
-            >
+              className="flex items-center space-x-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2 text-xs font-black text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition shadow-sm"
+			  >
               <span>
                 {currentStatus === "ONLINE" && "🟢"}
                 {currentStatus === "AWAY" && "🟡"}
@@ -119,7 +117,7 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
             </button>
 
             {showStatusMenu && (
-              <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-gray-200 rounded-xl shadow-xl p-1 animate-scale-up z-50 divide-y divide-gray-50 text-left">
+              <div className="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl p-1 animate-scale-up z-50 divide-y divide-gray-50 dark:divide-gray-900 text-left">
                 {[
                   { key: "ONLINE", icon: "🟢", label: "Online" },
                   { key: "AWAY", icon: "🟡", label: "Away" },
@@ -131,7 +129,9 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
                     type="button"
                     onClick={() => handleStatusChange(item.key)}
                     className={`w-full px-4 py-2.5 text-left text-xs font-black transition flex items-center space-x-2.5 ${
-                      currentStatus === item.key ? "bg-rose-50 text-rose-500 font-extrabold" : "text-gray-600 hover:bg-gray-50 hover:text-rose-600"
+                      currentStatus === item.key 
+                        ? "bg-rose-50 dark:bg-rose-950/30 text-rose-500 font-extrabold" 
+                       : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-rose-600"
                     }`}
                   >
                     <span>{item.icon}</span>
@@ -148,8 +148,8 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
             onClick={async () => {
               await logoutUser();
             }}
-            className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200/80 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm cursor-pointer"
-          >
+            className="bg-gray-50 dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-600 dark:text-gray-400 hover:text-red-500 border border-gray-200/80 dark:border-gray-800 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm cursor-pointer"
+			>
             Logout
           </button>
 

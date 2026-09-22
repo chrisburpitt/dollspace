@@ -87,8 +87,28 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               </div>
               <button
                 type="button"
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
+                onClick={async () => {
+                  const nextThemeState = !isDarkMode;
+                  setIsDarkMode(nextThemeState);
+    
+                  // 🚀 AUTOMATED INSTANT COMMIT:
+                  // Writes the choice directly to your Neon user row row immediately on click!
+                  // This runs revalidatePath("/", "layout") behind the scenes, forcing your entire 
+                  // platform, header navs, and sidebar grids to transition to dark parameters instantly!
+                  await saveUserSettingsAction({
+                    isDarkMode: nextThemeState,
+                    swearFilter,
+                    xxxFilter,
+                    notifComments,
+                    notifReactions,
+                    notifFollows,
+                    notifMail,
+                    notifDms
+                  });
+                }}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
+                  isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"
+                }`}
               >
                 <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
               </button>
@@ -168,7 +188,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} 
                 className="space-y-3"
               >
-                <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block tracking-wider">
+                <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">
                   Change Password
                 </label>
                 <div className="space-y-2">
@@ -209,7 +229,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <input 
                     type="email" 
                     required
-                    placeholder="New email handle address" 
+                    placeholder="New email address" 
                     className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${
                       isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"
                     }`}
