@@ -10,10 +10,12 @@ interface PlatformMetricsCardProps {
     unreadMailCount: number;
     waitingDMsCount: number;
   };
+  liveSocketCount?: number; 
 }
 
-export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProps) {
+export default function PlatformMetricsCard({ metrics, liveSocketCount }: PlatformMetricsCardProps) {
   const { onlineCount, totalUsers, unreadMailCount, waitingDMsCount } = metrics;
+  const displayOnlineCount = typeof liveSocketCount === "number" ? liveSocketCount : onlineCount;
 
   return (
     <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm text-left select-none animate-fade-in space-y-4">
@@ -42,8 +44,8 @@ export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProp
             </span>
             <span>Dolls online right now:</span>
           </span>
-          <span className="text-gray-900 font-black bg-gray-100 px-2 py-0.5 rounded-lg text-[11px]">
-            {onlineCount}
+          <span className="text-gray-900 font-black bg-rose-100 text-rose-600 px-2 py-0.5 rounded-lg text-[11px] animate-fade-in">
+            {displayOnlineCount} {typeof liveSocketCount === "number" && "⚡ LIVE"}
           </span>
         </Link>
 

@@ -230,7 +230,10 @@ export default function ProfileClient({
               <div className="flex justify-between border-b border-gray-50 pb-1.5 mb-1.5"><span>Profile Views:</span><span className="text-rose-500 font-black">👀 {user.views}</span></div>
             </div>
           </div>
-		  <PlatformMetricsCard metrics={dashboardMetrics} />
+		  <PlatformMetricsCard 
+            metrics={dashboardMetrics} 
+            liveSocketCount={activePresence.length} 
+          />
         </aside>
       </div>
 
