@@ -243,3 +243,14 @@ model DollOfTheWeekEntry {
   createdAt   DateTime @default(now())
   votedEntryIds String[] // Tracks which other entries this user has already voted on so they aren't repeated
 }
+
+model UserBlockRelation {
+  id         String   @id @default(cuid())
+  userId     String   // The person initiating the lock action
+  targetId   String   // The person getting isolated
+  type       String   // BLOCK or IGNORE
+  expiresAt  DateTime? // Populated exclusively during 10-minute temporary ignores
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, targetId, type])
+}

@@ -1,4 +1,4 @@
-// src/app/actions/moderation.ts (REINFORCED CACHE PURGING)
+// src/app/actions/moderation.ts (PART 1 - SECURE MODERATION SUITE)
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -32,12 +32,10 @@ export async function banUserProfile(targetUserId: string, reason: string) {
         isBanned: true,
         banReason: reason || "Violation of platform community standard rules.",
         bannedAt: new Date(),
-        status: "OFFLINE" // Force active indicators cold instantly
+        status: "OFFLINE" 
       }
     });
 
-    // 🎯 REGENERATE ALL LAYOUTS GLOBALLY: Tells Next.js to dump its router cache 
-    // for all logged-in profiles. This forces our fresh getCurrentUser checkpoint to execute.
     revalidatePath("/", "layout"); 
     return { success: true };
   } catch (err) {
@@ -58,11 +56,10 @@ export async function unbanUserProfile(targetUserId: string) {
         isBanned: false,
         banReason: null,
         bannedAt: null,
-		status: "ONLINE"
+        status: "ONLINE"
       }
     });
 
-    // 🎯 REGENERATE ALL LAYOUTS GLOBALLY: Fixes the unban-stuck-offline status list glitch!
     revalidatePath("/", "layout");
     return { success: true };
   } catch (err) {
@@ -78,13 +75,11 @@ export async function dispatchGlobalSystemBroadcast(subject: string, alertText: 
   if (!alertText.trim()) return { error: "Broadcast body cannot be empty." };
 
   try {
-    // Select all non-admin platform accounts to populate recipient rows
     const targets = await prisma.user.findMany({
       where: { role: "USER" },
       select: { id: true }
     });
 
-    // Pipe a system alert mail card directly down into everyone's inbox simultaneously
     for (const target of targets) {
       await prisma.internalMail.create({
         data: {
@@ -110,7 +105,6 @@ export async function administrativeDeleteUser(targetUserId: string) {
   if (targetUserId === admin.id) return { error: "Security Halt: You cannot delete yourself." };
 
   try {
-    // Prisma Cascade rules handles cleaning up their child posts, comments, and mail arrays automatically
     await prisma.user.delete({
       where: { id: targetUserId }
     });
@@ -122,6 +116,8 @@ export async function administrativeDeleteUser(targetUserId: string) {
     return { error: "Failed to purge user record from the cluster." };
   }
 }
+
+// src/app/actions/moderation.ts (PART 2 - SOCIAL BLOCKS & COMPLIANCE)
 
 // 5. ACTION: Instantly update a user's system authority role group permissions
 export async function administrativeUpdateUserRole(targetUserId: string, newRole: "USER" | "MODERATOR" | "ADMIN") {
@@ -140,5 +136,71 @@ export async function administrativeUpdateUserRole(targetUserId: string, newRole
   } catch (err) {
     console.error("User role migration failed:", err);
     return { error: "Failed to rewrite role index rows." };
+  }
+}
+
+// ⏳ 6. ACTION: IGNORE USER SYSTEM LOG FOR 10 MINUTES
+export async function ignoreUserAction(targetId: string) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized access path." };
+
+  try {
+    // Calculate the absolute 10-minute threshold lookup date from right now
+    const tenMinutesFromNow = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Upsert the temporary ignore parameter record securely into Neon
+    await prisma.userBlockRelation.upsert({
+      where: {
+        userId_targetId_type: { 
+          userId: sessionUser.id, 
+          targetId, 
+          type: "IGNORE" 
+        }
+      },
+      update: { expiresAt: tenMinutesFromNow },
+      create: { 
+        userId: sessionUser.id, 
+        targetId, 
+        type: "IGNORE", 
+        expiresAt: tenMinutesFromNow 
+      }
+    });
+
+    revalidatePath("/chat");
+    return { success: true };
+  } catch (err) {
+    console.error("Ignore operation failed:", err);
+    return { error: "Failed to initialize temporary silence block." };
+  }
+}
+
+// 🚫 7. ACTION: PERMANENT USER BLOCK ACCESS LOCKOUT
+export async function blockUserAction(targetId: string) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized access path." };
+
+  try {
+    // Upsert the absolute block relationship line straight into Neon
+    await prisma.userBlockRelation.upsert({
+      where: {
+        userId_targetId_type: { 
+          userId: sessionUser.id, 
+          targetId, 
+          type: "BLOCK" 
+        }
+      },
+      update: {},
+      create: { 
+        userId: sessionUser.id, 
+        targetId, 
+        type: "BLOCK" 
+      }
+    });
+
+    revalidatePath("/chat");
+    return { success: true };
+  } catch (err) {
+    console.error("Permanent block operation failed:", err);
+    return { error: "Failed to execute account block isolation." };
   }
 }

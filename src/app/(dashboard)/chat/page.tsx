@@ -38,7 +38,15 @@ export default async function ChatPage() {
       lastActive: { gte: tenMinutesAgo },
       status: { in: ["ONLINE", "AWAY", "BUSY"] }
     },
-    select: { id: true, username: true, displayName: true, avatarUrl: true, status: true }
+    select: {
+	  id: true,
+	  username: true,
+	  displayName: true,
+	  avatarUrl: true,
+	  status: true,
+	  location: true,
+      genderIdentity: true  
+	  }
   });
 
   // Query private DM history

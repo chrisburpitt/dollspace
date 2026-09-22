@@ -6,6 +6,7 @@ import usePartySocket from "partysocket/react";
 import Link from "next/link";
 import { saveDirectMessage, saveModChatMessage } from "@/app/actions/messages";
 import ChatPresenceKeeper from "@/components/ChatPresenceKeeper"; 
+import { ignoreUserAction, blockUserAction } from "@/app/actions/moderation";
 
 interface Contact {
   id: string;
@@ -14,6 +15,8 @@ interface Contact {
   avatarUrl: string | null;
   status?: string;
   currentRoom?: string;
+  location?: string | null;
+  genderIdentity?: string | null; 
 }
 
 interface DirectMessageItem {
@@ -293,9 +296,30 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                     }`}></span>
                   </div>
                   
-                  <div className="min-w-0 flex-1">
-                    <span className="font-black text-xs block leading-tight truncate text-gray-800">{contact.displayName}</span>
-                    <span className="text-[10px] text-gray-400 font-semibold block truncate">@{contact.username}</span>
+                  <div className="min-w-0 flex-1 text-left">
+                    <span className="font-black text-xs block leading-tight truncate text-gray-800">
+                      {contact.displayName}
+                    </span>
+                    <span className="text-[10px] text-gray-400 font-semibold block truncate leading-tight">
+                      @{contact.username}
+                    </span>
+  
+                    {/* 🎯 THE DISCOVERY BADGES INJECTION LAYER */}
+                    {/* Renders beautifully below their profile tags if populated in Neon PostgreSQL */}
+                    {(contact.genderIdentity || contact.location) && (
+                      <div className="flex items-center flex-wrap gap-1 mt-1 max-w-full truncate select-none">
+                        {contact.genderIdentity && (
+                          <span className="bg-rose-50 text-rose-500 font-bold px-1.5 py-0.5 rounded text-[8px] tracking-wide uppercase shrink-0">
+                            ✨ {contact.genderIdentity}
+                          </span>
+                        )}
+                        {contact.location && (
+                          <span className="bg-gray-100 text-gray-500 font-medium px-1.5 py-0.5 rounded text-[8px] tracking-wide truncate max-w-[100px]">
+                            📍 {contact.location}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </button>
 
@@ -314,10 +338,26 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                       <Link href={`/${contact.username}`} className="w-full block px-3 py-2 text-left font-black text-gray-700 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition">
                         👤 View Profile
                       </Link>
-                      <button type="button" onClick={() => { setActiveMenuId(null); alert("User ignored for 10 minutes."); }} className="w-full block px-3 py-2 text-left font-semibold text-amber-600 hover:bg-amber-50 rounded-lg transition">
+                      <button 
+                        type="button" 
+                        onClick={async () => { 
+                          setActiveMenuId(null); 
+                          const res = await ignoreUserAction(contact.id); 
+                          if (res.success) alert(`Muted @${contact.username} for 10 minutes.`);
+                        }} 
+                        className="w-full block px-3 py-2 text-left font-semibold text-amber-600 hover:bg-amber-50 rounded-lg transition"
+                      >
                         ⏳ Ignore for 10 mins
                       </button>
-                      <button type="button" onClick={() => { setActiveMenuId(null); alert("User blocked successfully."); }} className="w-full block px-3 py-2 text-left font-semibold text-red-600 hover:bg-red-50 rounded-lg transition">
+                      <button 
+                        type="button" 
+                        onClick={async () => { 
+                          setActiveMenuId(null); 
+                          const res = await blockUserAction(contact.id);
+                          if (res.success) alert(`Successfully blocked @${contact.username}.`);
+                        }} 
+                        className="w-full block px-3 py-2 text-left font-semibold text-red-600 hover:bg-red-50 rounded-lg transition"
+                      >
                         🚫 Block User Account
                       </button>
                     </div>
