@@ -119,7 +119,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   }, [publicMessages, modMessages, privateMessages, selectedChannel]);
 
 
-// src/app/chat/UnifiedMessengerClient.tsx (PART 2A - DISPATCH METHODS & ACTIVE FILTERS)
 
   const handleSendMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -263,7 +262,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           </div>
 
 
-// src/app/chat/UnifiedMessengerClient.tsx (PART 2B - USER TILES & OPTION CONTEXT MENUS)
 
           {/* Contacts Directory Map Rendering */}
           {activePrivateLinesList.map((contact) => {
@@ -339,7 +337,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
       </div>
 
 
-// src/app/chat/UnifiedMessengerClient.tsx (PART 3 - THE CHAT BUBBLE STREAM WORKSPACE VIEW)
 
       {/* 💬 COLS 2: MAIN DOMINANT CHAT TEXT CANVAS VIEW */}
       <div 
