@@ -54,7 +54,8 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   const hasStaffPrivileges = currentUser.role === "MOD" || currentUser.role === "ADMIN";
 
   // 📱 RESPONSIVE DYNAMIC TOGGLE
-  const isChatSelected = selectedChannel !== "PUBLIC_LOUNGE" || activeContact !== null;
+  const [mobileViewState, setMobileViewState] = useState<"ROOMS" | "WORKSPACE">("ROOMS");
+  const isChatSelected = mobileViewState === "WORKSPACE";
 
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev", 
@@ -217,7 +218,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         <div className="flex-1 overflow-y-auto py-3 space-y-1.5">
           {/* Public Lounge Access Row */}
           <button
-            onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); }}
+            onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); setMobileViewState("WORKSPACE"); }}
             className={`w-full flex items-center space-x-3 p-3 rounded-2xl transition text-left border ${
               selectedChannel === "PUBLIC_LOUNGE" 
                 ? "bg-rose-500 text-white border-rose-600 shadow-sm" 
@@ -236,7 +237,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           {/* Secure Staff Mod Chat Cell */}
           {hasStaffPrivileges && (
             <button
-              onClick={() => { setSelectedChannel("MOD_CHAT"); setActiveContact(null); }}
+              onClick={() => { setSelectedChannel("MOD_CHAT"); setActiveContact(null); setMobileViewState("WORKSPACE"); }}
               className={`w-full flex items-center space-x-3 p-3 rounded-2xl transition text-left border ${
                 selectedChannel === "MOD_CHAT" 
                   ? "bg-purple-600 text-white border-purple-700 shadow-sm" 
@@ -271,7 +272,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                 }`}
               >
                 <button
-                  onClick={() => { setSelectedChannel(contact.id); setActiveContact(contact); }}
+                  onClick={() => { setSelectedChannel(contact.id); setActiveContact(contact); setMobileViewState("WORKSPACE"); }}
                   className="flex items-center space-x-3 text-left min-w-0 flex-1"
                 >
                   {/* Colored indicator ring */}
@@ -345,7 +346,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
             {isChatSelected && (
               <button 
                 type="button"
-                onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); }}
+                onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); setMobileViewState("ROOMS"); }}
                 className="block md:hidden font-black uppercase text-[10px] tracking-wider text-rose-500 bg-rose-50 hover:bg-rose-100 border border-rose-100/60 px-3 py-1.5 rounded-xl shrink-0 transition"
               >
                 ◀ Rooms

@@ -1,4 +1,4 @@
-// src/app/chat/page.tsx
+// src/app/chat/page.tsx (PERFECT MOBILITY HEIGHT COMPILATION)
 export const dynamic = "force-dynamic";
 
 import { getCurrentUser } from "@/app/actions/auth";
@@ -30,7 +30,7 @@ export default async function ChatPage() {
       id: { not: currentUser.id },
       status: { not: "BANNED" }
     },
-    select: { id: true, username: true, displayName: true, avatarUrl: true }
+    select: { id: true, username: true, displayName: true, avatarUrl: true, status: true }
   });
 
   // Query private DM history
@@ -39,9 +39,9 @@ export default async function ChatPage() {
     orderBy: { createdAt: "asc" }
   });
 
-  // 🚀 NEW: Pre-fetch persistent Mod Chat history safely (Only load if staff, or let Prisma handle gracefully)
+  // Pre-fetch persistent Mod Chat history safely
   const isStaff = currentUser.role === Role.MODERATOR || currentUser.role === Role.ADMIN;
-    const modHistory = isStaff 
+  const modHistory = isStaff 
     ? await prisma.modMessage.findMany({
         orderBy: { createdAt: "asc" },
         include: { user: { select: { id: true, username: true, displayName: true, avatarUrl: true } } },
@@ -58,7 +58,6 @@ export default async function ChatPage() {
     roomToken: msg.roomToken
   }));
 
-  // 🚀 NEW: Format mod database logs safely for client crossing
   const serializedModHistory = modHistory.map((msg) => ({
     id: msg.id,
     content: msg.content,
@@ -68,20 +67,26 @@ export default async function ChatPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 overflow-hidden">
+    // 🎯 FIX: 'overflow-hidden' and 'max-h-screen' elements lock the outermost viewport frame tight on phones
+    <div className="min-h-screen max-h-screen h-screen bg-gray-50 text-gray-900 overflow-hidden flex flex-col">
       <GlobalHeader currentUser={currentUser} />
       <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
-      <div className="max-w-7xl mx-auto px-6 py-4 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10 h-[calc(100dvh-120px)] lg:h-auto">
+      {/* 🎯 THE OVERFLOW REMEDY VIEWPORT CELL CONTAINER:
+          On mobile devices, we strip 'max-w-7xl' and 'px-6' layout limits completely! 
+          This makes the chat canvas perfectly full-bleed ('w-full flex-1') right down to the mobile nav bar,
+          erasing that massive bottom gap entirely. On desktops, it shifts back to a beautiful centered grid. */}
+      <div className="w-full max-w-none lg:max-w-7xl mx-auto px-0 lg:px-6 py-0 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 relative z-10 flex-1 overflow-hidden h-[calc(100dvh-112px)] lg:h-auto">
+        
+        {/* Desktop Sidebar Layout column element cards */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* 🎯 THE DVH HEIGHT CORRECTION OVERRIDE */}
-        {/* Swapped from fixed h-[calc(100vh-140px)] to modern dvh constraints. */}
-        {/* On desktops it falls back gracefully to a locked, scroll-contained window shell panel frame. */}
-        <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm h-full max-h-[calc(100dvh-130px)] lg:h-[calc(100vh-140px)]">
+        {/* 🎯 CORE INTERACTIVE CHAT MAIN WRAPPER CONTAINER:
+            Takes up 100% of the active available screen estate space on mobile phones typesafely */}
+        <main className="col-span-1 lg:col-span-9 bg-white border-0 lg:border border-gray-200 rounded-none lg:rounded-3xl overflow-hidden shadow-none lg:shadow-sm h-full flex flex-col">
           <UnifiedMessengerClient 
             currentUser={currentUser}
             platformUsers={platformUsers}
