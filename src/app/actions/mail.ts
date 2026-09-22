@@ -1,4 +1,4 @@
-// src/app/actions/mail.ts
+// src/app/actions/mail.ts (PART 1 - SECURE DISPATCH ENGINE)
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -8,7 +8,7 @@ import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
-// 1. ACTION: Send a fresh internal mail with rich body content and multi-photo streams
+// 🚀 1. ACTION: Send a fresh internal mail with rich body content and multi-photo streams
 export async function sendInternalMail(formData: FormData) {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized." };
@@ -28,6 +28,16 @@ export async function sendInternalMail(formData: FormData) {
   const attachFiles = formData.getAll("attachments") as File[];
   const validFiles = attachFiles.filter(f => f && f.size > 0).slice(0, 3);
 
+  // 🎯 REAL-TIME PRESENCE REFRESH: 
+  // Updates the sender's activity timestamp inside Neon when sending mail
+  await prisma.user.update({
+    where: { id: sessionUser.id }, // 🎯 FIXED: Correctly targets 'sessionUser.id' instead of 'senderId'
+    data: { 
+      lastActive: new Date(), 
+      status: "ONLINE" 
+    }
+  });
+
   // Initialize data transaction row on Neon
   const mail = await prisma.internalMail.create({
     data: {
@@ -38,7 +48,7 @@ export async function sendInternalMail(formData: FormData) {
     }
   });
 
-  // Batch process uploader attachments
+  // Batch process uploader attachments via UploadThing
   if (validFiles.length > 0) {
     try {
       const responses = await utapi.uploadFiles(validFiles);
@@ -60,7 +70,10 @@ export async function sendInternalMail(formData: FormData) {
   return { success: true };
 }
 
-// 2. ACTION: Move mail objects into archive or deleted folders selectively
+
+// src/app/actions/mail.ts (PART 2 - MAIL BOX ARCHIVE & STATE CONTROLS)
+
+// 🚀 2. ACTION: Move mail objects into archive or deleted folders selectively
 export async function toggleMailState(mailId: string, actionType: "ARCHIVE" | "DELETE" | "MARK_READ") {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized." };
@@ -85,14 +98,17 @@ export async function toggleMailState(mailId: string, actionType: "ARCHIVE" | "D
     if (isRecipient) updateData.recipientDeleted = true;
   }
 
+  // 🎯 REAL-TIME PRESENCE REFRESH: 
+  // Refreshes the lease timestamp when organizing their inbox folders
   await prisma.user.update({
-    where: { id: sessionUser.id }, // 🎯 FIXED: Uses sessionUser.id to map the commenter's record row atomically
+    where: { id: sessionUser.id },
     data: { 
       lastActive: new Date(), 
       status: "ONLINE" 
     }
   });
 
+  // Execute the mail state transformation safely on Neon
   await prisma.internalMail.update({
     where: { id: mailId },
     data: updateData

@@ -1,4 +1,4 @@
-// src/app/actions/comments.ts
+// src/app/actions/comments.ts (FULLY BALANCED & TYPESAFE)
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -15,12 +15,22 @@ export async function createComment(
   if (!content.trim()) return { error: "Comment text cannot be empty." };
 
   try {
-    // 1. Create the base comment record row (Matches your schema layout perfectly)
+    // 🚀 THE REAL-TIME LEASE REFRESH: 
+    // Updates their 'lastActive' timestamp row in Neon whenever they post text!
+    await prisma.user.update({
+      where: { id: userId }, // 🎯 FIXED: Uses the verified function argument 'userId'
+      data: { 
+        lastActive: new Date(), 
+        status: "ONLINE" 
+      }
+    });
+
+    // 1. Create the base comment record row
     const newComment = await prisma.comment.create({
       data: {
         content: content.trim(),
         postId,
-        userId, // 🚀 CONFIRMED BY YOUR SCHEMA
+        userId, 
         parentId,
       },
       include: { 
@@ -59,7 +69,6 @@ export async function createComment(
         }
       }
     } catch (mentionErr) {
-      // If notifications error out, log it but don't stop the comment from posting!
       console.error("Non-blocking notification system error (Mentions):", mentionErr);
     }
 
@@ -68,7 +77,6 @@ export async function createComment(
       if (!parentId) {
         const post = await prisma.post.findUnique({ where: { id: postId } });
         if (post) {
-          // 🚀 SAFE FALLBACK: Check if post author field uses 'userId', 'authorId', or 'creatorId'
           const postOwnerId = post.userId || (post as any).authorId || (post as any).creatorId;
           
           if (postOwnerId && postOwnerId !== userId) {
@@ -85,14 +93,12 @@ export async function createComment(
       console.error("Non-blocking notification system error (Comment Alert):", notifErr);
     }
 
-    // Clear Next.js cache segments to display changes live
     revalidatePath("/");
     revalidatePath("/[username]", "layout");
 
     return { success: true, comment: newComment };
 
   } catch (error) {
-    // This logs the exact issue to your system terminal window (e.g. npm run dev console)
     console.error("CRITICAL BACKEND ACTION DATABASE ERROR:", error);
     return { error: "Failed to post comment to database server." };
   }
@@ -104,8 +110,10 @@ export async function deleteComment(commentId: string, currentUserId: string) {
     const comment = await prisma.comment.findUnique({ where: { id: commentId } });
     if (!comment || comment.userId !== currentUserId) return { error: "Unauthorised." };
 
+    // 🎯 RECONCILED PRE-REQUISITE LEASE:
+    // Uses the function parameter scope token variable 'currentUserId' correctly here
     await prisma.user.update({
-      where: { id: sessionUser.id }, // 🎯 FIXED: Uses sessionUser.id to map the commenter's record row atomically
+      where: { id: currentUserId }, // 🎯 FIXED BOUNDARY
       data: { 
         lastActive: new Date(), 
         status: "ONLINE" 
