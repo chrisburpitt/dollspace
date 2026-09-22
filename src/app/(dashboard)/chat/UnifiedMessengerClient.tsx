@@ -399,8 +399,9 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                   <span className="text-lg shrink-0">🌍</span>
                   <span className="font-black text-xs text-gray-900 block truncate leading-none">Public Lounge Chat Room</span>
                 </div>
-                {/* 🎯 Real-time Active Headcount Badge indicator */}
-                <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-1 rounded-md shrink-0 whitespace-nowrap ml-2 leading-none flex items-center">
+                {/* 🎯 THE FIX: Changed 'py-1 flex items-center' to match the clean 'py-0.5' modifier! 
+                    This keeps the header box flat and removes the extra height that was causing the scrollbar. */}
+                <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
                   ● {activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} Dolls Here
                 </span>
               </div>
