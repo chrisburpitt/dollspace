@@ -106,7 +106,17 @@ export default async function BlockedSettingsPage() {
                 })}
               </div>
             )}
+		  </div>
+		  
+		  <div className="border-t border-gray-100 pt-6 flex justify-end">
+            <Link
+              href="/settings"
+              className="bg-white hover:bg-rose-50 text-gray-700 hover:text-rose-500 border border-gray-200 hover:border-rose-200 font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-xl transition shadow-sm hover:shadow-md cursor-pointer transform hover:-translate-y-[1px] active:translate-y-0"
+            >
+              Return to Settings 👑
+            </Link>
           </div>
+		  
         </main>
       </div>
     </div>
