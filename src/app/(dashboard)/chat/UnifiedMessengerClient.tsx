@@ -379,7 +379,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         }`}
       >
         {/* 🎯 THE REFINED HEADER ROW: Restructured onto a flat single line across the screen */}
-        <div className=p-4 py-2 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14 overflow-hidden">
+        <div className="p-4 py-2 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14 overflow-hidden">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             
             {/* 📱 ROOMS BACK BUTTON: Mounted cleanly into the room list layout row block */}
