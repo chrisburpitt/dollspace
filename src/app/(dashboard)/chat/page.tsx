@@ -68,17 +68,20 @@ export default async function ChatPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-    <GlobalHeader currentUser={currentUser} />
-    <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
+    <div className="min-h-screen bg-gray-50 text-gray-900 overflow-hidden">
+      <GlobalHeader currentUser={currentUser} />
+      <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 py-4 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10 h-[calc(100dvh-120px)] lg:h-auto">
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        <main className="lg:col-span-9 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm h-[calc(100vh-140px)]">
+        {/* 🎯 THE DVH HEIGHT CORRECTION OVERRIDE */}
+        {/* Swapped from fixed h-[calc(100vh-140px)] to modern dvh constraints. */}
+        {/* On desktops it falls back gracefully to a locked, scroll-contained window shell panel frame. */}
+        <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm h-full max-h-[calc(100dvh-130px)] lg:h-[calc(100vh-140px)]">
           <UnifiedMessengerClient 
             currentUser={currentUser}
             platformUsers={platformUsers}

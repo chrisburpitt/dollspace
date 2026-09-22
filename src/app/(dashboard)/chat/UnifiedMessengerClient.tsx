@@ -258,7 +258,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           )}
 
           <div className={`text-[10px] uppercase font-black tracking-wider text-gray-400 px-3 pt-4 pb-1 text-left ${isChatSelected ? "hidden lg:block" : ""}`}>
-            Private Lines
+            Online Users
           </div>
 
 
