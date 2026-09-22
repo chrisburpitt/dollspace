@@ -1,4 +1,4 @@
-// src/app/chat/UnifiedMessengerClient.tsx (PART 1 - LIFECYCLE & MUTATION STATES)
+// src/app/chat/UnifiedMessengerClient.tsx (PART 1 - FRAMEWORK & REINFORCED FILTERS)
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -13,7 +13,7 @@ interface Contact {
   displayName: string;
   avatarUrl: string | null;
   status?: string;
-  currentRoom?: string; 
+  currentRoom?: string;
 }
 
 interface DirectMessageItem {
@@ -46,17 +46,16 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   const [inputText, setInputText] = useState("");
   
   const [activePresence, setActivePresence] = useState<Contact[]>([]);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null); // 🎯 Tracks open custom list option tiles
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const optionMenuRef = useRef<HTMLDivElement>(null);
 
   const currentRoomToken = activeContact ? generateLocalRoomToken(currentUser.id, activeContact.id) : "";
   const hasStaffPrivileges = currentUser.role === "MOD" || currentUser.role === "ADMIN";
 
-  // 📱 RESPONSIVE MOBILE SLIDING STATE TRACKER
+  // 📱 RESPONSIVE DYNAMIC TOGGLE
   const isChatSelected = selectedChannel !== "PUBLIC_LOUNGE" || activeContact !== null;
 
-  // 🔌 CLOUD WEBSOCKET CHANNEL HOOK
   const socket = usePartySocket({
     host: process.env.NEXT_PUBLIC_PARTYKIT_HOST || "my-partykit-app.chrisburpitt.partykit.dev", 
     room: "dollspace-messenger-hub",
@@ -97,7 +96,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
     }
   });
 
-  // Global listener closes floating option panels upon clicking outside areas
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (optionMenuRef.current && !optionMenuRef.current.contains(event.target as Node)) {
@@ -117,8 +115,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [publicMessages, modMessages, privateMessages, selectedChannel]);
-
-
 
   const handleSendMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,31 +183,33 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
     }
   };
 
-  // 🎯 THE ONLINE ROSTER FILTER GATEWAY: 
-  // Evaluates real-time socket arrays plus profile models. Maps strictly active/busy/away lines!
+  // Filter out offline rows dynamically
   const activePrivateLinesList = platformUsers.filter((doll) => {
     const isLiveInSocketPool = activePresence.some((u) => u.id === doll.id);
     const databasePresenceMarker = (doll as any).status || "OFFLINE";
-    
     return isLiveInSocketPool || ["ONLINE", "AWAY", "BUSY"].includes(databasePresenceMarker);
   });
 
   const activeChatFeedDMs = privateMessages.filter(m => m.roomToken === currentRoomToken);
 
+
+// src/app/chat/UnifiedMessengerClient.tsx (PART 2 - NAVIGATION LISTS)
+
   return (
     <div className="flex h-full w-full bg-white select-none relative overflow-hidden max-h-full">
       <ChatPresenceKeeper typingInputId="chat-message-input" />
       
-      {/* 📱 COLS 1: SLIDING MOTION SIDEBAR GRID CELL */}
+      {/* 🚀 LEFT COLUMN: ROOM SELECTORS & CONVERSATIONS LIST */}
+      {/* On mobile screens, this container slides completely hidden if a chat space cell goes live */}
       <div 
-        className={`h-full flex flex-col bg-white border-r border-gray-100 transition-all duration-500 ease-in-out shrink-0 ${
+        className={`h-full flex flex-col bg-white border-r border-gray-100 transition-all duration-300 ease-in-out shrink-0 ${
           isChatSelected 
-            ? "w-[72px] lg:w-80 px-2 lg:px-4" // Collapses elegantly to show icons only on selected items
-            : "w-full lg:w-80 px-4"          // Covers majority space on mobile if selection room stays open
+            ? "hidden md:flex md:w-72 lg:w-80 px-4" // Completely hidden on mobile when viewing a chat!
+            : "w-full md:w-72 lg:w-80 px-4"         // Displays wide if no chat window is selected
         }`}
       >
         <div className="p-4 border-b border-gray-100 shrink-0 text-left">
-          <h2 className={`font-black text-sm text-gray-900 uppercase tracking-wide ${isChatSelected ? "hidden lg:block text-center lg:text-left" : ""}`}>
+          <h2 className="font-black text-sm text-gray-900 uppercase tracking-wide">
             Conversations
           </h2>
         </div>
@@ -224,11 +222,10 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
               selectedChannel === "PUBLIC_LOUNGE" 
                 ? "bg-rose-500 text-white border-rose-600 shadow-sm" 
                 : "hover:bg-gray-50 text-gray-700 border-transparent"
-            } ${isChatSelected ? "justify-center lg:justify-start" : ""}`}
-            title="Public Lounge"
+            }`}
           >
             <span className="text-xl shrink-0">🌍</span>
-            <div className={`min-w-0 flex-1 ${isChatSelected ? "hidden lg:block" : ""}`}>
+            <div className="min-w-0 flex-1text-left">
               <span className="font-black text-xs block leading-tight">Public Lounge Chat</span>
               <span className={`text-[10px] block font-bold ${selectedChannel === "PUBLIC_LOUNGE" ? "text-rose-100" : "text-rose-500"}`}>
                 ✨ Lounge ({activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} inside)
@@ -244,11 +241,10 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                 selectedChannel === "MOD_CHAT" 
                   ? "bg-purple-600 text-white border-purple-700 shadow-sm" 
                   : "bg-purple-50/40 hover:bg-purple-50 text-purple-700 border-transparent"
-              } ${isChatSelected ? "justify-center lg:justify-start" : ""}`}
-              title="Staff Mod Chat"
+              }`}
             >
               <span className="text-xl shrink-0">🛡️</span>
-              <div className={`min-w-0 flex-1 ${isChatSelected ? "hidden lg:block" : ""}`}>
+              <div className="min-w-0 flex-1 text-left">
                 <span className="font-black text-xs block leading-tight">Staff Mod Chat</span>
                 <span className={`text-[10px] block font-bold ${selectedChannel === "MOD_CHAT" ? "text-purple-100" : "text-purple-500"}`}>
                   🔒 Restricted Channel
@@ -257,32 +253,28 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
             </button>
           )}
 
-          <div className={`text-[10px] uppercase font-black tracking-wider text-gray-400 px-3 pt-4 pb-1 text-left ${isChatSelected ? "hidden lg:block" : ""}`}>
+          <div className="text-[10px] uppercase font-black tracking-wider text-gray-400 px-3 pt-4 pb-1 text-left">
             Online Users
           </div>
-
-
 
           {/* Contacts Directory Map Rendering */}
           {activePrivateLinesList.map((contact) => {
             const isSelected = activeContact?.id === contact.id;
-            
-            // Resolve live presence statuses from active socket array updates
             const matchedLiveUser = activePresence.find(u => u.id === contact.id);
             const resolvedLiveStatus = matchedLiveUser?.status || (contact as any).status || "ONLINE";
 
             return (
               <div 
                 key={contact.id}
-                className={`w-full flex items-center justify-between p-2 rounded-2xl transition border group ${
+                className={`w-full flex items-center justify-between p-2 rounded-2xl transition border ${
                   isSelected ? "bg-rose-50 border-rose-100" : "border-transparent hover:bg-gray-50/60"
                 }`}
               >
                 <button
                   onClick={() => { setSelectedChannel(contact.id); setActiveContact(contact); }}
-                  className={`flex items-center space-x-3 text-left min-w-0 flex-1 ${isChatSelected ? "justify-center lg:justify-start" : ""}`}
+                  className="flex items-center space-x-3 text-left min-w-0 flex-1"
                 >
-                  {/* 🎨 THE COLORED STATUS INDICATOR RING WRAPPER */}
+                  {/* Colored indicator ring */}
                   <div className="relative shrink-0 p-[2px]">
                     <img 
                       src={contact.avatarUrl || "/default-avatar.png"} 
@@ -300,14 +292,14 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                     }`}></span>
                   </div>
                   
-                  <div className={`min-w-0 flex-1 ${isChatSelected ? "hidden lg:block" : ""}`}>
+                  <div className="min-w-0 flex-1">
                     <span className="font-black text-xs block leading-tight truncate text-gray-800">{contact.displayName}</span>
                     <span className="text-[10px] text-gray-400 font-semibold block truncate">@{contact.username}</span>
                   </div>
                 </button>
 
-                {/* 🎯 THE '...' ACTIONS CONTEXT MENU PACKET NODE */}
-                <div className={`relative ${isChatSelected ? "hidden lg:block" : ""}`} ref={activeMenuId === contact.id ? optionMenuRef : null}>
+                {/* Dropdown triggers */}
+                <div className="relative" ref={activeMenuId === contact.id ? optionMenuRef : null}>
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === contact.id ? null : contact.id); }}
@@ -337,62 +329,72 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
       </div>
 
 
+// src/app/chat/UnifiedMessengerClient.tsx (PART 3 - THE CHAT SPACE WORKSPACE)
 
-      {/* 💬 COLS 2: MAIN DOMINANT CHAT TEXT CANVAS VIEW */}
+      {/* 💬 MAIN CHAT WORKSPACE CONSOLE VIEW */}
+      {/* Dynamic dynamic layout takes up full space on mobile device triggers */}
       <div 
-        className={`flex flex-col bg-gray-50/50 overflow-hidden h-full transition-all duration-500 ease-in-out flex-1 ${
-          !isChatSelected ? "hidden lg:flex" : "flex"
+        className={`flex flex-col bg-gray-50/50 overflow-hidden h-full max-h-full transition-all duration-300 ease-in-out flex-1 ${
+          !isChatSelected ? "hidden md:flex" : "flex"
         }`}
       >
-        {/* Thread Header Context Bar */}
-        <div className="p-4 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full">
-          <div className="flex items-center space-x-3">
+        {/* 🎯 THE REFINED HEADER ROW: Restructured onto a flat single line across the screen */}
+        <div className="p-4 bg-white border-b border-gray-100 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14">
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
             
-            {/* 📱 MOBILE NAVIGATION SLIDING RETURN BACK ACTION BUTTON */}
+            {/* 📱 ROOMS BACK BUTTON: Mounted cleanly into the room list layout row block */}
             {isChatSelected && (
               <button 
                 type="button"
                 onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); }}
-                className="block lg:hidden text-[10px] font-black uppercase tracking-wider text-rose-500 bg-rose-50 px-3 py-2 rounded-xl transition border border-rose-100/50 hover:bg-rose-100"
+                className="block md:hidden font-black uppercase text-[10px] tracking-wider text-rose-500 bg-rose-50 hover:bg-rose-100 border border-rose-100/60 px-3 py-1.5 rounded-xl shrink-0 transition"
               >
                 ◀ Rooms
               </button>
             )}
 
             {selectedChannel === "PUBLIC_LOUNGE" ? (
-              <>
-                <span className="text-2xl">🌍</span>
-                <div>
-                  <span className="font-black text-xs text-gray-900 block leading-tight">Public Lounge Chat Room</span>
-                  <span className="text-[10px] text-rose-500 font-bold tracking-wider">● Anything goes! Don't forget to say HII 👋🏼</span>
+              <div className="flex items-center justify-between w-full min-w-0 pr-1">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <span className="text-lg shrink-0">🌍</span>
+                  <span className="font-black text-xs text-gray-900 block truncate leading-none">Public Lounge Chat Room</span>
                 </div>
-              </>
+                {/* 🎯 Real-time Active Headcount Badge indicator */}
+                <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
+                  ● {activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} Dolls Inside
+                </span>
+              </div>
             ) : selectedChannel === "MOD_CHAT" ? (
-              <>
-                <span className="text-2xl">🛡️</span>
-                <div>
-                  <span className="font-black text-xs text-purple-900 block leading-tight">Staff & Moderation Workspace</span>
-                  <span className="text-[10px] text-purple-600 font-bold tracking-wider">🔒 Restricted Channel. Admin logs active.</span>
+              <div className="flex items-center justify-between w-full min-w-0 pr-1">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <span className="text-lg shrink-0">🛡️</span>
+                  <span className="font-black text-xs text-purple-900 block truncate leading-none">Staff Moderation Panel</span>
                 </div>
-              </>
+                <span className="bg-purple-50 border border-purple-100 text-purple-600 text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
+                  🔒 Secure
+                </span>
+              </div>
             ) : activeContact ? (
-              <>
-                <img 
-                  src={activeContact.avatarUrl || "/default-avatar.png"} 
-                  className="w-8 h-8 rounded-full object-cover border border-gray-100 shadow-sm" 
-                />
-                <div>
-                  <span className="font-black text-xs text-gray-900 block leading-tight">{activeContact.displayName}</span>
-                  <span className="text-[10px] text-green-500 font-bold uppercase tracking-wider animate-pulse">● Private Encrypted Chat Line</span>
+              <div className="flex items-center justify-between w-full min-w-0 pr-1">
+                <div className="flex items-center space-x-2 min-w-0">
+                  <img 
+                    src={activeContact.avatarUrl || "/default-avatar.png"} 
+                    className="w-7 h-7 rounded-full object-cover border border-gray-100 shadow-sm shrink-0" 
+                  />
+                  <span className="font-black text-xs text-gray-900 block truncate leading-none">{activeContact.displayName}</span>
                 </div>
-              </>
+                <span className="bg-rose-50 border border-rose-100 text-rose-500 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
+                  🔒 Private Message
+                </span>
+              </div>
             ) : null}
           </div>
         </div>
 
         {/* Live Scrollable Chat Bubble Roster Stream */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 w-full">
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 w-full bg-gray-50/30">
           {selectedChannel === "PUBLIC_LOUNGE" || selectedChannel === "MOD_CHAT" ? (
+            /* MODE A: PUBLIC LOUNGE / STAFF MOD ROOM VIEWS */
             (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-400">
                 <span className="text-4xl mb-2">{selectedChannel === "MOD_CHAT" ? "🔒" : "👋"}</span>
@@ -430,6 +432,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
               })
             )
           ) : (
+            /* MODE B: SECURE SINGLE INSTANCE PRIVATE DM VIEW STREAM */
             activeChatFeedDMs.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-gray-400">
                 <p className="text-xs font-bold uppercase tracking-wider">Start of secure private dialogue thread 🌸</p>
@@ -476,7 +479,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           />
           <button 
             type="submit" 
-            className={`font-black px-5 py-3 rounded-xl transition shadow-sm text-xs tracking-wide text-white ${
+            className={`font-black px-5 py-3 rounded-xl transition shadow-sm text-xs tracking-wide text-white shrink-0 ${
               selectedChannel === "MOD_CHAT" ? "bg-purple-600 hover:bg-purple-700" : "bg-rose-500 hover:bg-rose-600"
             }`}
           >
