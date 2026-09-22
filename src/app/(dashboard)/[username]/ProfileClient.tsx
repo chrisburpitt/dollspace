@@ -48,7 +48,18 @@ function calculateAgeFromBirthday(birthdayString: string | null): number | null 
 }
 
 export default function ProfileClient({ 
-  user, isOwner, isFollowing, sessionUser, userPosts, taggedPosts = [], validatedHeaderUser, unreadMailCount, onlineUsers, followersList = [], dashboardMetrics
+  user,
+  isOwner,
+  isFollowing,
+  sessionUser,
+  userPosts,
+  taggedPosts = [],
+  validatedHeaderUser,
+  unreadMailCount,
+  onlineUsers,
+  followersList = [],
+  dotwRecord,
+  dashboardMetrics
 }: ProfileClientProps) {
   const [activeTab, setActiveTab] = useState<"FEED" | "TAGGED" | "ALBUMS">("FEED");
   const [activeLightboxUrl, setActiveLightboxUrl] = useState<string[] | null>(null);
