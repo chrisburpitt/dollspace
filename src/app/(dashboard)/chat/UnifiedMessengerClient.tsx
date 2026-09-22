@@ -432,7 +432,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
         </div>
 
         {/* Live Scrollable Chat Bubble Roster Stream */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 w-full bg-gray-50/30">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 w-full bg-gray-50/30 max-h-full">
           {selectedChannel === "PUBLIC_LOUNGE" || selectedChannel === "MOD_CHAT" ? (
             /* MODE A: PUBLIC LOUNGE / STAFF MOD ROOM VIEWS */
             (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).length === 0 ? (
