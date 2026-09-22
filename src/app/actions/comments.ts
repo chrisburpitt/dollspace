@@ -105,8 +105,11 @@ export async function deleteComment(commentId: string, currentUserId: string) {
     if (!comment || comment.userId !== currentUserId) return { error: "Unauthorised." };
 
     await prisma.user.update({
-      where: { id: senderId },
-      data: { lastActive: new Date(), status: "ONLINE" } // Refreshes their lease!
+      where: { id: sessionUser.id }, // 🎯 FIXED: Uses sessionUser.id to map the commenter's record row atomically
+      data: { 
+        lastActive: new Date(), 
+        status: "ONLINE" 
+      }
     });
 
     await prisma.comment.delete({ where: { id: commentId } });
