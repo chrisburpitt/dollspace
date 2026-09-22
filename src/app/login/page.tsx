@@ -1,4 +1,4 @@
-// src/app/login/page.tsx (PART 1 - REINFORCED REGISTRATION DECK)
+// src/app/login/page.tsx (PART 1 - SYNCHRONISED FORM CONSOLE)
 "use client";
 
 import { useActionState, Suspense, useState } from "react"; 
@@ -76,7 +76,7 @@ function AuthFormContent() {
         </div>
 
 
-// src/app/login/page.tsx (PART 2 - COMPULSORY FIELDS & DATE OF BIRTH HOOK)
+// src/app/login/page.tsx (PART 2 - POINTER WRAPPER LOCKOUT BYPASS)
 
         {isRegisterMode && (
           <>
@@ -176,16 +176,21 @@ function AuthFormContent() {
           </div>
         )}
 
-        <SubmitButton 
-          label={isRegisterMode ? "Sign Up" : "Log In"} 
-          loadingLabel={isRegisterMode ? "Creating Account..." : "Verifying Secure Token..."}
-          disabled={isRegisterMode && (!agreedToTerms || !agreedToPrivacy)}
-          className={`w-full font-bold p-3 rounded-xl transition shadow-sm mt-2 text-sm text-white ${
+        {/* 🚀 THE INTERACTIVE POINTER WRAPPER BLOCK */}
+        {/* Captures interaction layouts safely to lock out submissions typesafely! */}
+        <div 
+          className={`transition-all duration-300 mt-2 rounded-xl ${
             isRegisterMode && (!agreedToTerms || !agreedToPrivacy)
-              ? "bg-gray-300 cursor-not-allowed opacity-60"
-              : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
+              ? "pointer-events-none opacity-50 bg-gray-200 border border-gray-300 cursor-not-allowed"
+              : ""
           }`}
-        />
+        >
+          <SubmitButton 
+            label={isRegisterMode ? "Sign Up" : "Log In"} 
+            loadingLabel={isRegisterMode ? "Creating Account..." : "Verifying Secure Token..."}
+            className={`w-full font-bold p-3 rounded-xl transition text-sm text-white bg-rose-500 hover:bg-rose-600 cursor-pointer`}
+          />
+        </div>
       </form>
 
       <div className="mt-6 text-center text-xs font-bold border-t border-gray-100 pt-4">
