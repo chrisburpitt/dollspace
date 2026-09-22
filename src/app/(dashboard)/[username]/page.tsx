@@ -34,9 +34,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const unreadMailCount = await getUnreadMailCount();
   const onlineUsers = await getOnlineDollsRoster();
-    const dashboardMetrics = await getPlatformDashboardMetrics();
-    const dotwRecord = await prisma.dollOfTheWeekEntry.findUnique({
-      where: { userId: user.id } // Targets the profile user's ID slots
+  const dashboardMetrics = await getPlatformDashboardMetrics();
+  
+  const user = await prisma.user.findUnique({
+    where: { username },
+    include: {
+      _count: {
+        select: { followers: true, following: true, posts: true }
+      },
+      albums: {
+        include: { photos: { orderBy: { createdAt: "desc" } } }
+      }
+    }
+  });
+
+  // 🛑 Safety Halt: If the user doesn't exist on the network, drop out to a 404
+  if (!user) return <div>Profile Not Found</div>; // Or your custom 404 page redirect
+
+  // 🚀 2. SECOND: Now that 'user' is safely defined, it is completely typesafe to read user.id!
+  const dotwRecord = await prisma.dollOfTheWeekEntry.findUnique({
+    where: { userId: user.id } 
   });
 
   // 🚀 FIX: Pre-fetch your complete permanent network directory layout natively
