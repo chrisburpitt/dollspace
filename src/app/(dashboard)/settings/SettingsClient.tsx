@@ -128,7 +128,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
 
           {/* SECTION 2: CONTENT MODERATION & SAFETY FILTERS */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🛡️ Content Filters</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🚫 Content Filters</h2>
             <div className="space-y-3">
               
               {/* Filter 1: Swear Word Filter */}
@@ -169,7 +169,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
 
 
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Email Notifications</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">📧 Email Notifications</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { label: "New Post Comments", state: notifComments, setter: setNotifComments, desc: "Alert when a doll comments on your timeline posts." },
@@ -190,7 +190,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
           </section>
 
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Privacy & Restrictions</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">⛔ Privacy & Restrictions</h2>
             <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all duration-300 ${
               isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-rose-50/20 border-rose-100/60"
             }`}>
@@ -280,12 +280,12 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
 
           {/* SECTION 6: LIFECYCLE DANGER ZONE GATES */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-red-500">Danger Zone</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-red-500">⚡ Danger Zone</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
                   <span className="text-xs font-black block text-amber-600">Pause Account</span>
-                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Do you need a break? Put your account on hold temporarily by deactivating here. This hides your profile and updates until you resume.</span>
+                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Do you need a break? Put your account on hold temporarily by deactivating here. This hides your profile and posts until you return 🏖️</span>
                 </div>
                 <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Pause Account</button>
               </div>
@@ -293,7 +293,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-red-950/10 border-red-900/30" : "bg-red-50/30 border-red-100"}`}>
                 <div>
                   <span className="text-xs font-black block text-red-600">Delete Account Permanently</span>
-                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">I can't believe you are leaving us already 😭 This action will permanently delete your profile and ALL posts, pictures and comments across the site. This cannot be undone!</span>
+                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">I can't believe you are leaving us already 😭 This action will PERMANENTLY DELETE your profile and ALL posts, pictures and comments from Dollspace. This cannot be undone! ⚠️</span>
                 </div>
                 <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Delete Account</button>
               </div>
