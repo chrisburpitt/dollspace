@@ -12,7 +12,8 @@ interface Contact {
   username: string;
   displayName: string;
   avatarUrl: string | null;
-  status?: string; // 🎯 Synchronized status strings tracking
+  status?: string;
+  currentRoom?: string; 
 }
 
 interface DirectMessageItem {
