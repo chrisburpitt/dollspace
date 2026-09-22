@@ -1,4 +1,4 @@
-// src/app/settings/SettingsClient.tsx (PART 1 - PREFERENCE STATE HYDRATION)
+// src/app/settings/SettingsClient.tsx (PART 1 - SYSTEM INTEGRATION)
 "use client";
 
 import { useState } from "react";
@@ -6,7 +6,7 @@ import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
 import MobileNavShell from "@/components/MobileNavShell";
 import Link from "next/link";
-import { saveUserSettingsAction } from "@/app/actions/settings"; // 🎯 1. IMPORT FRESH SAVE ACTION
+import { saveUserSettingsAction } from "@/app/actions/settings";
 
 interface SettingsClientProps {
   currentUser: any;
@@ -16,9 +16,7 @@ interface SettingsClientProps {
 export default function SettingsClient({ currentUser, unreadMailCount }: SettingsClientProps) {
   const [isSaving, setIsSaving] = useState(false);
 
-  // 🎯 2. DATABASE HYDRATION: Initialize toggles straight out of their persistent database profile row!
   const [isDarkMode, setIsDarkMode] = useState(currentUser.isDarkMode ?? false);
-
   const [swearFilter, setSwearFilter] = useState(currentUser.swearFilter ?? true);
   const [xxxFilter, setXxxFilter] = useState(currentUser.xxxFilter ?? true);
 
@@ -28,7 +26,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
   const [notifMail, setNotifMail] = useState(currentUser.notifMail ?? false);
   const [notifDms, setNotifDms] = useState(currentUser.notifDms ?? false);
 
-  // 🚀 THE SAVE INTERACTION HANDLER
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
@@ -46,7 +43,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
       if (result.success) {
         alert("Configuration changes saved successfully onto the database! ✨");
       } else {
-        alert(`❌ Error: ${result.error || "Failed to commit settings."}`);
+        alert(`Error: ${result.error || "Failed to commit settings."}`);
       }
     } catch (err) {
       console.error("Settings transaction failure:", err);
@@ -55,10 +52,73 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
     }
   };
 
+  return (
+    <div className={`min-h-screen font-sans antialiased transition-colors duration-300 ${
+      isDarkMode ? "bg-gray-950 text-gray-50" : "bg-gray-50 text-gray-900"
+    }`}>
+      <GlobalHeader currentUser={currentUser} />
+      <MobileNavShell currentUsername={currentUser?.username} unreadMailCount={unreadMailCount} />
 
-          {/* SECTION 3: EMAIL NOTIFICATION TOGGLES */}
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+        <aside className="hidden lg:block lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
+          <SidebarNav currentUsername={currentUser?.username} unreadMailCount={unreadMailCount} />
+        </aside>
+
+        <main className={`col-span-1 lg:col-span-9 border transition-colors duration-300 rounded-3xl p-6 sm:p-10 shadow-sm text-left space-y-8 ${
+          isDarkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
+        }`}>
+          <div>
+            <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
+              Account <span className="text-rose-500">Settings</span> 👑
+            </h1>
+            <p className="text-xs font-semibold mt-1 text-gray-400">
+              Configure your display mode preferences, toggle notification arrays, and update security locks.
+            </p>
+          </div>
+
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">💌 Email Dispatch Notifications</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Interface Theme</h2>
+            <div className={`p-4 rounded-2xl flex items-center justify-between border ${
+              isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
+            }`}>
+              <div>
+                <span className="text-xs font-black block">Dark Layout Mode</span>
+                <span className="text-[10px] font-bold text-gray-400 block">Switch between light and dark themes across Dollspace.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
+              >
+                <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
+              </button>
+            </div>
+          </section>
+
+
+          <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Content Moderation Filters</h2>
+            <div className="space-y-3">
+              <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
+                <div>
+                  <span className="text-xs font-black block">Swear Word Filter (Default On)</span>
+                  <span className="text-[10px] font-bold text-gray-400 block">Censors vulgar expressions within chat channels automatically.</span>
+                </div>
+                <button type="button" onClick={() => setSwearFilter(!swearFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${swearFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
+              </div>
+
+              <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
+                <div>
+                  <span className="text-xs font-black block">XXX / Nudity Filter (Default On)</span>
+                  <span className="text-[10px] font-bold text-gray-400 block">Restricts explicit photo attachments inside the feed stream.</span>
+                </div>
+                <button type="button" onClick={() => setXxxFilter(!xxxFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${xxxFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
+              </div>
+            </div>
+          </section>
+
+          <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Email Dispatch Notifications</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { label: "New Post Comments", state: notifComments, setter: setNotifComments, desc: "Alert when a doll comments on your timeline posts." },
@@ -77,10 +137,9 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               ))}
             </div>
           </section>
-		  
-          {/* SECTION 4: PRIVACY & RESTRICTIONS PANEL */}
+
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔒 Privacy & Restrictions</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Privacy & Restrictions</h2>
             <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all duration-300 ${
               isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-rose-50/20 border-rose-100/60"
             }`}>
@@ -92,16 +151,17 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-          {/* SECTION 5: SECURITY & PROFILE CREDENTIALS */}
+// src/app/settings/SettingsClient.tsx (PART 3 - CREDENTIALS & GATES CLING)
+
           <section className="space-y-6 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔑 Security & Credentials</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Security & Credentials</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
               <form onSubmit={(e) => { e.preventDefault(); alert("Email update token dispatched securely."); }} className="space-y-3">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Update Email Address</label>
                   <input type="email" required placeholder="New email handle address" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                 </div>
-                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs cursor-pointer">Save New Email</button>
+                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs">Save New Email</button>
               </form>
 
               <form onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} className="space-y-3">
@@ -109,21 +169,20 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <input type="password" required placeholder="Current account password" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                   <input type="password" required placeholder="New secure password" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                 </div>
-                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs cursor-pointer">Update Password</button>
+                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs">Update Password</button>
               </form>
             </div>
           </section>
 
-          {/* SECTION 6: LIFECYCLE DANGER ZONE GATES */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-red-500">🚨 Danger Zone</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-red-500">Danger Zone</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
                   <span className="text-xs font-black block text-amber-600">Pause Account Pool</span>
                   <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Temporarily deactivate your profile card. This hides your feed updates.</span>
                 </div>
-                <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Pause Account</button>
+                <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs">Pause Account</button>
               </div>
 
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-red-950/10 border-red-900/30" : "bg-red-50/30 border-red-100"}`}>
@@ -131,12 +190,11 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <span className="text-xs font-black block text-red-600">Delete Account Permanently</span>
                   <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Atomically purge your profile table row from Neon PostgreSQL. Action cannot be undone.</span>
                 </div>
-                <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Delete Account</button>
+                <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs">Delete Account</button>
               </div>
             </div>
           </section>
 
-          {/* MUTATION TRIGGER BLOCK */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-6 flex justify-end">
             <button 
               type="button" 
