@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
 import MobileNavShell from "@/components/MobileNavShell";
@@ -51,6 +52,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
       setIsSaving(false);
     }
   };
+  const router = useRouter();
 
   return (
     <div className={`min-h-screen font-sans antialiased transition-colors duration-300 ${
@@ -89,13 +91,10 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 type="button"
                 onClick={async () => {
                   const nextThemeState = !isDarkMode;
-                  setIsDarkMode(nextThemeState);
+                  setIsDarkMode(nextThemeState); // Optimistic UI flip
     
-                  // 🚀 AUTOMATED INSTANT COMMIT:
-                  // Writes the choice directly to your Neon user row row immediately on click!
-                  // This runs revalidatePath("/", "layout") behind the scenes, forcing your entire 
-                  // platform, header navs, and sidebar grids to transition to dark parameters instantly!
-                  await saveUserSettingsAction({
+                  // 🎯 WRITE DIRECTLY TO NEON POSTGRESQL LIVE
+                  const result = await saveUserSettingsAction({
                     isDarkMode: nextThemeState,
                     swearFilter,
                     xxxFilter,
@@ -105,6 +104,13 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                     notifMail,
                     notifDms
                   });
+
+                  if (result?.success) {
+                    // 🚀 THE LIFESAVER CHANGE: Force Next.js to drop its browser memory data caches!
+                    // This forces your root layout.tsx and page.tsx files to pull down the newly 
+                    // updated user row variables from the database immediately on click!
+                    router.refresh();
+                  }
                 }}
                 className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${
                   isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"
