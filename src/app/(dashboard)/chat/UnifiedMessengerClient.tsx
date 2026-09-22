@@ -329,7 +329,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
       </div>
 
 
-// src/app/chat/UnifiedMessengerClient.tsx (PART 3 - THE CHAT SPACE WORKSPACE)
 
       {/* 💬 MAIN CHAT WORKSPACE CONSOLE VIEW */}
       {/* Dynamic dynamic layout takes up full space on mobile device triggers */}
