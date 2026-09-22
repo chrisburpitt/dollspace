@@ -77,8 +77,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               ))}
             </div>
           </section>
-
-          {/* SECTION 4: DYNAMIC BLOCK LIST LINK PANEL */}
+		  
+          {/* SECTION 4: PRIVACY & RESTRICTIONS PANEL */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔒 Privacy & Restrictions</h2>
             <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all duration-300 ${
@@ -92,7 +92,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-
           {/* SECTION 5: SECURITY & PROFILE CREDENTIALS */}
           <section className="space-y-6 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔑 Security & Credentials</h2>
@@ -102,7 +101,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Update Email Address</label>
                   <input type="email" required placeholder="New email handle address" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                 </div>
-                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs">Save New Email</button>
+                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs cursor-pointer">Save New Email</button>
               </form>
 
               <form onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} className="space-y-3">
@@ -110,7 +109,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <input type="password" required placeholder="Current account password" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                   <input type="password" required placeholder="New secure password" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                 </div>
-                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs">Update Password</button>
+                <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs cursor-pointer">Update Password</button>
               </form>
             </div>
           </section>
@@ -124,7 +123,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <span className="text-xs font-black block text-amber-600">Pause Account Pool</span>
                   <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Temporarily deactivate your profile card. This hides your feed updates.</span>
                 </div>
-                <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs">Pause Account</button>
+                <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Pause Account</button>
               </div>
 
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-red-950/10 border-red-900/30" : "bg-red-50/30 border-red-100"}`}>
@@ -132,12 +131,12 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   <span className="text-xs font-black block text-red-600">Delete Account Permanently</span>
                   <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Atomically purge your profile table row from Neon PostgreSQL. Action cannot be undone.</span>
                 </div>
-                <button type="button" onClick={() => { if(confirm("🚨 Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs">Delete Account</button>
+                <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Delete Account</button>
               </div>
             </div>
           </section>
 
-          {/* 🚀 MUTATION TRIGGER: Bound straight to handleSaveSettings! */}
+          {/* MUTATION TRIGGER BLOCK */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-6 flex justify-end">
             <button 
               type="button" 
