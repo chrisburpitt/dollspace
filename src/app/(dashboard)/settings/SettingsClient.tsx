@@ -202,19 +202,23 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-// src/app/settings/SettingsClient.tsx (PART 3 - CREDENTIALS & SECURITY HANDSHAKES)
 
+          {/* SECTION 5: SECURITY & PROFILE CREDENTIALS */}
           <section className="space-y-6 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔑 Security & Credentials</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">
+              🔑 Security & Credentials
+            </h2>
             
-            {/* 🎯 THE WIDE SINGLE-COLUMN CHANGE USERNAME CARD */}
-            {/* Embedded perfectly right above your secondary side-by-side credential forms */}
-            <form onSubmit={handleUsernameChangeSubmit} className="space-y-3 w-full border-b border-gray-100 dark:border-gray-800/60 pb-6">
-              <div>
-                <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block mb-1 tracking-wider">
-                  Change Account Username Handle
-                </label>
-                <div className="relative max-w-full">
+            {/* 🎯 THE COMPACT SINGLE-LINE REFACTOR: 
+                Moves the typing input box and the confirmation action button onto the same horizontal line.
+                The dividing page-break line has been completely removed to let it flow straight into the columns below! */}
+            <form onSubmit={handleUsernameChangeSubmit} className="space-y-1.5 w-full">
+              <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block tracking-wider">
+                Change Account Username Handle
+              </label>
+              
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+                <div className="relative flex-1 min-w-0">
                   <span className="absolute left-3 top-3 text-xs font-bold text-gray-400">@</span>
                   <input 
                     type="text" 
@@ -222,27 +226,29 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
                     placeholder="Enter your unique handle name" 
-                    className={`w-full border rounded-xl p-3 pl-7 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${
+                    className={`w-full border rounded-xl p-3 pl-7 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition h-11 ${
                       isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"
                     }`}
                   />
                 </div>
-                <span className="text-[10px] font-bold text-gray-400 block mt-1">
-                  Changing your username handle will instantly rewrite your timeline URLs and chat tags.
-                </span>
+                
+                <button 
+                  type="submit" 
+                  disabled={isChangingUsername}
+                  className={`text-white text-[10px] font-black uppercase tracking-wider px-6 rounded-xl transition shadow-sm h-11 whitespace-nowrap shrink-0 ${
+                    isChangingUsername ? "bg-gray-400 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
+                  }`}
+                >
+                  {isChangingUsername ? "Verifying..." : "Confirm Handle Change ✨"}
+                </button>
               </div>
-              <button 
-                type="submit" 
-                disabled={isChangingUsername}
-                className={`text-white text-[10px] font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition shadow-sm ${
-                  isChangingUsername ? "bg-gray-400 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
-                }`}
-              >
-                {isChangingUsername ? "Verifying Availability..." : "Check Availability & Confirm Change ✨"}
-              </button>
+              
+              <span className="text-[9px] font-bold text-gray-400 block mt-1">
+                Changing your username handle will instantly rewrite your timeline URLs and live chat tags.
+              </span>
             </form>
 
-            {/* SECONDARY LEVEL: THE SIDE-BY-SIDE RESPONSIVE CARD FIELDS */}
+            {/* SECONDARY LEVEL: THE SIDE-BY-SIDE RESPONSIVE CARD FIELDS (Flows seamlessly right below) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start text-left pt-2">
               
               {/* LEFT COLUMN: Change Password Box Form */}
