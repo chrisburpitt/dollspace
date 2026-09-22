@@ -1,3 +1,4 @@
+// src/app/actions/auth.ts (PART 1 - SEAMLESS AUTH INDICATOR SYNCHRONIZATION)
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -40,7 +41,7 @@ export async function registerUser(prevState: any, formData: FormData) {
   // DISPATCH THE TRANSACTION WELCOME EMAIL PIPELINE
   try {
     await resend.emails.send({
-      from: "Dollspace <onboarding@resend.dev>", // Default free sandbox testing address sender
+      from: "Dollspace <onboarding@resend.dev>", 
       to: email,
       subject: `🌸 Welcome to Dollspace, ${displayName}!`,
       html: `
@@ -75,7 +76,7 @@ export async function registerUser(prevState: any, formData: FormData) {
   return { success: true };
 }
 
-// 🚀 2. LOGIN USER ACTION WITH EXACT SCHEMA CHECK
+// 🚀 2. LOGIN USER ACTION WITH DYNAMIC STATUS LEASE ACTIVATION
 export async function loginUser(prevState: any, formData: FormData) {
   const username = (formData.get("username") as string)?.trim();
   const password = formData.get("password") as string;
@@ -89,7 +90,6 @@ export async function loginUser(prevState: any, formData: FormData) {
     return { error: "Invalid username or password credentials." };
   }
 
-  // 🎯 FIX: Matches your exact Prisma boolean ban column layout!
   if (user.isBanned) {
     return { error: `🚫 ACCESS DENIED: This account is currently banned. Reason: ${user.banReason || "Moderation rule violation"}\nPlease email chloeannabrookes@outlook.com to appeal this decision.` };
   }
@@ -98,6 +98,15 @@ export async function loginUser(prevState: any, formData: FormData) {
   if (!isValidPassword) {
     return { error: "Invalid username or password credentials." };
   }
+
+  // 🎯 THE FIX: Force their initial indicator column away from "OFFLINE" to "ONLINE" inside Neon PostgreSQL on successful authentication
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { 
+      status: "ONLINE",
+      lastActive: new Date()
+    }
+  });
 
   // Generate cryptographic token
   const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "7d" });
@@ -114,7 +123,10 @@ export async function loginUser(prevState: any, formData: FormData) {
   redirect("/");
 }
 
-// 🚀 3. RETRIEVE CURRENT USER & FORCE AUTOMATED INSTANT RE-ROUTING IF BANNED
+
+// src/app/actions/auth.ts (PART 2 - STICKY STATUS & ROUTER SECURITY RESCUE)
+
+// 🚀 3. RETRIEVE CURRENT USER & ENFORCE STICKY REAL-TIME PARAMETERS
 export async function getCurrentUser() {
   try {
     const cookieStore = await cookies();
@@ -125,7 +137,7 @@ export async function getCurrentUser() {
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; username: string };
     if (!decoded || !decoded.userId) return null;
 
-    // Fetch account attributes from Neon with recent notification arrays pre-loaded
+    // Fetch account attributes freshly from Neon with recent notification arrays pre-loaded
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       include: {
@@ -139,27 +151,27 @@ export async function getCurrentUser() {
 
     if (!user) return null;
 
-    // 🚨 BREAK THE REDIRECT LOOP TRAP
+    // 🚨 ADMINISTRATIVE BAN GUARD CHECKS
     if (user.isBanned) {
-      // 🎯 Read the active target pathname from server header configuration blocks
       const headerList = await headers();
       const currentUrlPath = headerList.get("x-url") || headerList.get("referer") || "";
       
-      console.warn(`Administrative Safeguard: Tracking blacklisted login routing profile: @${user.username}`);
+      console.warn(`Administrative Safeguard: Evicting restricted routing profile: @${user.username}`);
 
-      // If the browser is already sitting on the /banned landing zone, 
-      // STOP redirecting and safely return the user context block so the page can mount!
+      // Stop redirect loops if they are already landing on the /banned route viewport
       if (currentUrlPath.includes("/banned")) {
         return user;
       }
 
-      // Otherwise, if they are trying to click onto home, discover, or chat feeds, bounce them out!
       redirect("/banned");
     }
 
+    // 🎯 THE STICKY STATUS RESOLUTION:
+    // By returning the 'user' object directly without setting static token string overrides,
+    // Next.js will faithfully read whatever status choice ("AWAY", "BUSY", "OFFLINE") is 
+    // inside your database table row right now, keeping it perfectly locked on page swaps!
     return user;
   } catch (error) {
-    // If it's a genuine Next.js redirect execution instruction, pass it along!
     if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
       throw error;
     }
