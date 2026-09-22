@@ -368,19 +368,21 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
       </div>
 
 
-
       {/* 💬 MAIN CHAT WORKSPACE CONSOLE VIEW */}
-      {/* Dynamic dynamic layout takes up full space on mobile device triggers */}
-      <div className={`flex flex-col bg-gray-50/50 h-full w-full min-h-0 flex-1 relative ${!isChatSelected ? "hidden md:flex" : "flex"}`}>
-        {/* 🎯 THE REFINED HEADER ROW: Restructured onto a flat single line across the screen */}
+      <div 
+        className={`flex flex-col bg-gray-50/50 h-full w-full min-h-0 flex-1 relative ${
+          !isChatSelected ? "hidden md:flex" : "flex"
+        }`}
+      >
+        {/* THE REFINED HEADER ROW */}
         <div className="p-4 py-2 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full h-14 min-h-14 overflow-hidden">
           <div className="flex items-center space-x-3 min-w-0 flex-1">
             
-            {/* 📱 ROOMS BACK BUTTON: Mounted cleanly into the room list layout row block */}
+            {/* ROOMS BACK BUTTON */}
             {isChatSelected && (
               <button 
                 type="button"
-                onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); setMobileViewState("ROOMS"); }}
+                onClick={() => { setMobileViewState("ROOMS"); }}
                 className="block md:hidden font-black uppercase text-[10px] tracking-wider text-rose-500 bg-rose-50 hover:bg-rose-100 border border-rose-100/60 px-3 py-1.5 rounded-xl shrink-0 transition"
               >
                 ◀ Rooms
@@ -393,8 +395,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                   <span className="text-lg shrink-0">🌍</span>
                   <span className="font-black text-xs text-gray-900 block truncate leading-none">Public Lounge Chat Room</span>
                 </div>
-                {/* 🎯 THE FIX: Changed 'py-1 flex items-center' to match the clean 'py-0.5' modifier! 
-                    This keeps the header box flat and removes the extra height that was causing the scrollbar. */}
                 <span className="bg-green-50 border border-green-100 text-green-600 text-[10px] font-black px-2 py-0.5 rounded-md shrink-0 whitespace-nowrap ml-2">
                   ● {activePresence.filter(u => u.currentRoom === "PUBLIC_LOUNGE").length} Dolls Here
                 </span>
@@ -426,77 +426,79 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           </div>
         </div>
 
-        {/* Live Scrollable Chat Bubble Roster Stream */}
+        {/* 🚀 THE FIXED INSET CONTAINER: Perfectly wraps your scroll boxes and layout logic */}
         <div className="flex-1 min-h-0 w-full relative bg-gray-50/30">
           <div className="absolute inset-0 overflow-y-auto p-4 space-y-3 flex flex-col">
+            
             {selectedChannel === "PUBLIC_LOUNGE" || selectedChannel === "MOD_CHAT" ? (
               /* MODE A: PUBLIC LOUNGE / STAFF MOD ROOM VIEWS */
               (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                <div className="my-auto flex flex-col items-center justify-center text-gray-400">
                   <span className="text-4xl mb-2">{selectedChannel === "MOD_CHAT" ? "🔒" : "👋"}</span>
                   <p className="font-bold text-xs uppercase tracking-wider">This room is clear</p>
                   <p className="text-[11px] mt-0.5">Type a message below to broadcast securely.</p>
                 </div>
-			  <div ref={messagesEndRef} />
-			</div>
-            ) : (
-              (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).map((msg) => {
-                const isMe = msg.user?.id === currentUser.id;
-                return (
-                  <div key={msg.id} className={`flex items-end gap-2 max-w-[85%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
-                    {msg.user?.avatarUrl ? (
-                      <img src={msg.user.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
-                    ) : (
-                      <div className="w-7 h-7 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-[10px] uppercase shadow-sm shrink-0">
-                        {msg.user?.displayName?.charAt(0) || "D"}
-                      </div>
-                    )}
-                    <div className="space-y-0.5 text-left max-w-full">
-                      <div className={`text-[9px] text-gray-400 px-1 font-bold flex gap-1 ${isMe ? "justify-end" : "justify-start"}`}>
-                        <span>{msg.user?.displayName}</span>
-                        <span>•</span>
-                        <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      </div>
-                      <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
-                        isMe 
-                          ? (selectedChannel === "MOD_CHAT" ? "bg-purple-600 text-white rounded-br-none" : "bg-rose-500 text-white rounded-br-none")
-                          : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
-                      }`}>
-                        {msg.content}
+              ) : (
+                (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).map((msg) => {
+                  const isMe = msg.user?.id === currentUser.id;
+                  return (
+                    <div key={msg.id} className={`flex items-end gap-2 max-w-[85%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
+                      {msg.user?.avatarUrl ? (
+                        <img src={msg.user.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
+                      ) : (
+                        <div className="w-7 h-7 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-[10px] uppercase shadow-sm shrink-0">
+                          {msg.user?.displayName?.charAt(0) || "D"}
+                        </div>
+                      )}
+                      <div className="space-y-0.5 text-left max-w-full">
+                        <div className={`text-[9px] text-gray-400 px-1 font-bold flex gap-1 ${isMe ? "justify-end" : "justify-start"}`}>
+                          <span>{msg.user?.displayName}</span>
+                          <span>•</span>
+                          <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
+                        <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
+                          isMe 
+                            ? (selectedChannel === "MOD_CHAT" ? "bg-purple-600 text-white rounded-br-none" : "bg-rose-500 text-white rounded-br-none")
+                            : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
+                        }`}>
+                          {msg.content}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })
-            )
-          ) : (
-            /* MODE B: SECURE SINGLE INSTANCE PRIVATE DM VIEW STREAM */
-            activeChatFeedDMs.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400">
-                <p className="text-xs font-bold uppercase tracking-wider">Start of secure private dialogue thread 🌸</p>
-                <p className="text-[11px] mt-0.5">Your conversations are fully sandboxed and stored securely on the network cloud.</p>
-              </div>
+                  );
+                })
+              )
             ) : (
-              activeChatFeedDMs.map((msg) => {
-                const isMe = msg.senderId === currentUser.id;
-                return (
-                  <div key={msg.id} className={`flex items-end gap-2 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
-                    <div className="space-y-0.5 text-left max-w-full">
-                      <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
-                        isMe ? "bg-rose-500 text-white rounded-br-none" : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
-                      }`}>
-                        {msg.content}
+              /* MODE B: SECURE SINGLE INSTANCE PRIVATE DM VIEW STREAM */
+              activeChatFeedDMs.length === 0 ? (
+                <div className="my-auto flex flex-col items-center justify-center text-gray-400">
+                  <p className="text-xs font-bold uppercase tracking-wider">Start of secure private dialogue thread 🌸</p>
+                  <p className="text-[11px] mt-0.5">Your conversations are fully sandboxed and stored securely on the network cloud.</p>
+                </div>
+              ) : (
+                activeChatFeedDMs.map((msg) => {
+                  const isMe = msg.senderId === currentUser.id;
+                  return (
+                    <div key={msg.id} className={`flex items-end gap-2 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
+                      <div className="space-y-0.5 text-left max-w-full">
+                        <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
+                          isMe ? "bg-rose-500 text-white rounded-br-none" : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
+                        }`}>
+                          {msg.content}
+                        </div>
+                        <span className={`text-[9px] text-gray-400 font-bold block px-1.5 ${isMe ? "text-right" : "text-left"}`}>
+                          {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
-                      <span className={`text-[9px] text-gray-400 font-bold block px-1.5 ${isMe ? "text-right" : "text-left"}`}>
-                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
                     </div>
-                  </div>
-                );
-              })
-            )
-          )}
-          <div ref={messagesEndRef} />
+                  );
+                })
+              )
+            )}
+            
+            {/* Safe baseline scroller node placement */}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
 
         {/* Input Bar Form Console Controls */}
@@ -525,7 +527,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           </button>
         </form>
       </div>
-
     </div>
   );
 }
