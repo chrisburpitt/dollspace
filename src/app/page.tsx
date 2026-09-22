@@ -1,4 +1,4 @@
-// src/app/page.tsx
+// src/app/page.tsx (PART 1 - SECURED SERVER DATA LOOKUPS)
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
@@ -19,11 +19,10 @@ import MobileNavShell from "@/components/MobileNavShell";
 import DollOfTheWeekWidget from "@/components/DollOfTheWeekWidget";
 import { redirect } from "next/navigation";
 
- export const metadata: Metadata = {
+export const metadata: Metadata = {
   title: "Dollspace | Home",
   description: "Make yourself at home doll, this is your space xo",
-  };
-
+};
 
 export default async function HomePage() {
   const currentUser = await getCurrentUser();
@@ -37,33 +36,30 @@ export default async function HomePage() {
     }
   });
   
-  // 🚀 THE COUNTER REMEDY: Compile real-time profile metrics from Neon tables
   const totalUsersCount = await prisma.user.count({
-    where: { isBanned: false } // Exclude banned rule violations from public metrics
+    where: { isBanned: false }
   });
 
   const activeDollsOnlineCount = await prisma.user.count({
     where: {
       isBanned: false,
       status: {
-        // 🎯 CATCHES ACTIVE SELECTIONS: Pulls ONLINE, AWAY, and BUSY profiles seamlessly!
         notIn: ["OFFLINE", "BANNED"] 
       }
     }
   });
   
   const dashboardMetrics = {
-    onlineCount: activeDollsOnlineCount, // 🔥 True active indicator sum
-    totalUsers: totalUsersCount,         // 🔥 🚀 NEW: Tracks total directory registration depth
+    onlineCount: activeDollsOnlineCount,
+    totalUsers: totalUsersCount,
     unreadMailCount: await prisma.internalMail.count({ where: { recipientId: currentUser.id, isRead: false } }),
     waitingDMsCount: waitingDMsCount 
   };
   
   const dotwRecord = currentUser 
-  ? await prisma.dollOfTheWeekEntry.findUnique({ where: { userId: currentUser.id } })
-  : null;
+    ? await prisma.dollOfTheWeekEntry.findUnique({ where: { userId: currentUser.id } })
+    : null;
   
-    // 🚀 NEW: High-speed query pulls down accounts you follow to power your autocomplete tagging matrices
   const followingDollsList = await prisma.follow.findMany({
     where: { followerId: currentUser.id },
     select: {
@@ -74,9 +70,8 @@ export default async function HomePage() {
         }
       }
     }
-  }).then(relations => relations.map(r => r.following)); // Flatten the relation into a clean array
+  }).then(relations => relations.map(r => r.following));
 
-  // Relational inclusion parameters for home feed queries
   const postInclusions = {
     user: {
       select: { id: true, username: true, displayName: true, avatarUrl: true }
@@ -93,13 +88,11 @@ export default async function HomePage() {
     }
   };
 
-  // 1. FETCH GLOBAL POSTS
   const globalPosts = await prisma.post.findMany({
     include: postInclusions,
     orderBy: { createdAt: "desc" }
   });
 
-  // 2. FETCH FOLLOWING POSTS
   const followingRelations = await prisma.follow.findMany({
     where: { followerId: currentUser.id },
     select: { followingId: true }
@@ -112,7 +105,6 @@ export default async function HomePage() {
     orderBy: { createdAt: "desc" }
   });
 
-  // Format database dates safely into string parameters for typesafe client cascading passing
   const formatPostDates = (postsArray: any[]) => postsArray.map(post => ({
     ...post,
     createdAt: post.createdAt.toISOString(),
@@ -126,11 +118,16 @@ export default async function HomePage() {
   const validatedHeaderUser = {
     id: currentUser.id,
     status: currentUser.status,
-	role: currentUser.role || "USER"
+    role: currentUser.role || "USER"
   };
 
+// src/app/page.tsx (PART 2 - DYNAMIC HOVER MATRIX LAYOUT)
+
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    // 🎯 THE TIMELINE THEME SYNC: 
+    // We append 'dark:bg-gray-950 dark:text-gray-50' to allow the master feed container 
+    // to smoothly transition background themes natively.
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300">
       <GlobalHeader currentUser={validatedHeaderUser} />
       <StaticFeedBanner />
       <MobileNavShell 
@@ -140,13 +137,13 @@ export default async function HomePage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
       
-        {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Cleaned up and consolidated) */}
+        {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Natively reacts to theme selectors) */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav 
             currentUsername={currentUser.username} 
             unreadMailCount={unreadMailCount} 
           />
-		  {currentUser && (
+          {currentUser && (
             <DollOfTheWeekWidget currentUserEntry={dotwRecord} />
           )}
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
@@ -156,22 +153,27 @@ export default async function HomePage() {
         <main className="lg:col-span-6 space-y-6">
           <FeedForm currentUser={currentUser} followersList={followingDollsList} />
           
-          {/* 🚀 UPGRADED: Passing down your typesafe followers list to your main feed stream */}
           <FeedStream 
             globalPosts={formatPostDates(globalPosts) as any} 
             followingPosts={formatPostDates(followingPosts) as any} 
             currentUserId={currentUser.id} 
-            followersList={followingDollsList} // 🎯 PASSING DOWN
+            followersList={followingDollsList} 
           />
         </main>
 
         {/* RIGHT COLUMN: Interactive Insights Sidebar */}
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">Platform Hub</h3>
-            <p className="text-xs text-gray-400 font-semibold leading-relaxed">Welcome back to Dollspace {currentUser.displayName}! Share stories, pictures or links directly to your feed for your followers to see ✨</p>
+          {/* 🎯 INTRO CARD DARK CONSOLE: 
+              We switch 'bg-white border-gray-200' to handle dark utility states smoothly! */}
+          <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
+            <h3 className="font-black text-sm text-gray-900 dark:text-gray-100 tracking-wide uppercase mb-2">
+              Platform Hub
+            </h3>
+            <p className="text-xs text-gray-400 dark:text-gray-400 font-semibold leading-relaxed">
+              Welcome back to Dollspace, {currentUser.displayName}! Share stories, pictures, or links directly to your feed for your followers to see ✨
+            </p>
           </div>
-		  <PlatformMetricsCard metrics={dashboardMetrics} />
+          <PlatformMetricsCard metrics={dashboardMetrics} />
         </aside>
 
       </div>
