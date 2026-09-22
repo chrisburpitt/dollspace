@@ -42,7 +42,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
         isDarkMode,
         swearFilter,
         xxxFilter,
-        blockMaleAttention, // 🎯 Commited to the database
+        blockMaleAttention,
         notifComments,
         notifReactions,
         notifFollows,
@@ -108,12 +108,12 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
 
           {/* SECTION 1: INTERFACE THEME PREFERENCES */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Interface Theme</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Dollspace Theme</h2>
             <div className={`p-4 rounded-2xl flex items-center justify-between border ${
               isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
             }`}>
               <div>
-                <span className="text-xs font-black block">Dark Layout Mode</span>
+                <span className="text-xs font-black block">Dark Mode</span>
                 <span className="text-[10px] font-bold text-gray-400 block">Switch between light and dark themes across Dollspace.</span>
               </div>
               <button
@@ -128,14 +128,14 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
 
           {/* SECTION 2: CONTENT MODERATION & SAFETY FILTERS */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🛡️ Content Moderation Filters</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🛡️ Content Filters</h2>
             <div className="space-y-3">
               
               {/* Filter 1: Swear Word Filter */}
               <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
-                  <span className="text-xs font-black block">Swear Word Filter (Default On)</span>
-                  <span className="text-[10px] font-bold text-gray-400 block">Censors vulgar expressions within chat channels automatically.</span>
+                  <span className="text-xs font-black block">Swear Word Filter</span>
+                  <span className="text-[10px] font-bold text-gray-400 block">Blocks gross things and swears in the chat channels automatically.</span>
                 </div>
                 <button type="button" onClick={() => setSwearFilter(!swearFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${swearFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
               </div>
@@ -143,7 +143,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               {/* Filter 2: XXX Nudity Filter */}
               <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
-                  <span className="text-xs font-black block">XXX / Nudity Filter (Default On)</span>
+                  <span className="text-xs font-black block">XXX / Nudity Filter</span>
                   <span className="text-[10px] font-bold text-gray-400 block">Restricts explicit photo attachments inside the feed stream.</span>
                 </div>
                 <button type="button" onClick={() => setXxxFilter(!xxxFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${xxxFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
@@ -152,8 +152,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               {/* 🎯 Filter 3: THE BRAND NEW MALE ATTENTION SWITCH */}
               <div className={`p-4 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
-                  <span className="text-xs font-black block">Switch OFF Male Attention (Default On)</span>
-                  <span className="text-[10px] font-bold text-gray-400 block">Filters out interaction notifications, feed pings, and tracking logs coming directly from verified male accounts.</span>
+                  <span className="text-xs font-black block">Switch OFF Male Attention</span>
+                  <span className="text-[10px] font-bold text-gray-400 block">Filters out notifications, feed updates, and follow requests coming directly from verified male accounts.</span>
                 </div>
                 <button 
                   type="button" 
@@ -169,13 +169,13 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
 
 
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Email Dispatch Notifications</h2>
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">Email Notifications</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { label: "New Post Comments", state: notifComments, setter: setNotifComments, desc: "Alert when a doll comments on your timeline posts." },
                 { label: "Reaction Alerts", state: notifReactions, setter: setNotifReactions, desc: "Notify when emojis are attached to your content." },
-                { label: "Follower Tractions", state: notifFollows, setter: setNotifFollows, desc: "Dispatch email whenever a doll follows your profile." },
-                { label: "Internal Mail Alerts", state: notifMail, setter: setNotifMail, desc: "Alert instantly when mail lands in your inbox." },
+                { label: "New Followers", state: notifFollows, setter: setNotifFollows, desc: "Dispatch email whenever a doll follows your profile." },
+                { label: "You've Got Mail! Alerts", state: notifMail, setter: setNotifMail, desc: "Alert instantly when mail lands in your inbox." },
                 { label: "Direct Messages Waiting", state: notifDms, setter: setNotifDms, desc: "Notify if a chat lounge dm is sent while offline." }
               ].map((notif, idx) => (
                 <div key={idx} className={`p-3.5 rounded-2xl flex items-center justify-between border ${isDarkMode ? "bg-gray-950/20 border-gray-800" : "bg-gray-50/50 border-gray-100"}`}>
@@ -195,8 +195,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-rose-50/20 border-rose-100/60"
             }`}>
               <div className="text-left space-y-0.5">
-                <span className="text-xs font-black block">Manage Blocked & Ignored Users</span>
-                <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-normal">Review active locks, track temporary 10-minute cooldowns, or restore private messaging lines.</span>
+                <span className="text-xs font-black block">Manage Blocked & Muted Users</span>
+                <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-normal">Review active blocks, track temporary ignores, or restore private messaging lines.</span>
               </div>
               <Link href="/settings/blocked" className="bg-white hover:bg-rose-50 text-gray-700 hover:text-rose-500 border border-gray-200 hover:border-rose-200 font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider text-center transition shadow-xs shrink-0">Open Block List Panel 🛡️</Link>
             </div>
@@ -213,8 +213,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 Moves the typing input box and the confirmation action button onto the same horizontal line.
                 The dividing page-break line has been completely removed to let it flow straight into the columns below! */}
             <form onSubmit={handleUsernameChangeSubmit} className="space-y-1.5 w-full">
-              <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block tracking-wider">
-                Change Account Username Handle
+              <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">
+                Change Dollspace Username
               </label>
               
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
@@ -225,7 +225,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                     required
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
-                    placeholder="Enter your unique handle name" 
+                    placeholder="Enter your new username here..." 
                     className={`w-full border rounded-xl p-3 pl-7 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition h-11 ${
                       isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"
                     }`}
@@ -239,7 +239,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                     isChangingUsername ? "bg-gray-400 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
                   }`}
                 >
-                  {isChangingUsername ? "Verifying..." : "Confirm Handle Change ✨"}
+                  {isChangingUsername ? "Verifying..." : "Confirm Username Change ✨"}
                 </button>
               </div>
               
@@ -253,7 +253,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               
               {/* LEFT COLUMN: Change Password Box Form */}
               <form onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} className="space-y-3">
-                <label className="text-[10px] font-black text-gray-900 dark:text-white uppercase block tracking-wider">
+                <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">
                   Change Password
                 </label>
                 <div className="space-y-2">
@@ -284,8 +284,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"}`}>
                 <div>
-                  <span className="text-xs font-black block text-amber-600">Pause Account Pool</span>
-                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Temporarily deactivate your profile card. This hides your feed updates.</span>
+                  <span className="text-xs font-black block text-amber-600">Pause Account</span>
+                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Do you need a break? Put your account on hold temporarily by deactivating here. This hides your profile and updates until you resume.</span>
                 </div>
                 <button type="button" onClick={() => alert("Account entry paused safely.")} className="bg-amber-500 hover:bg-amber-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Pause Account</button>
               </div>
@@ -293,7 +293,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               <div className={`p-5 rounded-2xl border text-left flex flex-col justify-between items-start space-y-3 ${isDarkMode ? "bg-red-950/10 border-red-900/30" : "bg-red-50/30 border-red-100"}`}>
                 <div>
                   <span className="text-xs font-black block text-red-600">Delete Account Permanently</span>
-                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">Atomically purge your profile table row from Neon PostgreSQL. Action cannot be undone.</span>
+                  <span className="text-[10px] font-bold text-gray-400 block mt-0.5 leading-relaxed">I can't believe you are leaving us already 😭 This action will permanently delete your profile and ALL posts, pictures and comments across the site. This cannot be undone!</span>
                 </div>
                 <button type="button" onClick={() => { if(confirm("Delete account?")) alert("Purged."); }} className="bg-red-500 hover:bg-red-600 text-white font-black text-[10px] uppercase tracking-wider px-4 py-2 rounded-xl transition shadow-xs cursor-pointer">Delete Account</button>
               </div>

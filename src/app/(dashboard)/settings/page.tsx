@@ -5,7 +5,13 @@ export const dynamic = "force-dynamic";
 import { getCurrentUser } from "@/app/actions/auth";
 import { getUnreadMailCount } from "@/app/actions/mailCount";
 import { redirect } from "next/navigation";
-import SettingsClient from "./SettingsClient"; // 🔥 Securely imports your client-side form interface
+import SettingsClient from "./SettingsClient"; 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Dollspace | Settings",
+  description: "Update your Dollspace experiences settings here!",
+};
 
 export default async function SettingsPage() {
   // 🚀 Fetch account credentials freshly from Neon PostgreSQL tables upon request handshakes
