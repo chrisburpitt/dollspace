@@ -1,4 +1,4 @@
-// src/components/GlobalHeader.tsx (DIRECT COMPONENT PROP LOCK)
+// src/components/GlobalHeader.tsx (PART 1 - SERVER ACTION HARMONY)
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import InlineNotificationDropdown from "./InlineNotificationDropdown";
 import { logoutUser } from "@/app/actions/auth"; 
+import { updateUserStatusAction } from "@/app/actions/presence"; // 🎯 1. IMPORT FRESH ACTION CONSOLE
 
 interface GlobalHeaderProps {
   currentUser: {
@@ -14,7 +15,7 @@ interface GlobalHeaderProps {
     username?: string;
     displayName?: string;
     avatarUrl?: string | null;
-    role?: string; // 🚀 FIXED: Added optional role tracking property right inside your prop interface card!
+    role?: string; 
   };
   notifications?: any[];
   onStatusChange?: (newStatus: string) => void; 
@@ -23,16 +24,19 @@ interface GlobalHeaderProps {
 export default function GlobalHeader({ currentUser, notifications = [], onStatusChange }: GlobalHeaderProps) {
   const router = useRouter();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
-  const [currentStatus, setCurrentStatus] = useState(currentUser.status || "ONLINE");
   
+  // 🎯 2. HYDRATE REAL-TIME VALUES FROM THE ACCOUNT PAYLOAD DIRECTLY
+  const [currentStatus, setCurrentStatus] = useState(currentUser?.status || "ONLINE");
+  
+  // 🎯 3. KEEP THE COMPONENT STICKY ACROSS NAVIGATION JUMPS
   useEffect(() => {
-    if (currentUser.status) {
+    if (currentUser?.status) {
       setCurrentStatus(currentUser.status);
     }
-  }, [currentUser.status]);
+  }, [currentUser?.status]);
 
   const statusMenuRef = useRef<HTMLDivElement>(null);
-  const normalizedUserRole = currentUser.role?.toUpperCase() || "";
+  const normalizedUserRole = currentUser?.role?.toUpperCase() || "";
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -47,22 +51,26 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
   const handleStatusChange = async (newStatus: string) => {
     setCurrentStatus(newStatus);
     setShowStatusMenu(false);
-	if (onStatusChange) {
+    
+    if (onStatusChange) {
       onStatusChange(newStatus);
     }
 	
     try {
-      await fetch("/api/user/status", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      // 🚀 THE LIFESAVER CHANGE: Run the server action instantly on click!
+      // This bypasses the old missing API route and guarantees data writes to Neon.
+      await updateUserStatusAction(newStatus);
+      
+      // Forces Next.js Router to pull down the newly saved status on your viewport
       router.refresh();
     } catch (err) {
-      console.error("Status state push failed:", err);
+      console.error("Status state push action failed:", err);
     }
   };
-  
+
+
+// src/components/GlobalHeader.tsx (PART 2 - INTERACTIVE MARKUP LOOP)
+
   return (
     <header className="w-full h-16 bg-white border-b border-gray-200 sticky top-0 z-40 select-none">
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
@@ -75,8 +83,7 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
         {/* RIGHT: Menu Control Drawer Triggers */}
         <div className="flex items-center space-x-3 relative">
           
-          {/* 🚀 FIXED SECURE ADMINISTRATIVE ICON LINK */}
-          {/* Renders perfectly and instantly if the server confirms your role matches ADMIN or MODERATOR */}
+          {/* ADMINISTRATIVE ICON LINK */}
           {(normalizedUserRole === "ADMIN" || normalizedUserRole === "MODERATOR") && (
             <Link
               href="/admin"
