@@ -98,8 +98,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
           </section>
 
 
-// src/app/settings/SettingsClient.tsx (PART 2 - NOTIFICATIONS & EMERGENCY PROPS)
-
           {/* SECTION 3: EMAIL NOTIFICATION ROUTER TOGGLES */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">
@@ -137,6 +135,35 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               ))}
             </div>
           </section>
+		  
+		  {/* 🎯 NEW SECTION 3.5: DYNAMIC PRIVACY & BLOCK LIST QUICK-LINK PANEL */}
+          {/* Sits right between your Email Notification Toggles and Security Credentials forms */}
+          <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6 animate-fade-in">
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">
+              🔒 Privacy & Restrictions
+            </h2>
+            
+            <div className={`p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all duration-300 ${
+              isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-rose-50/20 border-rose-100/60"
+            }`}>
+              <div className="text-left space-y-0.5">
+                <span className="text-xs font-black block text-gray-900 dark:text-white">
+                  Manage Blocked & Ignored Users
+                </span>
+                <span className="text-[10px] font-bold text-gray-400 block leading-normal">
+                  Review your current social boundaries, track active temporary 10-minute cooldowns, or instantly lift account blocks to restore private messaging lines.
+                </span>
+              </div>
+              
+              {/* High-speed relative navigation router link button */}
+              <Link
+                href="/settings/blocked"
+                className="bg-white hover:bg-rose-50 text-gray-700 hover:text-rose-500 border border-gray-200 hover:border-rose-200 font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider text-center transition shadow-xs shrink-0 cursor-pointer"
+              >
+                Open Block List Panel 🛡️
+              </Link>
+            </div>
+          </section>
 
           {/* SECTION 4: SECURITY & PROFILE CREDENTIALS */}
           <section className="space-y-6 border-t border-gray-100 dark:border-gray-800 pt-6">
@@ -146,8 +173,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               {/* Form Block A: Change Account Email */}
               <form onSubmit={(e) => { e.preventDefault(); alert("Email update token dispatched securely."); }} className="space-y-3">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Update Email Address</label>
-                  <input type="email" required placeholder="New email handle address" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">Change Email Address</label>
+                  <input type="email" required placeholder="New email address" className={`w-full border rounded-xl p-3 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition ${isDarkMode ? "border-gray-800 bg-gray-950/40 text-white" : "border-gray-200 bg-gray-50 text-gray-800"}`} />
                 </div>
                 <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-xs cursor-pointer">Save New Email</button>
               </form>

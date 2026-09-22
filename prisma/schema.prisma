@@ -55,6 +55,20 @@ model User {
   isBanned          Boolean        @default(false)
   banReason         String?
   bannedAt          DateTime?
+  
+  // 🌓 Theme Selection
+  isDarkMode      Boolean  @default(false)
+
+  // 🛡️ Content Safety Filters
+  swearFilter     Boolean  @default(true)
+  xxxFilter       Boolean  @default(true)
+
+  // 💌 Email Notification Controls
+  notifComments   Boolean  @default(false)
+  notifReactions  Boolean  @default(false)
+  notifFollows    Boolean  @default(false)
+  notifMail       Boolean  @default(false)
+  notifDms        Boolean  @default(false)
 }
 
 model Post {
