@@ -1,4 +1,4 @@
-// src/app/chat/page.tsx (PERFECT MOBILITY HEIGHT COMPILATION)
+// src/app/chat/page.tsx (THE ACCSOLUTE VIEWPORT HEIGHT REMEDY)
 export const dynamic = "force-dynamic";
 
 import { getCurrentUser } from "@/app/actions/auth";
@@ -24,11 +24,19 @@ export default async function ChatPage() {
   if (!currentUser) redirect("/login");
 
   const unreadMailCount = await getUnreadMailCount(); 
+
+  // ⏱️ CALCULATE THE 10-MINUTE ACTIVE WINDOW TO WEED OUT STALE USER ACCOUNTS
+  const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
   
+  // 🎯 THE FILTRATION GATEWAY: 
+  // Forces your private lines sidebar list to load ONLY users who are currently active!
+  // It completely filters out "OFFLINE" states or users whose heartbeat window has expired.
   const platformUsers = await prisma.user.findMany({
     where: { 
       id: { not: currentUser.id },
-      status: { not: "BANNED" }
+      isBanned: false,
+      lastActive: { gte: tenMinutesAgo },
+      status: { in: ["ONLINE", "AWAY", "BUSY"] }
     },
     select: { id: true, username: true, displayName: true, avatarUrl: true, status: true }
   });
@@ -67,26 +75,27 @@ export default async function ChatPage() {
   }));
 
   return (
-    // 🎯 FIX: 'overflow-hidden' and 'max-h-screen' elements lock the outermost viewport frame tight on phones
-    <div className="min-h-screen max-h-screen h-screen bg-gray-50 text-gray-900 overflow-hidden flex flex-col">
+    // 🚀 THE CONTAINER FIX: 
+    // We lock the outer frame to 100dvh, flex layout column mode, and hide body overflow.
+    <div className="w-screen h-[100dvh] min-h-[100dvh] max-h-[100dvh] bg-gray-50 text-gray-900 overflow-hidden flex flex-col antialiased">
+      {/* Fixed top block */}
       <GlobalHeader currentUser={currentUser} />
       <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
-      {/* 🎯 THE OVERFLOW REMEDY VIEWPORT CELL CONTAINER:
-          On mobile devices, we strip 'max-w-7xl' and 'px-6' layout limits completely! 
-          This makes the chat canvas perfectly full-bleed ('w-full flex-1') right down to the mobile nav bar,
-          erasing that massive bottom gap entirely. On desktops, it shifts back to a beautiful centered grid. */}
-      <div className="w-full max-w-none lg:max-w-7xl mx-auto px-0 lg:px-6 py-0 lg:py-8 grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 relative z-10 flex-1 overflow-hidden h-[calc(100dvh-112px)] lg:h-auto">
+      {/* 🎯 THE MATHEMATICAL REMEDY CELL:
+          Instead of hardcoded 'calc' guesses, we tell this inner layout to take up 100% of whatever 
+          space remains available between the navbar and the device glass border ('flex-1 min-h-0'). 
+          This guarantees the chat text input area never expands beneath the phone screen tray boundary! */}
+      <div className="w-full max-w-none lg:max-w-7xl mx-auto px-0 lg:px-6 py-0 lg:py-6 relative z-10 flex-1 min-h-0 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 pb-14 lg:pb-0">
         
-        {/* Desktop Sidebar Layout column element cards */}
+        {/* Desktop Sidebar Column Layout card displays */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* 🎯 CORE INTERACTIVE CHAT MAIN WRAPPER CONTAINER:
-            Takes up 100% of the active available screen estate space on mobile phones typesafely */}
-        <main className="col-span-1 lg:col-span-9 bg-white border-0 lg:border border-gray-200 rounded-none lg:rounded-3xl overflow-hidden shadow-none lg:shadow-sm h-full flex flex-col">
+        {/* Dynamic client panel area box locks precisely inside its container grid boundary layout */}
+        <main className="col-span-1 lg:col-span-9 bg-white border-0 lg:border border-gray-200 rounded-none lg:rounded-3xl overflow-hidden shadow-none lg:shadow-sm h-full flex flex-col min-h-0">
           <UnifiedMessengerClient 
             currentUser={currentUser}
             platformUsers={platformUsers}
