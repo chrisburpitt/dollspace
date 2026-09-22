@@ -336,3 +336,157 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           })}
         </div>
       </div>
+
+
+// src/app/chat/UnifiedMessengerClient.tsx (PART 3 - THE CHAT BUBBLE STREAM WORKSPACE VIEW)
+
+      {/* 💬 COLS 2: MAIN DOMINANT CHAT TEXT CANVAS VIEW */}
+      <div 
+        className={`flex flex-col bg-gray-50/50 overflow-hidden h-full transition-all duration-500 ease-in-out flex-1 ${
+          !isChatSelected ? "hidden lg:flex" : "flex"
+        }`}
+      >
+        {/* Thread Header Context Bar */}
+        <div className="p-4 bg-white border-b border-gray-200 flex items-center justify-between shrink-0 text-left w-full">
+          <div className="flex items-center space-x-3">
+            
+            {/* 📱 MOBILE NAVIGATION SLIDING RETURN BACK ACTION BUTTON */}
+            {isChatSelected && (
+              <button 
+                type="button"
+                onClick={() => { setSelectedChannel("PUBLIC_LOUNGE"); setActiveContact(null); }}
+                className="block lg:hidden text-[10px] font-black uppercase tracking-wider text-rose-500 bg-rose-50 px-3 py-2 rounded-xl transition border border-rose-100/50 hover:bg-rose-100"
+              >
+                ◀ Rooms
+              </button>
+            )}
+
+            {selectedChannel === "PUBLIC_LOUNGE" ? (
+              <>
+                <span className="text-2xl">🌍</span>
+                <div>
+                  <span className="font-black text-xs text-gray-900 block leading-tight">Public Lounge Chat Room</span>
+                  <span className="text-[10px] text-rose-500 font-bold tracking-wider">● Anything goes! Don't forget to say HII 👋🏼</span>
+                </div>
+              </>
+            ) : selectedChannel === "MOD_CHAT" ? (
+              <>
+                <span className="text-2xl">🛡️</span>
+                <div>
+                  <span className="font-black text-xs text-purple-900 block leading-tight">Staff & Moderation Workspace</span>
+                  <span className="text-[10px] text-purple-600 font-bold tracking-wider">🔒 Restricted Channel. Admin logs active.</span>
+                </div>
+              </>
+            ) : activeContact ? (
+              <>
+                <img 
+                  src={activeContact.avatarUrl || "/default-avatar.png"} 
+                  className="w-8 h-8 rounded-full object-cover border border-gray-100 shadow-sm" 
+                />
+                <div>
+                  <span className="font-black text-xs text-gray-900 block leading-tight">{activeContact.displayName}</span>
+                  <span className="text-[10px] text-green-500 font-bold uppercase tracking-wider animate-pulse">● Private Encrypted Chat Line</span>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Live Scrollable Chat Bubble Roster Stream */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3 w-full">
+          {selectedChannel === "PUBLIC_LOUNGE" || selectedChannel === "MOD_CHAT" ? (
+            (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                <span className="text-4xl mb-2">{selectedChannel === "MOD_CHAT" ? "🔒" : "👋"}</span>
+                <p className="font-bold text-xs uppercase tracking-wider">This room is clear</p>
+                <p className="text-[11px] mt-0.5">Type a message below to broadcast securely.</p>
+              </div>
+            ) : (
+              (selectedChannel === "MOD_CHAT" ? modMessages : publicMessages).map((msg) => {
+                const isMe = msg.user?.id === currentUser.id;
+                return (
+                  <div key={msg.id} className={`flex items-end gap-2 max-w-[85%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
+                    {msg.user?.avatarUrl ? (
+                      <img src={msg.user.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
+                    ) : (
+                      <div className="w-7 h-7 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-[10px] uppercase shadow-sm shrink-0">
+                        {msg.user?.displayName?.charAt(0) || "D"}
+                      </div>
+                    )}
+                    <div className="space-y-0.5 text-left max-w-full">
+                      <div className={`text-[9px] text-gray-400 px-1 font-bold flex gap-1 ${isMe ? "justify-end" : "justify-start"}`}>
+                        <span>{msg.user?.displayName}</span>
+                        <span>•</span>
+                        <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                      <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
+                        isMe 
+                          ? (selectedChannel === "MOD_CHAT" ? "bg-purple-600 text-white rounded-br-none" : "bg-rose-500 text-white rounded-br-none")
+                          : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
+                      }`}>
+                        {msg.content}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )
+          ) : (
+            activeChatFeedDMs.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-gray-400">
+                <p className="text-xs font-bold uppercase tracking-wider">Start of secure private dialogue thread 🌸</p>
+                <p className="text-[11px] mt-0.5">Your conversations are fully sandboxed and stored securely on the network cloud.</p>
+              </div>
+            ) : (
+              activeChatFeedDMs.map((msg) => {
+                const isMe = msg.senderId === currentUser.id;
+                return (
+                  <div key={msg.id} className={`flex items-end gap-2 max-w-[80%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
+                    <div className="space-y-0.5 text-left max-w-full">
+                      <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
+                        isMe ? "bg-rose-500 text-white rounded-br-none" : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
+                      }`}>
+                        {msg.content}
+                      </div>
+                      <span className={`text-[9px] text-gray-400 font-bold block px-1.5 ${isMe ? "text-right" : "text-left"}`}>
+                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Bar Form Console Controls */}
+        <form onSubmit={handleSendMessageSubmit} className="p-4 bg-white border-t border-gray-200 flex items-center gap-2 shrink-0 w-full">
+          <input
+            id="chat-message-input"
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            placeholder={
+              selectedChannel === "PUBLIC_LOUNGE" 
+                ? "Broadcast to public lounge chat room..." 
+                : selectedChannel === "MOD_CHAT"
+                ? "Send encrypted staff moderation memo..."
+                : `Message @${activeContact?.username}...`
+            }
+            className="flex-1 border border-gray-200 rounded-xl p-3 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-xs font-medium text-gray-800 transition"
+          />
+          <button 
+            type="submit" 
+            className={`font-black px-5 py-3 rounded-xl transition shadow-sm text-xs tracking-wide text-white ${
+              selectedChannel === "MOD_CHAT" ? "bg-purple-600 hover:bg-purple-700" : "bg-rose-500 hover:bg-rose-600"
+            }`}
+          >
+            Send
+          </button>
+        </form>
+      </div>
+
+    </div>
+  );
+}
