@@ -75,21 +75,17 @@ export default async function ChatPage() {
   }));
 
   return (
-    // 🚀 THE CONTAINER FIX: 
-    // We lock the outer frame to 100dvh, flex layout column mode, and hide body overflow.
     <div className="w-screen h-[100dvh] min-h-[100dvh] max-h-[100dvh] bg-gray-50 text-gray-900 overflow-hidden flex flex-col antialiased">
-      {/* Fixed top block */}
       <GlobalHeader currentUser={currentUser} />
       <MobileNavShell currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
 
-      {/* 🎯 THE MATHEMATICAL REMEDY CELL:
-          Instead of hardcoded 'calc' guesses, we tell this inner layout to take up 100% of whatever 
-          space remains available between the navbar and the device glass border ('flex-1 min-h-0'). 
-          This guarantees the chat text input area never expands beneath the phone screen tray boundary! */}
+      {/* 🎯 THE OVERFLOW CONTROLLER: We adjust 'py-0 lg:py-6' to ensure it starts crisp on desktop cells */}
       <div className="w-full max-w-none lg:max-w-7xl mx-auto px-0 lg:px-6 py-0 lg:py-6 relative z-10 flex-1 min-h-0 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 pb-14 lg:pb-0">
         
-        {/* Desktop Sidebar Column Layout card displays */}
-        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
+        {/* 🎯 THE DESKTOP FIX: 
+            We change 'lg:top-20' to 'lg:top-0' or remove excessive artificial padding limits.
+            This brings your SidebarNav card straight up to align flat with your chat lounge console! */}
+        <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-0 h-full max-h-full overflow-y-auto pr-1">
           <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount} />
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
