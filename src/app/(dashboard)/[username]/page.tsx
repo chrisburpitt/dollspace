@@ -34,7 +34,22 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const unreadMailCount = await getUnreadMailCount();
   const onlineUsers = await getOnlineDollsRoster();
-  const dashboardMetrics = await getPlatformDashboardMetrics();
+  const totalUsersCount = await prisma.user.count({ where: { isBanned: false } });
+  const activeDollsOnlineCount = await prisma.user.count({
+    where: { isBanned: false, status: { notIn: ["OFFLINE", "BANNED"] } }
+  });
+
+  const waitingDMsCount = await prisma.directMessage.count({
+    where: { recipientId: currentUser.id, isRead: false }
+  });
+
+  // 2. Assemble your full updated data object parameters
+  const dashboardMetrics = {
+    onlineCount: activeDollsOnlineCount,
+    totalUsers: totalUsersCount,
+    unreadMailCount: await prisma.internalMail.count({ where: { recipientId: currentUser.id, isRead: false } }),
+    waitingDMsCount: waitingDMsCount
+  };
   
   // 🎯 1. UNIQUE PROFILE RESOLUTION SLOT: Fetches the primary target account row natively
   const user = await prisma.user.findUnique({
@@ -69,9 +84,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       }
     }
   }).then(relations => relations.map(r => r.following));
-
-
-// src/app/[username]/page.tsx (PART 2 - TIMELINES & RENDERING CONSOLE)
 
   const sharedPostInclusions = {
     user: { select: { id: true, username: true, displayName: true, avatarUrl: true } }, 

@@ -32,6 +32,7 @@ interface ProfileClientProps {
   dotwRecord: any; 
   dashboardMetrics: {
 	onlineCount: number;
+	totalUsers: number; 
     unreadMailCount: number;
     waitingDMsCount: number;
   };

@@ -13,7 +13,7 @@ interface PlatformMetricsCardProps {
 }
 
 export default function PlatformMetricsCard({ metrics }: PlatformMetricsCardProps) {
-  const { onlineCount, unreadMailCount, waitingDMsCount } = metrics;
+  const { onlineCount, totalUsers, unreadMailCount, waitingDMsCount } = metrics;
 
   return (
     <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm text-left select-none animate-fade-in space-y-4">
