@@ -34,12 +34,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const unreadMailCount = await getUnreadMailCount();
   const onlineUsers = await getOnlineDollsRoster();
-  
-  const dotwRecord = await prisma.dollOfTheWeekEntry.findUnique({
-  where: { userId: user.id } // Targets the profile user's ID slots
-});
-
-  const dashboardMetrics = await getPlatformDashboardMetrics();
+    const dashboardMetrics = await getPlatformDashboardMetrics();
+    const dotwRecord = await prisma.dollOfTheWeekEntry.findUnique({
+      where: { userId: user.id } // Targets the profile user's ID slots
+  });
 
   // 🚀 FIX: Pre-fetch your complete permanent network directory layout natively
   const absoluteFollowersList = await prisma.follow.findMany({
