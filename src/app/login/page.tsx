@@ -1,7 +1,7 @@
-// src/app/login/page.tsx
+// src/app/login/page.tsx (PART 1 - REINFORCED REGISTRATION DECK)
 "use client";
 
-import { useActionState, Suspense } from "react"; // 🚀 1. IMPORT SUSPENSE NATIVELY
+import { useActionState, Suspense, useState } from "react"; 
 import { loginUser, registerUser } from "@/app/actions/auth";
 import SubmitButton from "@/components/SubmitButton";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -11,6 +11,10 @@ function AuthFormContent() {
   const router = useRouter();
   const isRegisterMode = searchParams.get("mode") === "register";
 
+  // State hooks for compliance tracking
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+
   const [state, formAction] = useActionState(
     isRegisterMode ? registerUser : loginUser,
     null
@@ -19,7 +23,6 @@ function AuthFormContent() {
   if (state?.success && isRegisterMode) {
     return (
       <div className="max-w-md w-full bg-white border border-rose-100 p-8 rounded-3xl shadow-xl text-center animate-scale-up">
-        {/* Celebration Graphic Icon */}
         <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
           🌸
         </div>
@@ -31,10 +34,8 @@ function AuthFormContent() {
           Your account has been securely created in the lounge. We have sent a welcome message straight to your inbox.
         </p>
 
-        {/* Dynamic Forwarding Continue Button Trigger */}
         <button
           onClick={() => {
-            // Smoothly takes them back to the login view card frame and drops the query flags
             router.push("/login");
           }}
           className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold p-3 rounded-xl transition shadow-sm text-sm"
@@ -74,6 +75,9 @@ function AuthFormContent() {
           />
         </div>
 
+
+// src/app/login/page.tsx (PART 2 - COMPULSORY FIELDS & DATE OF BIRTH HOOK)
+
         {isRegisterMode && (
           <>
             <div>
@@ -101,6 +105,19 @@ function AuthFormContent() {
                 placeholder="e.g. Chloe Smith" 
               />
             </div>
+
+            {/* 🎂 COMPULSORY DATE OF BIRTH INPUT FIELD */}
+            <div>
+              <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
+                Date of Birth
+              </label>
+              <input 
+                type="date" 
+                name="birthday" 
+                required 
+                className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition text-gray-700 cursor-pointer" 
+              />
+            </div>
           </>
         )}
 
@@ -117,10 +134,57 @@ function AuthFormContent() {
           />
         </div>
 
+        {/* THE LEGAL COMPLIANCE INJECTIONS */}
+        {isRegisterMode && (
+          <div className="space-y-2 pt-2 text-left animate-fade-in">
+            
+            {/* Checkbox Line 1: Terms */}
+            <label className="flex items-start space-x-3 cursor-pointer select-none">
+              <input 
+                type="checkbox"
+                required
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-rose-500 focus:ring-rose-400 accent-rose-500 cursor-pointer"
+              />
+              <span className="text-xs font-semibold text-gray-500 leading-tight">
+                I explicitly agree to the{" "}
+                <a href="/terms" target="_blank" className="text-rose-500 hover:underline font-bold">
+                  Terms and Conditions
+                </a>{" "}
+                governing Dollspace access slots.
+              </span>
+            </label>
+
+            {/* Checkbox Line 2: Privacy */}
+            <label className="flex items-start space-x-3 cursor-pointer select-none">
+              <input 
+                type="checkbox"
+                required
+                checked={agreedToPrivacy}
+                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-rose-500 focus:ring-rose-400 accent-rose-500 cursor-pointer"
+              />
+              <span className="text-xs font-semibold text-gray-500 leading-tight">
+                I authorize the processing of my data records per the{" "}
+                <a href="/privacy" target="_blank" className="text-rose-500 hover:underline font-bold">
+                  Privacy Notice
+                </a>.
+              </span>
+            </label>
+
+          </div>
+        )}
+
         <SubmitButton 
           label={isRegisterMode ? "Sign Up" : "Log In"} 
           loadingLabel={isRegisterMode ? "Creating Account..." : "Verifying Secure Token..."}
-          className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold p-3 rounded-xl transition shadow-sm mt-2 text-sm"
+          disabled={isRegisterMode && (!agreedToTerms || !agreedToPrivacy)}
+          className={`w-full font-bold p-3 rounded-xl transition shadow-sm mt-2 text-sm text-white ${
+            isRegisterMode && (!agreedToTerms || !agreedToPrivacy)
+              ? "bg-gray-300 cursor-not-allowed opacity-60"
+              : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
+          }`}
         />
       </form>
 
