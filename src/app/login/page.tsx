@@ -150,7 +150,7 @@ function AuthFormContent() {
                 <a href="/terms" target="_blank" className="text-rose-500 hover:underline font-bold">
                   Terms & Conditions
                 </a>{" "}
-                laid out herein to access Dollspace.app.
+                to access Dollspace.app
               </span>
             </label>
 
@@ -164,10 +164,10 @@ function AuthFormContent() {
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-rose-500 focus:ring-rose-400 accent-rose-500 cursor-pointer"
               />
               <span className="text-xs font-semibold text-gray-500 leading-tight">
-                I agree to Dollspace processing my data per the{" "}
+                I agree to the processing of my data per the{" "}
                 <a href="/privacy" target="_blank" className="text-rose-500 hover:underline font-bold">
                   Privacy Notice
-                </a>.
+                </a>
               </span>
             </label>
 

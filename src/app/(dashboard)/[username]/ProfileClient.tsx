@@ -15,6 +15,7 @@ import OnlineUsersSidebar from "@/components/OnlineUsersSidebar";
 import MobileNavShell from "@/components/MobileNavShell"; 
 import ProfileUpdateFeed from "@/components/ProfileUpdateFeed";
 import PlatformMetricsCard from "@/components/PlatformMetricsCard"; 
+import DollOfTheWeekWidget from "@/components/DollOfTheWeekWidget"; 
 import { incrementProfileViews } from "@/app/actions/profile"; 
 
 interface ProfileClientProps {
@@ -28,6 +29,7 @@ interface ProfileClientProps {
   unreadMailCount: number;
   onlineUsers: any[];
   followersList?: any[];
+  dotwRecord: any; 
   dashboardMetrics: {
 	onlineCount: number;
     unreadMailCount: number;
@@ -81,6 +83,9 @@ export default function ProfileClient({
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav currentUsername={sessionUser.username} unreadMailCount={unreadMailCount} />
+		  {sessionUser && (
+            <DollOfTheWeekWidget currentUserEntry={dotwRecord} />
+          )}
           <OnlineUsersSidebar users={onlineUsers} />
         </aside>
 
