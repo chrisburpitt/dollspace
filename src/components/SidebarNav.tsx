@@ -62,6 +62,12 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
           </span>
         </Link>
 
+        <Link href="/settings" className={getLinkStyle("/settings")}>
+          <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
+            <span>⚙️ Settings</span>
+          </span>
+        </Link>
+		
       </nav>
     </div>
   );
