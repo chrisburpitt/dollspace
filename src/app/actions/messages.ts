@@ -2,6 +2,8 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "./auth";
+import { revalidatePath } from "next/cache";
 
 function generateRoomToken(userIdA: string, userIdB: string) {
   return [userIdA, userIdB].sort().join("--");
