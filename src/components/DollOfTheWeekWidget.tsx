@@ -46,7 +46,12 @@ function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): 
 
 export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserEntry: any }) {
   const [isPending, startTransition] = useTransition();
-  const [hasEntered, setHasEntered] = useState(!!currentUserEntry);
+  
+  // ✨ Airtight Safeguard: Explicitly evaluates to false if currentUserEntry is null or undefined!
+  const [hasEntered, setHasEntered] = useState(
+    currentUserEntry && currentUserEntry.id ? true : false
+  );
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Competing candidate states
