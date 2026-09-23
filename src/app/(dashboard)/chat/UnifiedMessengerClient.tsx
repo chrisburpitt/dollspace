@@ -121,6 +121,21 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [publicMessages, modMessages, privateMessages, selectedChannel]);
 
+// 📂 Inside src/app/chat/UnifiedMessengerClient.tsx contact click event:
+  const handleSelectContactChatLine = async (contact: Contact) => {
+    setSelectedChannel(contact.id);
+    setActiveContact(contact);
+    setMobileViewState("WORKSPACE");
+
+    // 🚀 THE COUNTER FLUSH REMEDY:
+    // Instantly wipes out the unread badges across your Vercel templates the second you click!
+    const result = await markDirectMessagesAsReadAction(contact.id);
+    if (result.success) {
+      router.refresh(); // Tells Next.js to pull down the brand new 0 count metrics
+    }
+  };
+
+
   const handleSendMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -263,8 +278,12 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
           {/* Contacts Directory Map Rendering */}
           {activePrivateLinesList.map((contact) => {
             const isSelected = activeContact?.id === contact.id;
-            const matchedLiveUser = activePresence.find(u => u.id === contact.id);
-            const resolvedLiveStatus = matchedLiveUser?.status || (contact as any).status || "ONLINE";
+  
+            // 🎯 THE LIVE UNREAD COUNT CALCULATOR:
+            // Scrapes your privateMessages state cache array to see how many unread rows belong to THIS contact!
+            const specificContactUnreadCount = privateMessages.filter(
+              (m) => m.senderId === contact.id && m.recipientId === currentUser.id && !(m as any).isRead
+            ).length;
 
             return (
               <div 

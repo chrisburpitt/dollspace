@@ -47,6 +47,28 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+  
+  // 🚀 REAL-TIME PACKET CAPTURE HOOK:
+  // Updates your unread badge bubble live the millisecond a WebSocket data packet lands!
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleIncomingNotificationPacket = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "INCOMING_NOTIFICATION_ALERT") {
+          // Increment your unread notifications array layer immediately without clicking!
+          setLocalNotificationsList((prev) => [data.notification, ...prev]);
+          setHasUnreadAlerts(true);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    socket.addEventListener("message", handleIncomingNotificationPacket);
+    return () => socket.removeEventListener("message", handleIncomingNotificationPacket);
+  }, [socket]);
 
   const handleStatusChange = async (newStatus: string) => {
     setCurrentStatus(newStatus);

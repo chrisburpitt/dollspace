@@ -45,3 +45,26 @@ export async function saveModChatMessage(content: string, userId: string) {
     return { error: "Failed to persist log row to server database." };
   }
 }
+
+export async function markDirectMessagesAsReadAction(senderId: string) {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized access path." };
+
+  try {
+    // Atomically find every message sent from this user to you and mark them as read!
+    await prisma.directMessage.updateMany({
+      where: {
+        senderId: senderId,
+        recipientId: sessionUser.id,
+        isRead: false
+      },
+      data: { isRead: true }
+    });
+
+    revalidatePath("/", "layout");
+    return { success: true };
+  } catch (err) {
+    console.error("Unread message flush failure:", err);
+    return { error: "Failed to mark records as read inside PostgreSQL." };
+  }
+}
