@@ -13,10 +13,9 @@ const FORBIDDEN_WORDS = [
   "cock",
   "dick",
   "prick",
-  "knob",
   "bellend",
   "scrote",
-  "bollocks",
+  "bollock",
   "piss",
   "wanker",
   "tosser",
@@ -33,7 +32,10 @@ const FORBIDDEN_WORDS = [
   "gypo",
   "pikey",
   "tranny",
-  "troon"
+  "troon",
+  "nigga",
+  "nigger",
+  "darky"
   // Add any other terms you want to target here!
 ];
 
@@ -50,7 +52,7 @@ export function filterProfanity(text: string, isFilterEnabled: boolean): string 
   // Loop through and construct a regex word-boundary lookup swap
   FORBIDDEN_WORDS.forEach((word) => {
     // 'gi' forces global match and ignores uppercase vs lowercase differences
-    const regex = new RegExp(`\\b${word}\\b`, "gi");
+    const regex = new RegExp(`${word}`, "gi");
     cleanText = cleanText.replace(regex, "*beep*");
   });
 

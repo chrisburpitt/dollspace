@@ -1,13 +1,17 @@
-// src/components/EditProfileModal.tsx (PART 1 - LIFECYCLE & STATE HOOKS)
+// src/components/EditProfileModal.tsx (PART 1 - SYSTEM HOOKS & COMPACT PROPS)
 "use client";
 
-import { useState, useTransition, useRef, useEffect } from "react"; // 🚀 Added useRef and useEffect
+import { useState, useTransition, useRef, useEffect } from "react";
 import { updateProfile } from "@/app/actions/profile"; 
 import { useRouter } from "next/navigation"; 
 import SubmitButton from "./SubmitButton";
+import Link from "next/link"; // 🚀 IMPORT NET ROUTER LINK CAPSULES
+import InteractiveAvatar from "./InteractiveAvatar"; // 🚀 IMPORT INTERACTIVE AVATAR STUDIO WIDGET
 
 interface EditProfileModalProps {
   user: {
+    id: string; // 🎯 Ensure the database contract passes down the string ID row
+    avatarUrl: string | null;
     displayName: string;
     bio: string | null;
     location: string | null;
@@ -22,6 +26,7 @@ interface EditProfileModalProps {
 const LOOKING_FOR_TILES = ["Friends", "Support", "Chat", "Discovery", "Learning", "Resources", "Relationship"];
 const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
 const GENDER_OPTIONS = ["woman", "girl", "man", "boy"];
+
 const parseInitialIdentity = (dbValue: string | null) => {
   if (!dbValue) return { prefix: "Trans", term: "woman" };
   if (dbValue === "Non-Binary") return { prefix: "Non-Binary", term: "" };
@@ -39,6 +44,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const modalInnerContentRef = useRef<HTMLDivElement>(null);
+  
   const initialIdentity = parseInitialIdentity(user.genderIdentity);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [bio, setBio] = useState(user.bio || "");
@@ -49,11 +55,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const locationContainerRef = useRef<HTMLDivElement>(null);
+  
   const [identityPrefix, setIdentityPrefix] = useState<string>(initialIdentity.prefix);
   const [identityTerm, setIdentityTerm] = useState<string>(initialIdentity.term);
   const [selectedLookingFor, setSelectedLookingFor] = useState<string[]>(
     user.lookingFor ? user.lookingFor.split(",").map((s: string) => s.trim()).filter(Boolean) : []
   );
+  
   const initialDateStr = user.birthday 
     ? new Date(user.birthday).toISOString().substring(0, 10) 
     : "";
@@ -61,7 +69,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   const [instagramHandle, setInstagramHandle] = useState(user.instagramHandle || "");
   const [facebookHandle, setFacebookHandle] = useState(user.facebookHandle || "");
   
-  // 🚀 LIVE SEARCH TRIGGER: Contacts OpenStreetMap Nominatim endpoint dynamically
   useEffect(() => {
     if (!isUserActivelyTypingLocation || !locationSearchQuery.trim() || locationSearchQuery.length < 3) {
       setLocationSuggestions([]);
@@ -81,7 +88,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
           setLocationSuggestions([]);
         }
       } catch (err) {
-        console.error("Predictive location autocomplete search fetch broke:", err);
+        console.error(err);
         setLocationSuggestions([]);
       } finally {
         setIsSearchingLocation(false);
@@ -91,21 +98,16 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     return () => clearTimeout(delayDebounceFn);
   }, [locationSearchQuery, isUserActivelyTypingLocation]);
 
-
-  // 🚀 CLICK-OUTSIDE EVENT LISTENER: Shuts modal if a user clicks outside the inner ref boundaries
   useEffect(() => {
     function handleClickOutsideTheModalCard(event: MouseEvent) {
       if (modalInnerContentRef.current && !modalInnerContentRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutsideTheModalCard);
     }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutsideTheModalCard);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutsideTheModalCard);
   }, [isOpen]); 
 
   const handleToggleTileSelection = (tile: string) => {
@@ -118,8 +120,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
     e.preventDefault();
     startTransition(async () => {
       const compiledLookingForString = selectedLookingFor.join(", ");
-
-      // 🚀 CONCATENATION ENGINE: Blends the choices back into your exact database format string!
       const compiledIdentityString = identityPrefix === "Non-Binary" 
         ? "Non-Binary" 
         : `${identityPrefix} ${identityTerm}`;
@@ -134,7 +134,6 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       payload.append("instagramHandle", instagramHandle);
       payload.append("facebookHandle", facebookHandle);
 
-
       const res = await updateProfile(payload);
       if (res?.success) {
         setIsOpen(false);
@@ -146,13 +145,12 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
   };
 
 
-  // src/components/EditProfileModal.tsx (PART 2 - INTERACTIVE FORM LAYOUTS)
   return (
     <>
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="bg-white hover:bg-gray-50 text-gray-700 font-black text-xs px-4 py-2 rounded-xl border border-gray-200 shadow-sm transition uppercase tracking-wider select-none shrink-0"
+        className="bg-white hover:bg-gray-50 text-gray-700 font-black text-xs px-4 py-2 rounded-xl border border-gray-200 shadow-sm transition uppercase tracking-wider select-none shrink-0 cursor-pointer"
       >
         ⚙️ Edit Profile
       </button>
@@ -160,16 +158,33 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
       {isOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 select-none animate-fade-in text-left">
           
-          {/* 🚀 modalInnerContentRef hooks the click-outside closer engine securely */}
-          <div ref={modalInnerContentRef} className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col animate-scale-up">
+          <div ref={modalInnerContentRef} className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-md w-full max-h-[85vh] flex flex-col animate-scale-up overflow-hidden">
             
             <div className="p-6 border-b border-gray-50 flex items-center justify-between shrink-0">
               <h3 className="font-black text-lg text-gray-900 uppercase tracking-wide">Tell Us About YOU ✨</h3>
-              <button type="button" onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold text-sm">✕</button>
+              <button type="button" onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">✕</button>
             </div>
 
-            <form onSubmit={handleFormSubmitAction} className="p-6 overflow-y-auto space-y-4 flex-1 text-xs font-semibold text-gray-700">
+            <form onSubmit={handleFormSubmitAction} className="p-6 overflow-y-auto space-y-4 flex-1 text-xs font-semibold text-gray-700 scrollbar-none">
               
+              {/* 🎯 THE INTEGRATED PROFILE IMAGE STUDIO HOOK */}
+              {/* Sits right at the top of the form, providing crop/rotate/mirror controls */}
+              <div className="flex flex-col items-center justify-center pb-2 border-b border-gray-50">
+                <label className="text-[10px] font-black text-gray-400 uppercase block mb-1.5 tracking-wider">
+                  Profile Picture Canvas
+                </label>
+                <InteractiveAvatar 
+                  userId={user.id}
+                  avatarUrl={user.avatarUrl}
+                  displayName={user.displayName}
+                  isEditable={true}
+                  sizeClass="w-20 h-20"
+                />
+                <span className="text-[9px] font-bold text-rose-400 mt-1.5 animate-pulse uppercase tracking-wide">
+                  Tap photo circle to crop, rotate or flip 📸
+                </span>
+              </div>
+
               {/* 1. DISPLAY NAME */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
@@ -179,35 +194,30 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
               {/* 2. DATE OF BIRTH */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Date of Birth</label>
-                <input suppressHydrationWarning type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition" />
+                <input suppressHydrationWarning type="date" value={birthday} onChange={(e) => setBirthday(e.target.value)} className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:bg-white transition cursor-pointer" />
               </div>
 
-              {/* 3. LOCATION SEARCH (UPGRADED PREDICTIVE AUTOFILL INTERFACE) */}
+
+              {/* 3. LOCATION SEARCH (WITH INTEGRATED AUTOCOMPLETE DROPDOWN) */}
               <div className="space-y-1 relative" ref={locationContainerRef}>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Location</label>
-                
                 <div className="relative flex items-center">
                   <input 
                     type="text" 
                     value={locationSearchQuery} 
                     onChange={(e) => {
                       setIsUserActivelyTypingLocation(true);
-					  setLocationSearchQuery(e.target.value);
-                      setLocation(e.target.value); // Sync target data to your submission string state
+                      setLocationSearchQuery(e.target.value);
+                      setLocation(e.target.value); 
                     }} 
                     placeholder="Search city, town, or country... 📍" 
                     className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition pr-10" 
                   />
-                  
-                  {/* Live Search Loading Animation Node */}
                   {isSearchingLocation && (
-                    <span className="absolute right-3 text-gray-400 animate-spin text-sm leading-none font-bold">
-                      ⏳
-                    </span>
+                    <span className="absolute right-3 text-gray-400 animate-spin text-sm leading-none font-bold">⏳</span>
                   )}
                 </div>
 
-                {/* 🚀 AUTOFILL DROPDOWN PANEL OVERLAY CONTAINER */}
                 {showLocationDropdown && locationSuggestions.length > 0 && (
                   <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-gray-50 p-1 animate-scale-up">
                     {locationSuggestions.map((suggestion) => (
@@ -215,12 +225,11 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                         key={suggestion.id}
                         type="button"
                         onClick={() => {
-                          // Clean up text format: Extracts full address but optimizes presentation view strings
                           setLocationSearchQuery(suggestion.display_name);
-                          setLocation(suggestion.display_name); // Populates target database field configuration token
+                          setLocation(suggestion.display_name); 
                           setShowLocationDropdown(false);
                         }}
-                        className="w-full text-left px-3 py-2.5 text-xs font-semibold text-gray-700 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition truncate block"
+                        className="w-full text-left px-3 py-2.5 text-xs font-semibold text-gray-700 hover:bg-rose-50 hover:text-rose-600 rounded-lg transition truncate block cursor-pointer"
                       >
                         📍 {suggestion.display_name}
                       </button>
@@ -229,17 +238,13 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 )}
               </div>
 
-              {/* 4. DUAL GENDER IDENTITY SPECIFIC INTERACTIVE DROPDOWNS */}
+              {/* 4. GENDER IDENTITY INTERACTIVE SELECTORS */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
-                
                 <div className="flex items-center space-x-3 w-full">
-                  
-                  {/* LEFT DROPDOWN: Core Prefix Selection (Trans / Non-Binary / Cis) */}
                   <div className="relative flex-1">
-                    <select value={identityPrefix} 
-					  onChange={(e) => {
-                      const nextPrefix = e.target.value;
+                     {
+                        const nextPrefix = e.target.value;
                         setIdentityPrefix(nextPrefix);
                         if (nextPrefix === "Non-Binary" || nextPrefix === "Crossdresser") {
                           setIdentityTerm("");
@@ -256,10 +261,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[8px] font-bold">▼</span>
                   </div>
 
-                  {/* RIGHT DROPDOWN: Core Term Selection (man / woman / boy / girl) */}
                   <div className="relative flex-1">
-				    <select value={identityTerm} 
-                      onChange={(e) => setIdentityTerm(e.target.value)}
+                     setIdentityTerm(e.target.value)}
                       disabled={identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
                         identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser"
@@ -277,11 +280,10 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                     </select>
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-[8px] font-bold">▼</span>
                   </div>
-
                 </div>
               </div>
 
-              {/* 5. WHAT ARE YOU LOOKING FOR INTERACTIVE TILES */}
+              {/* 5. INTERACTIVE LOOKING FOR TILES */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block">What are you looking for?</label>
                 <div className="flex flex-wrap gap-1.5 pt-0.5">
@@ -292,7 +294,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                         key={tile}
                         type="button"
                         onClick={() => handleToggleTileSelection(tile)}
-                        className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider border transition shadow-sm ${
+                        className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-wider border transition shadow-sm cursor-pointer ${
                           isTileSelected
                             ? "bg-rose-500 text-white border-rose-600 scale-102"
                             : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
@@ -311,23 +313,47 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <textarea rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the community your sweet story..." className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition resize-none leading-relaxed" />
               </div>
 
-            {/* 7. SOCIAL CONTROLS */}			  
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">📸 Instagram Profe</label>
-                <input type="text" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="e.g. chloe_luxe" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+
+              {/* 7. SOCIAL CONTROLS */}			  
+              <div className="grid grid-cols-2 gap-3 pb-2">
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">📸 Instagram Profile</label>
+                  <input type="text" value={instagramHandle} onChange={(e) => setInstagramHandle(e.target.value)} placeholder="e.g. chloe_luxe" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">💙 Facebook Name</label>
+                  <input type="text" value={facebookHandle} onChange={(e) => setFacebookHandle(e.target.value)} placeholder="e.g. chloe.stevens.9" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+                </div>
               </div>
 
-              <div>
-                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">💙 Facebook Name</label>
-                <input type="text" value={facebookHandle} onChange={(e) => setFacebookHandle(e.target.value)} placeholder="e.g. chloe.stevens.9" className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white transition" />
+              {/* 🎯 THE BOTTOM LINK UPGRADE: 
+                  Bridges users straight to the main /settings page from the popup! */}
+              <div className="bg-rose-50/20 border border-rose-100/60 p-3.5 rounded-2xl text-center space-y-1 mt-4">
+                <span className="text-[10px] font-bold text-gray-400 uppercase block tracking-wide">
+                  Looking to change your username handle, safety filters or alerts?
+                </span>
+                <Link 
+                  href="/settings"
+                  className="text-rose-500 font-black text-xs uppercase hover:underline tracking-wider inline-flex items-center gap-1 cursor-pointer"
+                >
+                  Open Complete Account Settings Hub 👑 ➔
+                </Link>
               </div>
-			</div>
 
               {/* LOWER DOCK CONTROL BUTTONS */}
-              <div className="flex space-x-2 pt-2 shrink-0">
-                <button type="button" onClick={() => setIsOpen(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-3 rounded-xl text-xs uppercase tracking-wider transition">Cancel</button>
-                <SubmitButton label="Save Changes" loadingLabel="Saving Vibe..." className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl text-xs uppercase tracking-wider transition shadow-sm" />
+              <div className="flex space-x-2 pt-4 border-t border-gray-100 shrink-0">
+                <button 
+                  type="button" 
+                  onClick={() => setIsOpen(false)} 
+                  className="flex-1 bg-gray-100 text-gray-600 font-bold p-3 rounded-xl text-xs uppercase tracking-wider transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <SubmitButton 
+                  label="Save Changes" 
+                  loadingLabel="Saving Vibe..." 
+                  className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black p-3 rounded-xl text-xs uppercase tracking-wider transition shadow-sm cursor-pointer" 
+                />
               </div>
 			
             </form>

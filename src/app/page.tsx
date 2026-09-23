@@ -121,7 +121,6 @@ export default async function HomePage() {
     role: currentUser.role || "USER"
   };
 
-// src/app/page.tsx (PART 2 - DYNAMIC HOVER MATRIX LAYOUT)
 
   return (
     // 🎯 THE TIMELINE THEME SYNC: 
