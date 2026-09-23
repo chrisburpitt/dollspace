@@ -6,7 +6,7 @@ export default function StaticFeedBanner() {
     <div className="w-full relative overflow-hidden select-none animate-fade-in">
       <div className="w-full h-48 sm:h-64 bg-gray-100 relative">
         <img 
-          src="https://aw7zk78mqn.ufs.sh/f/T14G2VLSOknFjZYLm0eiuQtIBK4XLbcY3GR6e87lM1PvgZnp" // Your hardcoded picture URL path
+          src="https://aw7zk78mqn.ufs.sh/f/T14G2VLSOknF6NbZp9GS0RN14GTHXQyMdlnwW3peLFsVYAuq" // Your hardcoded picture URL path
           alt="" 
           className="w-full h-full object-cover select-none"
         />

@@ -112,7 +112,7 @@ export default function ProfileClient({
               <div className="w-full h-full rounded-full overflow-hidden shrink-0 select-none relative flex items-center justify-center">
                 <InteractiveAvatar 
                   userId={user.id}
-                  avatarUrl={user.avatarUrl}
+                  avatarUrl={user.avatarUrl} || "https://aw7zk78mqn.ufs.sh/f/T14G2VLSOknFfpZiKKR85MTFK71fviHOpq4JcRXaVrd8D6Uz"}
                   displayName={user.displayName}
                   isEditable={isOwner}
                   sizeClass="w-full h-full object-cover shrink-0 rounded-full"

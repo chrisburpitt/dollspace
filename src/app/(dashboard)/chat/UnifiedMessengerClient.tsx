@@ -280,7 +280,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                   {/* Colored indicator ring */}
                   <div className="relative shrink-0 p-[2px]">
                     <img 
-                      src={contact.avatarUrl || "/default-avatar.png"} 
+                      src={contact.avatarUrl || "https://aw7zk78mqn.ufs.sh/f/T14G2VLSOknFfpZiKKR85MTFK71fviHOpq4JcRXaVrd8D6Uz"}  
                       alt="" 
                       className={`w-9 h-9 rounded-full object-cover shadow-sm border-2 ${
                         resolvedLiveStatus === "ONLINE" ? "border-green-500 ring-2 ring-green-400/20" :
@@ -444,13 +444,11 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                   const isMe = msg.user?.id === currentUser.id;
                   return (
                     <div key={msg.id} className={`flex items-end gap-2 max-w-[85%] ${isMe ? "ml-auto flex-row-reverse" : "mr-auto"} animate-fade-in`}>
-                      {msg.user?.avatarUrl ? (
-                        <img src={msg.user.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
-                      ) : (
-                        <div className="w-7 h-7 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-[10px] uppercase shadow-sm shrink-0">
-                          {msg.user?.displayName?.charAt(0) || "D"}
-                        </div>
-                      )}
+                      <img 
+                        src={msg.user?.avatarUrl || "https://aw7zk78mqn.ufs.sh/f/T14G2VLSOknFfpZiKKR85MTFK71fviHOpq4JcRXaVrd8D6Uz"} 
+                        alt="" 
+                        className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 dark:border-gray-800 shadow-sm bg-white dark:bg-gray-900" 
+                      />
                       <div className="space-y-0.5 text-left max-w-full">
                         <div className={`text-[9px] text-gray-400 px-1 font-bold flex gap-1 ${isMe ? "justify-end" : "justify-start"}`}>
                           <span>{msg.user?.displayName}</span>
