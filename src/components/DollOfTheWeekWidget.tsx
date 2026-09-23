@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
-import { submitDotwPhoto, getRandomDotwCandidate, castDotwVote } from "@/app/actions/dotw";
+import { submitDotwPhotoAction, getRandomDotwCandidate, castDotwVote } from "@/app/actions/dotw";
 
 // 🚀 NATIVE COMPRESSION UTILITY: Copied straight from FeedForm.tsx to optimize phone uploads
 function compressImageBeforeUpload(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
@@ -82,7 +82,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
   };
 
 
-  // src/components/DollOfTheWeekWidget.tsx (PART 2 - NATIVE FILE-PICKER HUDS)
+  // src/components/DollOfTheWeekWidget.tsx (PART 2 - RE-WIRED UPLOADTHING FLOWS)
   const handleNativeFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -90,30 +90,27 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: { currentUserE
     const selectedFile = files[0];
     
     startTransition(async () => {
-      // 1. Process client canvas compression instantly inside the browser frame
-      const compressedPhoto = await compressImageBeforeUpload(selectedFile);
-      
-      // 2. Wrap into a FormData package payload block to pass straight to your action script
-      const uploadPayload = new FormData();
-      uploadPayload.append("images", compressedPhoto);
+      try {
+        // 1. Process client canvas compression instantly inside the browser frame
+        const compressedPhoto = await compressImageBeforeUpload(selectedFile);
+        
+        // 🚀 2. FIRING THE REAL CLOUD MUTATION:
+        // Ships the binary File object straight to your updated UploadThing server task!
+        const res = await submitDotwPhotoAction(compressedPhoto);
 
-      // Note: Make sure your server action at 'src/app/actions/dotw.ts' is updated 
-      // to extract file paths out from FormData if uploading binaries directly!
-      // If your backend action expects a simple URL string instead, you can route it
-      // via an upload endpoint first or pass the string path.
-      
-      // Assuming a quick fallback to mock-saving for testing if upload strings match:
-      const fakeUrlPlaceholder = URL.createObjectURL(compressedPhoto); 
-      const res = await submitDotwPhoto(fakeUrlPlaceholder);
-
-      if (res.success) {
-        setHasEntered(true);
-        alert("Yay! Your contestant look has been recorded successfully. Now you can vote! 🩰✨");
-      } else if (res.error) {
-        alert(res.error);
+        if (res.success) {
+          setHasEntered(true);
+          alert("Yay! Your contestant look has been recorded successfully. Now you can vote! 🩰✨");
+        } else if (res.error) {
+          alert(res.error);
+        }
+      } catch (err) {
+        console.error("Widget file submission failure:", err);
+        alert("Something paused your tournament photo processing loop.");
       }
     });
   };
+
 
   return (
     <div className="w-full bg-white border border-gray-200 rounded-3xl p-5 shadow-sm text-left select-none animate-fade-in flex flex-col gap-4">

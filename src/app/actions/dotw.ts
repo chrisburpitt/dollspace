@@ -3,27 +3,40 @@
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
+import { saveImage } from "@/app/actions/posts"; 
 
-// 1. SUBMIT PHOTO ENTRY FOR THE CYCLE
-export async function submitDotwPhoto(imageUrl: string) {
+// 1. UPDATED: SUBMIT FILE HANDLE ENTRY FOR THE WEEKLY TOURNAMENT
+export async function submitDotwPhotoAction(file: File) {
   const currentUser = await getCurrentUser();
-  if (!currentUser) return { error: "Unauthorized" };
+  if (!currentUser) return { error: "Unauthorized access path." };
 
   try {
     const existing = await prisma.dollOfTheWeekEntry.findUnique({
       where: { userId: currentUser.id }
     });
-    if (existing) return { error: "You have already submitted your photo for this week's cycle! 🎀" };
+    if (existing) {
+      return { error: "You have already submitted your look for this week's cycle! 🎀" };
+    }
 
+    // 🚀 STREAM BINARY STRAIGHT TO UPLOADTHING CDN
+    const permanentCloudImageUrl = await saveImage(file);
+    if (!permanentCloudImageUrl) {
+      return { error: "UploadThing SDK rejected your tournament photo stream." };
+    }
+
+    // Write the permanent, global UploadThing link directly to Neon database
     const entry = await prisma.dollOfTheWeekEntry.create({
-      data: { userId: currentUser.id, imageUrl }
+      data: { 
+        userId: currentUser.id, 
+        imageUrl: permanentCloudImageUrl 
+      }
     });
 
     revalidatePath("/");
     return { success: true, entry };
   } catch (err) {
     console.error("DOTW Submission error:", err);
-    return { error: "Failed to upload competition photo." };
+    return { error: "Failed to upload competition photo to cloud storage." };
   }
 }
 

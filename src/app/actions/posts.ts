@@ -1,4 +1,4 @@
-// src/app/actions/posts.ts
+// src/app/actions/posts.ts (PART 1 - SERVER-SIDE COMPILER & LINK METADATA SCRAPER)
 "use server";
 
 import { prisma } from "@/lib/prisma";
@@ -8,7 +8,7 @@ import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
-// Standardized single file uploader utility
+// Standardized single file cloud uploader pipeline utility helper
 export async function saveImage(file: File): Promise<string | null> {
   try {
     const response = await utapi.uploadFiles(file);
@@ -19,12 +19,19 @@ export async function saveImage(file: File): Promise<string | null> {
   }
 }
 
-// UTILITY: Hotlink-Proof Scraper Helper
+// 🎯 THE UPLOADTHING UNIQUE FILE KEY EXTRACTOR
+// Extracts the specific alpha-numeric filename code out from permanent content delivery URLs
+function extractUploadThingKey(url: string | null): string | null {
+  if (!url) return null;
+  const splitParts = url.split("/f/");
+  return splitParts.length > 1 ? splitParts[1] : null;
+}
+
+// UTILITY ROUTINE: Hotlink-Proof Metadata Scraper Block
 async function scrapeUrlMetadata(url: string) {
   try {
     const baseUrl = new URL(url);
     
-    // Emulate a genuine browser visit precisely to stop bot blockers
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -56,14 +63,13 @@ async function scrapeUrlMetadata(url: string) {
 
     const decodeEntities = (str: string) => {
       return str
-        .replace(/&#039;/g, "'")
+        .replace(/&#39;/g, "'")
         .replace(/&amp;/g, "&")
         .replace(/&quot;/g, '"')
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">");
     };
 
-    // Format relative paths to absolute URLs immediately
     if (rawImage && !rawImage.startsWith("http")) {
       if (rawImage.startsWith("//")) {
         rawImage = `${baseUrl.protocol}${rawImage}`;
@@ -76,7 +82,6 @@ async function scrapeUrlMetadata(url: string) {
 
     let finalCloudImageUrl: string | null = null;
 
-    // 🚀 THE HOTLINK FIX: Download the image server-side and upload it to your own UploadThing storage!
     if (rawImage) {
       try {
         const imgResponse = await fetch(rawImage, {
@@ -87,12 +92,9 @@ async function scrapeUrlMetadata(url: string) {
         if (imgResponse.ok) {
           const contentType = imgResponse.headers.get("content-type") || "image/jpeg";
           const blob = await imgResponse.blob();
-          
-          // Reconstruct as a secure file handle
           const extension = contentType.split("/")[1] || "jpg";
           const parsedFile = new File([blob], `preview-thumb-${Date.now()}.${extension}`, { type: contentType });
           
-          // Push it straight into your official UTApi instance
           const cloudUpload = await utapi.uploadFiles(parsedFile);
           if (cloudUpload.data?.url) {
             finalCloudImageUrl = cloudUpload.data.url;
@@ -103,7 +105,6 @@ async function scrapeUrlMetadata(url: string) {
       }
     }
 
-    // High-resolution Google Favicon Engine Fallback if all else fails
     if (!finalCloudImageUrl) {
       finalCloudImageUrl = `https://google.com{baseUrl.hostname}`;
     }
@@ -128,80 +129,69 @@ async function scrapeUrlMetadata(url: string) {
   }
 }
 
-// ACTION: Main upgraded post processor procedure controller loop
-export async function createPost(formData: FormData) {
-  const sessionUser = await getCurrentUser();
-  if (!sessionUser) return { error: "Unauthorized." };
 
-  const content = (formData.get("content") as string)?.trim() || "";
-  
-  // Capture up to 3 uploaded multi-part image file handles
-  const imageFiles = formData.getAll("images") as File[];
-  const validFiles = imageFiles.filter(file => file && file.size > 0).slice(0, 3);
-
-  // Regex Link Detection System
-  const urlRegex = /(https?:\/\/[^\s]+)/g;
-  const detectedMatches = content.match(urlRegex);
-  
-  // 🚀 FIXED: Grab the first matched URL string item out of the matches array
-  const detectedUrl = detectedMatches ? detectedMatches[0] : null;
-  let metaData = null;
-
-  if (detectedUrl) {
-    metaData = await scrapeUrlMetadata(detectedUrl);
-  }
-
-  // Save base records down to Neon transaction matrices
-  const newPost = await prisma.post.create({
-    data: {
-      content,
-      userId: sessionUser.id,
-      linkUrl: detectedUrl, // 🎯 Typesafe string mapping matching Prisma rules
-      linkTitle: metaData?.title || null,
-      linkDesc: metaData?.desc || null,
-      linkImage: metaData?.image || null,
-    }
-  });
-
-  // HIGH-SPEED MULTI-PHOTO UPLOAD GRID LOOP
-  if (validFiles.length > 0) {
-    try {
-      const uploadResponses = await utapi.uploadFiles(validFiles);
-      const responsesArray = Array.isArray(uploadResponses) ? uploadResponses : [uploadResponses];
-
-      for (const res of responsesArray) {
-        if (res.data?.url) {
-          await prisma.postImage.create({
-            data: { 
-              url: res.data.url, 
-              postId: newPost.id 
-            }
-          });
-        }
-      }
-    } catch (utErr) {
-      console.error("Batch media stream processing error:", utErr);
-    }
-  }
-
-  revalidatePath("/");
-  return { success: true };
-}
+// src/app/actions/posts.ts (PART 2 - ASSET DESTRUCTION & USER PREFERENCE ACTIONS)
 
 // ACTION: Securely delete a post if the session user is the true creator
 export async function deletePost(postId: string) {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized: Please log in first." };
 
-  const post = await prisma.post.findUnique({ where: { id: postId } });
+  // Fetch the full post row along with its attached multi-photo entries before erasing them!
+  const post = await prisma.post.findUnique({ 
+    where: { id: postId },
+    include: { images: true } 
+  });
+  
   if (!post) return { error: "Post not found." };
   if (post.userId !== sessionUser.id) return { error: "Unauthorized: You do not own this post." };
 
-  await prisma.post.delete({ where: { id: postId } });
+  try {
+    // 🚀 COLLECT ALL ATTACHED IMAGES FOR ATOMIC CLOUD DESTRUCTION
+    const keysToDelete: string[] = [];
 
-  revalidatePath("/");
-  revalidatePath("/[username]", "layout");
-  return { success: true };
+    // Collect keys from the multi-image relation array schema
+    if (post.images && post.images.length > 0) {
+      post.images.forEach((img) => {
+        const fileKey = extractUploadThingKey(img.url);
+        if (fileKey) keysToDelete.push(fileKey);
+      });
+    }
+
+    // Collect key from legacy single-image field if populated in your environment
+    if ((post as any).imageUrl) {
+      const legacyKey = extractUploadThingKey((post as any).imageUrl);
+      if (legacyKey) keysToDelete.push(legacyKey);
+    }
+
+    // Collect any hotlinked preview thumbnail scraper image keys
+    if (post.linkImage) {
+      const scrapedKey = extractUploadThingKey(post.linkImage);
+      if (scrapedKey) keysToDelete.push(scrapedKey);
+    }
+
+    // 🚀 TRIGGER THE CLOUD STORAGE PURGE
+    if (keysToDelete.length > 0) {
+      // utapi.deleteFiles accepts either a single string key or an array of keys atomically
+      await utapi.deleteFiles(keysToDelete);
+    }
+
+    // 🚀 PURGE RECONCILED DATABASE ENTRIES FROM POSTGRESQL
+    // Cascades down to wipe reactions, image rows, and child comment records out natively
+    await prisma.post.delete({ where: { id: postId } });
+
+    revalidatePath("/");
+    revalidatePath("/[username]", "layout");
+    return { success: true };
+  } catch (err) {
+    console.error("Failed to delete assets from cloud bucket storage:", err);
+    // Erase table rows anyway as a fallback safety to prevent dangling UI elements
+    await prisma.post.delete({ where: { id: postId } }).catch(() => {});
+    
+    revalidatePath("/");
+    revalidatePath("/[username]", "layout");
+    return { success: true };
+  }
 }
 
 // ACTION: Standardized reactions query to match native Neon columns
