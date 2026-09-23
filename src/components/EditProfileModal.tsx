@@ -243,8 +243,8 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">How do you identify?</label>
                 <div className="flex items-center space-x-3 w-full">
                   <div className="relative flex-1">
-                     {
-                        const nextPrefix = e.target.value;
+                    <select value={identityPrefix} onChange={(e) =>{
+                      const nextPrefix = e.target.value;
                         setIdentityPrefix(nextPrefix);
                         if (nextPrefix === "Non-Binary" || nextPrefix === "Crossdresser") {
                           setIdentityTerm("");
@@ -262,6 +262,7 @@ export default function EditProfileModal({ user }: EditProfileModalProps) {
                   </div>
 
                   <div className="relative flex-1">
+				    <select value={identityTerm} onChange={(e) => 
                      setIdentityTerm(e.target.value)}
                       disabled={identityPrefix === "Non-Binary" || identityPrefix === "Crossdresser"}
                       className={`w-full border rounded-xl p-2.5 text-xs font-semibold appearance-none transition shadow-sm ${
