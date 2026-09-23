@@ -104,17 +104,21 @@ export default function ProfileClient({
 
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
-            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white dark:border-gray-900 rounded-full bg-white dark:bg-gray-900 shadow-md w-28 h-28 flex items-center justify-center shrink-0 z-20">
-              {/* 🎯 THE STUDIO UPGRADE:
-                  Locks sizes perfectly and allows clicking to edit ONLY if isOwner matches true! */}
-              <InteractiveAvatar 
-                userId={user.id}
-                avatarUrl={user.avatarUrl}
-                displayName={user.displayName}
-                isEditable={isOwner}
-                sizeClass="w-full h-full"
-              />
-            </div>
+            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white dark:border-gray-900 rounded-full bg-white dark:bg-gray-900 shadow-md w-28 h-28 flex items-center justify-center shrink-0 z-20 overflow-hidden">
+              {/* 🎯 THE OVERRIDE FIX: 
+                  Adding 'w-full h-full object-cover shrink-0' inside an explicit bounding circle 
+                  forces the canvas browser rendering layer to lock its proportions to a clean 1:1 ratio, 
+                  banishing that ugly oval shape forever! */}
+              <div className="w-full h-full rounded-full overflow-hidden shrink-0 select-none relative flex items-center justify-center">
+                <InteractiveAvatar 
+                  userId={user.id}
+                  avatarUrl={user.avatarUrl}
+                  displayName={user.displayName}
+                  isEditable={isOwner}
+                  sizeClass="w-full h-full object-cover shrink-0 rounded-full"
+                />
+              </div>
+			</div>
 
             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 mt-4">
               <div className="flex-1 w-full">
