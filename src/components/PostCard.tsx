@@ -7,6 +7,7 @@ import PostControls from "./PostControls";
 import PostComments from "./PostComments";
 import { editPostContent } from "@/app/actions/editPost";
 import { renderPostContentWithClickableTags } from "@/lib/utils/textParser";
+import { filterProfanity } from "@/lib/profanity";
 
 interface PostCardProps {
   post: any;
@@ -107,7 +108,8 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         </div>
       ) : (
         <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
-          {renderPostContentWithClickableTags(post.content)}
+          {/* 🎯 Filters the swear words first, then renders the clickable @tags safely! */}
+          {renderPostContentWithClickableTags(filterProfanity(post.content, (post.user as any).swearFilter ?? true))}
         </p>
       )}
 

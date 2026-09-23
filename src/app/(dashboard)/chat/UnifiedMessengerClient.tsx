@@ -7,6 +7,7 @@ import Link from "next/link";
 import { saveDirectMessage, saveModChatMessage } from "@/app/actions/messages";
 import ChatPresenceKeeper from "@/components/ChatPresenceKeeper"; 
 import { ignoreUserAction, blockUserAction } from "@/app/actions/moderation";
+import { filterProfanity } from "@/lib/profanity";
 
 interface Contact {
   id: string;
@@ -461,7 +462,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                             ? (selectedChannel === "MOD_CHAT" ? "bg-purple-600 text-white rounded-br-none" : "bg-rose-500 text-white rounded-br-none")
                             : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                         }`}>
-                          {msg.content}
+						  {filterProfanity(msg.content, currentUser.swearFilter)}
                         </div>
                       </div>
                     </div>
@@ -484,7 +485,7 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                         <div className={`p-3 rounded-2xl shadow-sm text-xs font-medium whitespace-pre-wrap leading-relaxed ${
                           isMe ? "bg-rose-500 text-white rounded-br-none" : "bg-white text-gray-800 border border-gray-100 rounded-bl-none"
                         }`}>
-                          {msg.content}
+						  {filterProfanity(msg.content, currentUser.swearFilter)}
                         </div>
                         <span className={`text-[9px] text-gray-400 font-bold block px-1.5 ${isMe ? "text-right" : "text-left"}`}>
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

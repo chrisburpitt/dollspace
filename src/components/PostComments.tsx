@@ -4,7 +4,8 @@
 import { useState, useTransition } from "react";
 import { createComment } from "@/app/actions/comments";
 import SubmitButton from "./SubmitButton";
-import Link from "next/link"; // 🚀 IMPORT NAV MARK LINK
+import Link from "next/link"; 
+import { filterProfanity } from "@/lib/profanity"; 
 
 interface CommentItem {
   id: string;
@@ -150,7 +151,8 @@ export default function PostComments({
                       </span>
                     </div>
                     <p className="text-gray-700 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
-                      {renderCommentContentWithClickableTags(reply.content)}
+                      {/* 🎯 Filters profanity seamlessly before compiling clickable handles */}
+                      {renderCommentContentWithClickableTags(filterProfanity(reply.content, true))}
                     </p>
                   </div>
                 </div>
