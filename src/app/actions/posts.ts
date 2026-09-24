@@ -23,7 +23,15 @@ function extractUploadThingKey(url: string | null): string | null {
   return splitParts.length > 1 ? splitParts[1] : null;
 }
 
+// 🎯 THE INDESTRUCTIBLE METADATA SCRAPER
 async function scrapeUrlMetadata(url: string) {
+  // 🚀 AIRTIGHT VALIDATION GATE: 
+  // If the link text is a relative route slug (like "/Chloe") instead of an absolute link,
+  // skip the scraper completely to prevent ERR_INVALID_URL server crashes!
+  if (!url || !url.startsWith("http://") && !url.startsWith("https://")) {
+    return null;
+  }
+
   try {
     const baseUrl = new URL(url);
     const response = await fetch(url, {
