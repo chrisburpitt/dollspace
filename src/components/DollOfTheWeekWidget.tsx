@@ -178,7 +178,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
                   disabled={isPending}
                   onClick={async () => {
                     // Trigger a secure browser window warning confirmation gate block first
-                    if (confirm("Are you absolutely sure you want to withdraw and delete your photo from this week's Doll of the Week tournament? ⚠️ This will permanently remove your votes and look from the system feed list!")) {
+                    if (confirm("Are you sure you want to remove your entry photo from this week's Doll of the Week tournament? ⚠️ This will reset your votes and delete your look from DOTW babe!")) {
                       startTransition(async () => {
                         const res = await deleteDotwEntryAction();
                         if (res?.success) {
@@ -190,7 +190,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
                       });
                     }
                   }}
-                  className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95 shadow-md hover:scale-105 duration-200"
+                  className="w-12 h-12 bg-rose-500 hover:bg-roose-700 text-white font-bold rounded-xl transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95 shadow-md hover:scale-105 duration-200"
                   title="Delete Tournament Submission Photo Look"
                 >
                   {isPending ? (
