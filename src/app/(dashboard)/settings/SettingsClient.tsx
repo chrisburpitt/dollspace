@@ -74,8 +74,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
   };
 
 
-// src/app/settings/SettingsClient.tsx (PART 2 - ACTIVE LAYOUT SHELLS & SECURITY TOGGLES)
-
   return (
     <div className={`min-h-screen font-sans antialiased transition-colors duration-300 ${
       isDarkMode ? "bg-gray-950 text-gray-50" : "bg-gray-50 text-gray-900"
@@ -185,8 +183,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
           </section>
 
 
-// src/app/settings/SettingsClient.tsx (PART 3A - ALERTS & PRIVACY DIRECTORIES)
-
           {/* SECTION 3: EMAIL NOTIFICATION NETWORKS */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">📧 Email Notifications</h2>
@@ -223,8 +219,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-
-// src/app/settings/SettingsClient.tsx (PART 3B - SECURITY FORMS & FINAL CLOSURES)
 
           {/* SECTION 5: SECURITY & PROFILE CREDENTIALS */}
           <section className="space-y-6 border-t border-gray-100 dark:border-gray-800 pt-6">
