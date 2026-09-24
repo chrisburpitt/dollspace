@@ -95,13 +95,13 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
               draggable="false"
             />
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition duration-200 flex items-center justify-center">
-              <span className="bg-white/90 backdrop-blur-xs font-black text-[9px] uppercase tracking-wider text-gray-700 px-2.5 py-1 rounded-full shadow-xs">🔍 Zoom Look</span>
+              <span className="bg-white/90 backdrop-blur-xs font-black text-[9px] uppercase tracking-wider text-gray-700 px-2.5 py-1 rounded-full shadow-xs">🔍 Zoom In</span>
             </div>
           </div>
 
           {/* LOWER RATINGS ROW CAPSULES */}
           {isDisplayingSelfLook ? (
-            <p className="text-center font-bold text-[10px] text-gray-400 italic pt-1">Reviewing your entry look ✨</p>
+            <p className="text-center font-bold text-[10px] text-gray-400 italic pt-1">Review your entry look 👑</p>
           ) : (
             <div className="grid grid-cols-2 gap-2">
               <button 
@@ -118,14 +118,43 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
                 disabled={isPending}
                 className="bg-gray-50 hover:bg-gray-100 text-gray-500 font-black text-xs py-2 rounded-xl border border-gray-200 transition shadow-2xs cursor-pointer flex items-center justify-center space-x-1"
               >
-                <span>🗑️ DULL</span>
+                <span>🥀️ DULL</span>
               </button>
             </div>
           )}
         </div>
       ) : (
-        // Renders only if the user hasn't uploaded a photo to join the tournament yet
-        <p className="text-gray-400 text-xs text-center py-6 font-medium">Join this week's tournament path! 🌸</p>
+        // 🚀 THE FIX: Instead of a dead text string, instantly render the official 
+        // light-mode file selection button form so dolls can re-enter immediately!
+        <div className="space-y-2 pt-1 animate-scale-up">
+          <p className="text-gray-400 text-[11px] font-medium leading-relaxed mb-3">
+            You don't have an  entry look in this week's tournament yet, doll!
+          </p>
+          <label className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black text-[11px] uppercase tracking-widest py-3 rounded-xl transition shadow-xs cursor-pointer flex items-center justify-center space-x-2 text-center group">
+            <span>✨ Submit Competition Look</span>
+            <input 
+              type="file" 
+              accept="image/*"
+              className="hidden" 
+              disabled={isPending}
+              onChange={async (e) => {
+                const targetFile = e.target.files?.[0];
+                if (!targetFile) return;
+                
+                // Fire off your submit action workflow natively
+                startTransition(async () => {
+                  const { submitDotwPhotoAction } = await import("@/app/actions/dotw");
+                  const res = await submitDotwPhotoAction(targetFile);
+                  if (res?.success) {
+                    window.location.reload(); // Instantly update view on successful re-upload!
+                  } else if (res?.error) {
+                    alert(res.error);
+                  }
+                });
+              }}
+            />
+          </label>
+        </div>
       )}
 
       {/* THE IMMERSIVE FULL-SCREEN LIGHTBOX OVERLAY WINDOW */}
