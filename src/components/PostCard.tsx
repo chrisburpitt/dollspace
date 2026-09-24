@@ -22,7 +22,8 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   const [editText, setEditText] = useState(post.content || "");
   
   const hasCommentsPresent = post.comments && post.comments.length > 0;
-  const domainName = post.linkUrl ? new URL(post.linkUrl).hostname.toLowerCase() : "";
+  const isAbsoluteWebLink = post.linkUrl && (post.linkUrl.startsWith("http://") || post.linkUrl.startsWith("https://"));
+  const domainName = isAbsoluteWebLink ? new URL(post.linkUrl).hostname.toLowerCase() : "";
   
   let customSocialBrandIcon = null;
   if (domainName.includes("instagram.com")) customSocialBrandIcon = "📸";
