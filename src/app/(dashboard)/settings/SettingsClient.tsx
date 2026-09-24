@@ -23,7 +23,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
   const [xxxFilter, setXxxFilter] = useState(currentUser.xxxFilter ?? true);
   const [blockMaleAttention, setBlockMaleAttention] = useState(currentUser.blockMaleAttention ?? true);
 
-  // Email Notification states
+  // Notification states
   const [notifComments, setNotifComments] = useState(currentUser.notifComments ?? false);
   const [notifReactions, setNotifReactions] = useState(currentUser.notifReactions ?? false);
   const [notifFollows, setNotifFollows] = useState(currentUser.notifFollows ?? false);
@@ -36,7 +36,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
     setIsSaving(true);
     try {
       const result = await saveUserSettingsAction({
-        isDarkMode: false, // 🚀 FORCE LOCK DATABASE THEME COLUMN ROW TO FALSE
+        isDarkMode: false, // Force lock dark preferences to false
         swearFilter,
         xxxFilter,
         blockMaleAttention,
@@ -86,7 +86,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
           <SidebarNav currentUsername={currentUser?.username} unreadMailCount={unreadMailCount} />
         </aside>
 
-        {/* RIGHT COLUMN: Settings Dashboard Panel Frame (Natively Pure Light & Rose Accents) */}
+        {/* RIGHT COLUMN: Settings Dashboard Panel Frame */}
         <main className="col-span-1 lg:col-span-9 border rounded-3xl p-6 sm:p-10 shadow-sm text-left space-y-8 bg-white border-rose-100/70">
           
           <div>
@@ -98,12 +98,12 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </p>
           </div>
 
-          {/* SECTION 2: CONTENT MODERATION & SAFETY FILTERS */}
+          {/* GROUP 1: CONTENT MODERATION & SAFETY FILTERS (LEAVE AS IS) */}
           <section className="space-y-4 border-t border-gray-100 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🚫 Content Filters</h2>
             <div className="space-y-3">
               
-              {/* Filter 1: Swear Word Filter */}
+              {/* Swear Word Filter */}
               <div className="p-4 rounded-2xl flex items-center justify-between border bg-gray-50/50 border-gray-100">
                 <div>
                   <span className="text-xs font-black block text-gray-800">Swear Word Filter</span>
@@ -112,7 +112,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 <button type="button" onClick={() => setSwearFilter(!swearFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${swearFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
               </div>
 
-              {/* Filter 2: XXX Nudity Filter */}
+              {/* XXX Nudity Filter */}
               <div className="p-4 rounded-2xl flex items-center justify-between border bg-gray-50/50 border-gray-100">
                 <div>
                   <span className="text-xs font-black block text-gray-800">XXX / Nudity Filter</span>
@@ -121,7 +121,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 <button type="button" onClick={() => setXxxFilter(!xxxFilter)} className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${xxxFilter ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}><span className="bg-white w-4 h-4 rounded-full shadow-md block" /></button>
               </div>
 
-              {/* Filter 3: THE SWITCH OFF MALE ATTENTION FEATURE */}
+              {/* SWITCH OFF MALE ATTENTION FILTER */}
               <div className="p-4 rounded-2xl flex items-center justify-between border bg-gray-50/50 border-gray-100">
                 <div>
                   <span className="text-xs font-black block text-gray-800">Switch OFF Male Attention</span>
@@ -139,35 +139,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-          {/* SECTION 5: SECURITY USERNAME TRIGGER INPUT CORE */}
-          <section className="space-y-6 border-t border-gray-100 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔑 Security & Credentials</h2>
-            
-            <form onSubmit={handleUsernameChangeSubmit} className="space-y-1.5 w-full">
-              <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">Change Dollspace Username</label>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-                <div className="relative flex-1 min-w-0">
-                  <span className="absolute left-3 top-3 text-xs font-bold text-gray-400">@</span>
-                  <input 
-                    type="text" required value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} placeholder="Enter your new username here..." 
-                    className="w-full border rounded-xl p-3 pl-7 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition h-11 border-gray-200 bg-gray-50 text-gray-800"
-                  />
-                </div>
-                <button 
-                  type="submit" disabled={isChangingUsername}
-                  className={`text-white text-[10px] font-black uppercase tracking-wider px-6 rounded-xl transition shadow-sm h-11 whitespace-nowrap shrink-0 ${
-                    isChangingUsername ? "bg-gray-400 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
-                  }`}
-                >
-                  {isChangingUsername ? "Verifying..." : "Confirm Username Change ✨"}
-                </button>
-              </div>
-              <span className="text-[9px] font-bold text-gray-400 block mt-1">Changing your username handle will instantly rewrite your timeline URLs and live chat tags.</span>
-            </form>
-          </section>
-
-
-          {/* SECTION 3: EMAIL NOTIFICATION NETWORKS */}
+          {/* GROUP 2: EMAIL NOTIFICATION NETWORKS (CONTENTS STAY SAME) */}
           <section className="space-y-4 border-t border-gray-100 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">📧 Email Notifications</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -189,7 +161,8 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-          {/* SECTION 4: PRIVACY CONTROL ROUTERS */}
+
+          {/* GROUP 3: PRIVACY & RESTRICTIONS (LEAVE THIS CONTENT) */}
           <section className="space-y-4 border-t border-gray-100 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">⛔ Privacy & Restrictions</h2>
             <div className="p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 transition-all duration-300 bg-rose-50/20 border-rose-100/60">
@@ -201,9 +174,37 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </div>
           </section>
 
-          {/* CREDENTIAL COMPANION CARDS GRID */}
-          <section className="space-y-4 pt-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start text-left">
+          {/* GROUP 4: SECURITY & CREDENTIALS (RE-ARRANGED STRUCTURAL CLUSTER) */}
+          <section className="space-y-6 border-t border-gray-100 pt-6">
+            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🔑 Security & Credentials</h2>
+            
+            {/* 4.1 Move Username to this section - 1 col type and save section (as is) */}
+            <form onSubmit={handleUsernameChangeSubmit} className="space-y-1.5 w-full">
+              <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">Change Dollspace Username</label>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
+                <div className="relative flex-1 min-w-0">
+                  <span className="absolute left-3 top-3 text-xs font-bold text-gray-400">@</span>
+                  <input 
+                    type="text" required value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} placeholder="Enter your new username here..." 
+                    className="w-full border rounded-xl p-3 pl-7 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition h-11 border-gray-200 bg-gray-50 text-gray-800"
+                  />
+                </div>
+                <button 
+                  type="submit" disabled={isChangingUsername}
+                  className={`text-white text-[10px] font-black uppercase tracking-wider px-6 rounded-xl transition shadow-sm h-11 whitespace-nowrap shrink-0 ${
+                    isChangingUsername ? "bg-gray-400 cursor-not-allowed" : "bg-rose-500 hover:bg-rose-600 cursor-pointer"
+                  }`}
+                >
+                  {isChangingUsername ? "Verifying..." : "Confirm Username Change ✨"}
+                </button>
+              </div>
+              <span className="text-[9px] font-bold text-gray-400 block mt-1">Changing your username handle will instantly rewrite your timeline URLs and live chat tags.</span>
+            </form>
+
+            {/* Side-by-side components grid row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start text-left pt-2">
+              
+              {/* 4.2 Change password Left column (as is) */}
               <form onSubmit={(e) => { e.preventDefault(); alert("Cryptographic password hash updated successfully."); }} className="space-y-3">
                 <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">Change Password</label>
                 <div className="space-y-2">
@@ -213,6 +214,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer mt-1">Update Password</button>
               </form>
 
+              {/* 4.3 Update email Right column (as is) */}
               <form onSubmit={(e) => { e.preventDefault(); alert("Email update token dispatched securely."); }} className="space-y-3">
                 <label className="text-[10px] font-black text-gray-400 uppercase block tracking-wider">Update Email Address</label>
                 <div className="space-y-2">
@@ -221,10 +223,11 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 </div>
                 <button type="submit" className="bg-gray-900 hover:bg-gray-800 text-white text-[10px] font-black uppercase tracking-wider px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer mt-1">Save New Email</button>
               </form>
+
             </div>
           </section>
 
-          {/* SECTION 6: LIFECYCLE DANGER ZONE GATES */}
+          {/* GROUP 5: LIFESTYLE DANGER ZONE GATES (GREAT) */}
           <section className="space-y-4 border-t border-gray-100 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-red-500">⚡ Danger Zone</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">

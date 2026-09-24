@@ -104,11 +104,7 @@ export default function ProfileClient({
 
         <main className="lg:col-span-6 space-y-6">
           <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm pt-14 relative mt-12 sm:mt-16 text-left">
-            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white dark:border-gray-900 rounded-full bg-white dark:bg-gray-900 shadow-md w-28 h-28 flex items-center justify-center shrink-0 z-20 overflow-hidden">
-              {/* 🎯 THE OVERRIDE FIX: 
-                  Adding 'w-full h-full object-cover shrink-0' inside an explicit bounding circle 
-                  forces the canvas browser rendering layer to lock its proportions to a clean 1:1 ratio, 
-                  banishing that ugly oval shape forever! */}
+            <div className="absolute -top-14 left-6 sm:left-8 border-4 border-white rounded-full bg-white shadow-md w-28 h-28 flex items-center justify-center shrink-0 z-20 overflow-hidden">
               <div className="w-full h-full rounded-full overflow-hidden shrink-0 select-none relative flex items-center justify-center">
                 <InteractiveAvatar 
                   userId={user.id}
