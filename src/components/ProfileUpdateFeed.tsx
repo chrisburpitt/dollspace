@@ -44,13 +44,15 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
       if (part.startsWith("@")) {
         const parsedHandleName = part.slice(1);
         return (
-          <Link 
+          <a 
             key={`profile-post-tag-${index}`} 
-            href={`/${parsedHandleName}`}
-            className="text-rose-500 font-bold hover:underline select-text inline-block"
+            href={`https://chloeishot.vercel.app/${parsedHandleName}`}
+            target="_blank" // 🚀 FORCES THE ACCOUNT LINK TO OPEN IN A NEW TAB WINDOW!
+            rel="noopener noreferrer" // Secure sandbox tracking headers
+            className="text-rose-500 font-extrabold hover:underline select-text inline-block"
           >
             {part}
-          </Link>
+          </a>
         );
       }
       return <span key={`profile-post-text-${index}`} className="select-text">{part}</span>;
@@ -74,9 +76,15 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
     });
   };
 
-  return (
-    <div className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none">
-      
+return (
+  <div 
+    className={`p-6 border rounded-2xl shadow-sm text-left animate-fade-in select-none transition-all duration-500 ${
+      post.type === "ANNOUNCEMENT"
+        ? "bg-rose-50/50 dark:bg-rose-950/10 border-rose-200/60 dark:border-rose-900/30 ring-2 ring-rose-400/10" // 🌸 UN-SPOOFABLE OFFICIAL LIGHT PINK
+        : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+    }`}
+  >
+  
       {/* AUTHOR BRAND CARD ROW */}
       <div className="flex items-center space-x-3 mb-4">
         {post.user.avatarUrl ? (

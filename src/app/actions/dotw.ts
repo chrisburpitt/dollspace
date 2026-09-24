@@ -128,24 +128,38 @@ export async function compileWeeklyDotwWinnerAndReset() {
     });
 
     if (keysToPurge.length > 0) {
-      await utapi.deleteFiles(keysToPurge).catch((utErr) => console.error("Cloud storage purge error:", utErr));
+      await utapi.deleteFiles(keysToPurge).catch((utErr) => console.error(utErr));
     }
 
     if (topDoll && topDoll.dollVotes > 0) {
+      // 🚀 THE UN-SPOOFABLE SYSTEM INJECTION:
+      // 1. Locate your master Dollspace Admin profile row inside your Neon tables
+      const systemAdminProfile = await prisma.user.findFirst({
+        where: { role: "ADMIN" } // Looks up your master system administrator account handle
+      });
+
+      // 2. Publish the tournament announcement straight out from the official Admin persona!
       await prisma.post.create({
         data: {
-          userId: topDoll.userId,
-          content: `👑👑 DOLL OF THE WEEK REVEAL: Congratulations to @${topDoll.user.username}! She was just crowned Doll of the Week with an amazing ${topDoll.dollVotes} total ✨ DOLL votes! 🩰🌸`,
-          linkUrl: `/${topDoll.user.username}`,
-          images: {
-            create: { url: topDoll.imageUrl }
-          }
+          // Falls back to topDoll if admin isn't instantiated, keeping it bulletproof
+          userId: systemAdminProfile?.id || topDoll.userId, 
+          content: `👑👑 DOLL OF THE WEEK REVEAL: Congratulations to @${topDoll.user.username}! She was just crowned Doll of the Week with an amazing ${topDoll.dollVotes} total ✨ DOLL votes! 🩰🌸\n\n👉 Click here to celebrate her look: https://vercel.app{topDoll.user.username}`,
+          
+          // 🎯 REMOVED THE EXT LINK BOX: Setting these to null explicitly 
+          // commands PostCard to completely skip drawing the link preview module!
+          linkUrl: null,
+          linkTitle: null,
+          linkDesc: null,
+          linkImage: null,
+          
+          // ⚡ TYPE ENFORCEMENT LAYER: Marks this record as an official template 
+          // (Ensure your Prisma Schema Post model has type String @default("STANDARD"))
+          type: "ANNOUNCEMENT" 
         }
       });
     }
 
     await prisma.dollOfTheWeekEntry.deleteMany({});
-    
     revalidatePath("/");
     return { success: true, winner: topDoll?.user?.username || "None" };
   } catch (err) {

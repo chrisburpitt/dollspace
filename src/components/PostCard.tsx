@@ -60,9 +60,13 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
 
   return (
     <div 
-	id={`post-${post.id}`} 
-	className="p-6 border border-gray-200 rounded-2xl bg-white shadow-sm text-left animate-fade-in select-none scroll-margin-top-24 transition-all duration-500"
-	>
+      id={`post-${post.id}`} 
+      className={`p-6 border rounded-2xl shadow-sm text-left animate-fade-in select-none scroll-margin-top-24 transition-all duration-500 ${
+        post.type === "ANNOUNCEMENT"
+          ? "bg-rose-50/50 dark:bg-rose-950/10 border-rose-200/60 dark:border-rose-900/30 ring-2 ring-rose-400/10" // 🌸 OFFICIAL LIGHT PINK GLOW
+          : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+      }`}
+    >
       
       {/* AUTHOR HEADER PANEL */}
       <div className="flex items-center justify-between mb-4">
