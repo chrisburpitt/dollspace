@@ -25,9 +25,10 @@ export default async function SettingsPage() {
     isDarkMode: currentUser?.isDarkMode === true
   };
 
-return (
-  <SettingsClient 
-    currentUser={validatedHeaderUser} 
-    unreadMailCount={unreadMailCount || 0} 
-  />
-);
+  return (
+    <SettingsClient 
+      currentUser={validatedHeaderUser} 
+      unreadMailCount={unreadMailCount || 0} 
+    />
+  );
+}
