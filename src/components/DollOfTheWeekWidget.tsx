@@ -159,8 +159,13 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
 
       {/* THE IMMERSIVE FULL-SCREEN LIGHTBOX OVERLAY WINDOW */}
       {isLightboxOpen && targetPhotoUrl && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-[9999] flex flex-col items-center justify-between p-4 animate-fade-in select-none">
-          
+        <div 
+            // 🚀 THE ULTIMATE VISUAL SHIELD: 
+            // Forcing an explicit inline zIndex structure completely smashes Tailwind's utility ceilings, 
+            // instantly forcing your headers, statistics counters, and text rows to drop underneath!
+            style={{ zIndex: 999999 }}
+            className="fixed inset-0 bg-black/95 backdrop-blur-md flex flex-col items-center justify-between p-4 animate-fade-in select-none"
+          >  
           {/* Exit Button */}
           <div className="w-full max-w-4xl flex justify-end pt-2">
             <button 
