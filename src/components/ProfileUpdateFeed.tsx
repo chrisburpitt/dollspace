@@ -19,8 +19,9 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
   const [editText, setEditText] = useState(post.content || "");
 
   const hasCommentsPresent = post.comments && post.comments.length > 0;
-  const domainName = post.linkUrl ? new URL(post.linkUrl).hostname.toLowerCase() : "";
-  
+  const isAbsoluteWebLink = post.linkUrl && (post.linkUrl.startsWith("http://") || post.linkUrl.startsWith("https://"));
+  const domainName = isAbsoluteWebLink ? new URL(post.linkUrl).hostname.toLowerCase() : "";
+
   let customSocialBrandIcon = null;
   if (domainName.includes("instagram.com")) customSocialBrandIcon = "📸";
   if (domainName.includes("facebook.com")) customSocialBrandIcon = "💙";
