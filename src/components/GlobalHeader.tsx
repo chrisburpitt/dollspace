@@ -70,7 +70,7 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
 
 
   return (
-    <header className="w-full h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40 select-none transition-colors">
+    <header className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 py-4 px-6 shadow-sm sticky top-0 z-50 transition-colors duration-300 text-left">
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         
         {/* LEFT: Branding Core logo mark */}

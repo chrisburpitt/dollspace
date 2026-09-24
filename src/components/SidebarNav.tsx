@@ -23,7 +23,7 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm w-full transition-colors">
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-3xl p-5 text-gray-900 dark:text-gray-100 shadow-sm space-y-2 text-left transition-colors duration-300">
       <nav className="flex flex-col space-y-1">
         
         <Link href="/" className={getLinkStyle("/")}>
