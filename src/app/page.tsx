@@ -1,4 +1,4 @@
-// src/app/page.tsx (PART 1 - SECURED SERVER DATA LOOKUPS)
+// src/app/page.tsx (PART 1 - PROTECTED SERVER PRE-FETCH ENGINE)
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
@@ -27,6 +27,13 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
+
+  const defaultAvatarUrl = "https://ufs.sh";
+  
+  const enrichedCurrentUser = {
+    ...currentUser,
+    avatarUrl: currentUser?.avatarUrl || defaultAvatarUrl
+  };
 
   const unreadMailCount = await getUnreadMailCount(); 
   const waitingDMsCount = await prisma.directMessage.count({
@@ -105,27 +112,46 @@ export default async function HomePage() {
     orderBy: { createdAt: "desc" }
   });
 
-  const formatPostDates = (postsArray: any[]) => postsArray.map(post => ({
-    ...post,
-    createdAt: post.createdAt.toISOString(),
-    images: post.images || [],
-    linkUrl: post.linkUrl || null,
-    linkTitle: post.linkTitle || null,
-    linkDesc: post.linkDesc || null,
-    linkImage: post.linkImage || null,
-  }));
+  // 🎯 THE CRASH PREVENTER MAP ENGINE:
+  // Dynamically uses Array.isArray and deep optional chaining (?.) to make it 
+  // physically impossible for script-generated or commentless posts to break the page loop!
+  const formatPostDates = (postsArray: any[]) => {
+    if (!Array.isArray(postsArray)) return [];
+    return postsArray.map(post => ({
+      ...post,
+      createdAt: post?.createdAt ? new Date(post.createdAt).toISOString() : new Date().toISOString(),
+      images: Array.isArray(post?.images) ? post.images : [],
+      linkUrl: post?.linkUrl || null,
+      linkTitle: post?.linkTitle || null,
+      linkDesc: post?.linkDesc || null,
+      linkImage: post?.linkImage || null,
+      user: {
+        ...post?.user,
+        avatarUrl: post?.user?.avatarUrl || defaultAvatarUrl
+      },
+      comments: Array.isArray(post?.comments) 
+        ? post.comments.map((c: any) => ({
+            ...c,
+            createdAt: c?.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
+            user: {
+              ...c?.user,
+              avatarUrl: c?.user?.avatarUrl || defaultAvatarUrl
+            }
+          }))
+        : []
+    }));
+  };
 
   const validatedHeaderUser = {
     id: currentUser.id,
     status: currentUser.status,
-    role: currentUser.role || "USER"
+    role: currentUser.role || "USER",
+    avatarUrl: currentUser.avatarUrl || defaultAvatarUrl
   };
 
+// src/app/page.tsx (PART 2 - DYNAMIC REINFORCED MARKUP VIEWPORT)
 
   return (
-    // 🎯 THE TIMELINE THEME SYNC: 
-    // We append 'dark:bg-gray-950 dark:text-gray-50' to allow the master feed container 
-    // to smoothly transition background themes natively.
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300">
       <GlobalHeader currentUser={validatedHeaderUser} />
       <StaticFeedBanner />
@@ -136,7 +162,7 @@ export default async function HomePage() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
       
-        {/* 🚀 LEFT COLUMN SIDEBAR PANEL (Natively reacts to theme selectors) */}
+        {/* LEFT COLUMN: Sidebar Navigation List Cards */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav 
             currentUsername={currentUser.username} 
@@ -150,7 +176,10 @@ export default async function HomePage() {
 
         {/* CENTER COLUMN: Interactive Feed Timeline Core */}
         <main className="lg:col-span-6 space-y-6">
-          <FeedForm currentUser={currentUser} followersList={followingDollsList} />
+          {/* 🎯 HYDRATED SAFE PASSTHROUGH MAP:
+              Passes down your newly validated enriched user arrays so the editor 
+              can render your custom avatars safely with no unhandled rejections! */}
+          <FeedForm currentUser={enrichedCurrentUser} followersList={followingDollsList} />
           
           <FeedStream 
             globalPosts={formatPostDates(globalPosts) as any} 
@@ -160,10 +189,8 @@ export default async function HomePage() {
           />
         </main>
 
-        {/* RIGHT COLUMN: Interactive Insights Sidebar */}
+        {/* RIGHT COLUMN: Platform Hub Metrics Panel */}
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          {/* 🎯 INTRO CARD DARK CONSOLE: 
-              We switch 'bg-white border-gray-200' to handle dark utility states smoothly! */}
           <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
             <h3 className="font-black text-sm text-gray-900 dark:text-gray-100 tracking-wide uppercase mb-2">
               Platform Hub
