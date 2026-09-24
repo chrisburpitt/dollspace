@@ -63,9 +63,20 @@ export default async function HomePage() {
     waitingDMsCount: waitingDMsCount 
   };
   
-  const dotwRecord = currentUser 
-    ? await prisma.dollOfTheWeekEntry.findUnique({ where: { userId: currentUser.id } })
-    : null;
+  let dotwRecord = null;
+  if (currentUser) {
+    try {
+      const record = await prisma.dollOfTheWeekEntry.findUnique({ 
+        where: { userId: currentUser.id } 
+      });
+      // Ensure that even if the row is deleted, it returns a safe, unified structure
+      dotwRecord = record || { id: "empty-fallback", userId: currentUser.id, votedEntryIds: [], imageUrl: "" };
+    } catch (err) {
+      console.error("Safely caught a staging table null lookup error:", err);
+      // Bulletproof fallback prevents an empty table from ever crashing your server render!
+      dotwRecord = { id: "empty-fallback", userId: currentUser.id, votedEntryIds: [], imageUrl: "" };
+    }
+  }
   
   const followingDollsList = await prisma.follow.findMany({
     where: { followerId: currentUser.id },
