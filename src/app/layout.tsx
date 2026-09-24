@@ -34,12 +34,17 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Fetch session parameters fresh from Neon PostgreSQL
   const sessionUser = await getCurrentUser();
+  
+  // 🎯 THE CORE THEME TRUTH: Detects your active database column parameters!
   const themeModeIsDark = sessionUser?.isDarkMode === true;
 
   // Silent background heartbeat tracker tick
   await touchUserPresenceHeartbeat();
 
   return (
+    // 🚀 THE THEME UNLOCK: 
+    // Dynamically appends the "dark" selector class matching your database row state, 
+    // allowing Tailwind's 'dark:' variants to switch colors seamlessly across components!
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased ${
@@ -47,27 +52,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       }`} 
     >
       <body className="antialiased overflow-x-hidden w-full max-w-full min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300">
-        
-        {/* 🌸 THE BULLETPROOF RUNTIME THEME WATCHER SCRIPT:
-            Because Vercel aggressively builds layout caches across page paths, 
-            this inline micro-script runs locally before any HTML nodes are painted, 
-            forcing the root HTML document tag to immediately match the database row variable. 
-            This shatters the cache lock and lets the theme toggle off seamlessly! */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const isDark = ${themeModeIsDark};
-                if (isDark) {
-                  document.documentElement.classList.add('dark');
-                } else {
-                  document.documentElement.classList.remove('dark');
-                }
-              })();
-            `,
-          }}
-        />
-
         {children}
         <Analytics />
       </body>
