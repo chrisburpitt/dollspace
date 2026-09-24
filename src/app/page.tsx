@@ -69,10 +69,24 @@ export default async function HomePage() {
       const record = await prisma.dollOfTheWeekEntry.findUnique({ 
         where: { userId: currentUser.id } 
       });
-      dotwRecord = record || { id: "empty-fallback", userId: currentUser.id, votedEntryIds: [], imageUrl: "" };
+      dotwRecord = record || { 
+        id: "empty-fallback", 
+        userId: currentUser.id, 
+        votedEntryIds: [], 
+        imageUrl: "",
+        dollVotes: 0,
+        dullVotes: 0
+      };
     } catch (err) {
       console.error("Safely caught a staging table null lookup error:", err);
-      dotwRecord = { id: "empty-fallback", userId: currentUser.id, votedEntryIds: [], imageUrl: "" };
+      dotwRecord = { 
+        id: "empty-fallback", 
+        userId: currentUser.id, 
+        votedEntryIds: [], 
+        imageUrl: "",
+        dollVotes: 0,
+        dullVotes: 0
+      };
     }
   }
   
