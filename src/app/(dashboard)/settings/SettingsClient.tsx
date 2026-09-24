@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes"; 
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
 import MobileNavShell from "@/components/MobileNavShell";
@@ -15,6 +16,7 @@ interface SettingsClientProps {
 
 export default function SettingsClient({ currentUser, unreadMailCount }: SettingsClientProps) {
   const router = useRouter();
+  const { theme, setTheme } = useTheme(); 
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingUsername, setIsChangingUsername] = useState(false);
 
@@ -102,11 +104,11 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </p>
           </div>
 
-          {/* SECTION 1: INTERFACE THEME PREFERENCES (REAL-TIME LIVE UPDATES) */}
+          {/* SECTION 1: INTERFACE THEME PREFERENCES (CENTRALIZED HOOK UPGRADE) */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Dollspace Theme</h2>
             <div className={`p-4 rounded-2xl flex items-center justify-between border ${
-              isDarkMode ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
+              theme === "dark" ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
             }`}>
               <div>
                 <span className="text-xs font-black block">Dark Mode</span>
@@ -115,11 +117,19 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               <button
                 type="button"
                 onClick={async () => {
-                  const nextThemeState = !isDarkMode;
-                  setIsDarkMode(nextThemeState);
+                  const targetDarkState = theme !== "dark";
+                  
+                  // 🚀 1. INSTANT SITE-WIDE TRANSITION:
+                  // Drops or adds the 'dark' utility classes across every page node 
+                  // the exact millisecond the mouse tap finishes!
+                  setTheme(targetDarkState ? "dark" : "light");
+                  setIsDarkMode(targetDarkState); // Synchronise local layout states
+                  
                   try {
+                    // 🔒 2. SECURE BACKGROUND PERSISTENCE:
+                    // Records the true choice permanently to your Neon PostgreSQL tables
                     await saveUserSettingsAction({
-                      isDarkMode: nextThemeState,
+                      isDarkMode: targetDarkState,
                       swearFilter,
                       xxxFilter,
                       blockMaleAttention,
@@ -129,12 +139,11 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                       notifMail,
                       notifDms
                     });
-                    router.refresh();
                   } catch (err) {
-                    console.error("Theme toggle update failed:", err);
+                    console.error("Failed to commit global preferences:", err);
                   }
                 }}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${theme === "dark" ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
               >
                 <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
               </button>
