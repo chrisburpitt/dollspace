@@ -161,7 +161,6 @@ export default async function HomePage() {
     isDarkMode: currentUser?.isDarkMode === true 
 };
 
-// src/app/page.tsx (PART 2 - DYNAMIC REINFORCED MARKUP VIEWPORT)
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300">
