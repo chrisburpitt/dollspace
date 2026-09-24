@@ -4,8 +4,18 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "./auth";
 import { revalidatePath } from "next/cache";
 import { saveImage } from "@/app/actions/posts"; 
+import { UTApi } from "uploadthing/server";
 
-// 1. UPDATED: SUBMIT FILE HANDLE ENTRY FOR THE WEEKLY TOURNAMENT
+const utapi = new UTApi();
+
+// 🎯 INTERNAL KEY EXTRACTOR HOOK:
+// Isolates unique UploadThing file names from permanent storage URLs to prevent missing reference crashes!
+function extractUploadThingKey(url: string | null): string | null {
+  if (!url) return null;
+  const splitParts = url.split("/f/");
+  return splitParts.length > 1 ? splitParts[1] : null;
+}
+
 export async function submitDotwPhotoAction(file: File) {
   const currentUser = await getCurrentUser();
   if (!currentUser) return { error: "Unauthorized access path." };
@@ -15,16 +25,21 @@ export async function submitDotwPhotoAction(file: File) {
       where: { userId: currentUser.id }
     });
     if (existing) {
-      return { error: "You have already submitted your look for this week's cycle! 🎀" };
+      return { error: "You have already submitted your photo for this week's cycle! 🎀" };
     }
 
-    // 🚀 STREAM BINARY STRAIGHT TO UPLOADTHING CDN
-    const permanentCloudImageUrl = await saveImage(file);
+    const originalExtension = file.name.split('.').pop() || "jpg";
+    const customNamedFile = new File(
+      [file], 
+      `dotw_${currentUser.id}_${Date.now()}.${originalExtension}`, 
+      { type: file.type }
+    );
+
+    const permanentCloudImageUrl = await saveImage(customNamedFile);
     if (!permanentCloudImageUrl) {
       return { error: "UploadThing SDK rejected your tournament photo stream." };
     }
 
-    // Write the permanent, global UploadThing link directly to Neon database
     const entry = await prisma.dollOfTheWeekEntry.create({
       data: { 
         userId: currentUser.id, 
@@ -36,11 +51,10 @@ export async function submitDotwPhotoAction(file: File) {
     return { success: true, entry };
   } catch (err) {
     console.error("DOTW Submission error:", err);
-    return { error: "Failed to upload competition photo to cloud storage." };
+    return { error: "Failed to upload competition photo." };
   }
 }
 
-// 2. GET BLIND RANDOM COMPETING CARD TO VOTE ON
 export async function getRandomDotwCandidate() {
   const currentUser = await getCurrentUser();
   if (!currentUser) return null;
@@ -49,6 +63,8 @@ export async function getRandomDotwCandidate() {
     const userEntry = await prisma.dollOfTheWeekEntry.findUnique({
       where: { userId: currentUser.id }
     });
+    
+    // 🛡️ Fault-Tolerant Gate: If the current user hasn't uploaded a photo yet, return early gracefully!
     if (!userEntry) return { requiresSubmission: true };
 
     const excludedIds = [currentUser.id, ...userEntry.votedEntryIds];
@@ -62,16 +78,19 @@ export async function getRandomDotwCandidate() {
     const randomCandidate = eligibleCandidates[Math.floor(Math.random() * eligibleCandidates.length)];
     return { success: true, candidate: randomCandidate };
   } catch (err) {
+    console.error("Failed to retrieve candidate entries:", err);
     return null;
   }
 }
 
-// 3. PROCESS THE CAST VOTE OPERATIONAL EVENT LOG
 export async function castDotwVote(targetEntryId: string, voteType: "DOLL" | "DULL") {
   const currentUser = await getCurrentUser();
-  if (!currentUser) return { error: "Unauthorized" };
+  if (!currentUser) return { error: "Unauthorized." };
 
   try {
+    const targetCheck = await prisma.dollOfTheWeekEntry.findUnique({ where: { id: targetEntryId } });
+    if (!targetCheck) return { error: "Target competitor look no longer exists." };
+
     await prisma.dollOfTheWeekEntry.update({
       where: { id: targetEntryId },
       data: {
@@ -87,11 +106,11 @@ export async function castDotwVote(targetEntryId: string, voteType: "DOLL" | "DU
 
     return { success: true };
   } catch (err) {
+    console.error(err);
     return { error: "Failed to cast vote." };
   }
 }
 
-// 4. WEEKLY RESET CRON CONTROLLER ENGINE PIPELINE ROUTINE
 export async function compileWeeklyDotwWinnerAndReset() {
   try {
     const topDoll = await prisma.dollOfTheWeekEntry.findFirst({
@@ -99,8 +118,20 @@ export async function compileWeeklyDotwWinnerAndReset() {
       include: { user: true }
     });
 
+    const allEntries = await prisma.dollOfTheWeekEntry.findMany({});
+    const keysToPurge: string[] = [];
+    
+    allEntries.forEach((entry) => {
+      if (topDoll && entry.id === topDoll.id) return; 
+      const fileKey = extractUploadThingKey(entry.imageUrl);
+      if (fileKey) keysToPurge.push(fileKey);
+    });
+
+    if (keysToPurge.length > 0) {
+      await utapi.deleteFiles(keysToPurge).catch((utErr) => console.error("Cloud storage purge error:", utErr));
+    }
+
     if (topDoll && topDoll.dollVotes > 0) {
-      // 🚀 FIXED: Swapped 'internalPost.create' for 'post.create' to map seamlessly onto your exact Prisma Client properties tree!
       await prisma.post.create({
         data: {
           userId: topDoll.userId,
@@ -113,7 +144,6 @@ export async function compileWeeklyDotwWinnerAndReset() {
       });
     }
 
-    // Completely clear staging table matrix entries to let the next weekly cycle begin clean
     await prisma.dollOfTheWeekEntry.deleteMany({});
     
     revalidatePath("/");
