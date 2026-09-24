@@ -20,7 +20,7 @@ export function renderPostContentWithClickableTags(text: string) {
         // to open in a brand new browser tab page cleanly!
         <a 
           key={`global-post-tag-${index}-${parsedHandleName}`} 
-          href={`https://chloeishot.vercel.app/${parsedHandleName`}
+          href={`https://chloeishot.vercel.app/${parsedHandleName}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-rose-500 font-extrabold hover:underline select-text inline-block"
