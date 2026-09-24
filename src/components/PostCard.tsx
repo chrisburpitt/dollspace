@@ -112,7 +112,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
           />
         </div>
       ) : (
-        <p className="text-gray-800 text-base mb-4 font-semibold leading-relaxed whitespace-pre-wrap text-left break-words">
+        <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
           {renderPostContentWithClickableTags(filterProfanity(post.content, (post.user as any).swearFilter ?? true))}
         </p>
       )}

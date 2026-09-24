@@ -113,7 +113,7 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
         </div>
       ) : (
         post.content && (
-          <p className="text-gray-800 text-base mb-4 font-semibold leading-relaxed whitespace-pre-wrap text-left break-words">
+          <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
             {renderPostContentWithClickableTags(post.content)}
           </p>
         )
