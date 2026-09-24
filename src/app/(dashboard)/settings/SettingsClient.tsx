@@ -146,7 +146,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                   }
                 }}
                 className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
-              >
+              </button>
             </div>
           </section>
 
