@@ -8,8 +8,6 @@ import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
-// 🎯 INTERNAL KEY EXTRACTOR HOOK:
-// Isolates unique UploadThing file names from permanent storage URLs to prevent missing reference crashes!
 function extractUploadThingKey(url: string | null): string | null {
   if (!url) return null;
   const splitParts = url.split("/f/");
@@ -64,19 +62,37 @@ export async function getRandomDotwCandidate() {
       where: { userId: currentUser.id }
     });
     
-    // 🛡️ Fault-Tolerant Gate: If the current user hasn't uploaded a photo yet, return early gracefully!
     if (!userEntry) return { requiresSubmission: true };
 
     const excludedIds = [currentUser.id, ...userEntry.votedEntryIds];
+    
+    // 1. Look for any active competitors the doll hasn't ranked yet
     const eligibleCandidates = await prisma.dollOfTheWeekEntry.findMany({
       where: { userId: { notIn: excludedIds } },
       select: { id: true, imageUrl: true }
     });
 
-    if (eligibleCandidates.length === 0) return { outOfCandidates: true };
+    if (eligibleCandidates.length > 0) {
+      const randomCandidate = eligibleCandidates[Math.floor(Math.random() * eligibleCandidates.length)];
+      return { success: true, candidate: randomCandidate };
+    }
 
-    const randomCandidate = eligibleCandidates[Math.floor(Math.random() * eligibleCandidates.length)];
-    return { success: true, candidate: randomCandidate };
+    // 🚀 THE SELF-PREVIEW FALLBACK INTERCEPTOR:
+    // If we reach this line, the user has voted on all active available contestants!
+    // Instead of bailing out with an outOfCandidates text prompt, we gracefully pass back 
+    // their own entered picture to keep the visual display stunningly active on the widget card!
+    if (userEntry.imageUrl) {
+      return { 
+        success: true, 
+        candidate: {
+          id: userEntry.id, 
+          imageUrl: userEntry.imageUrl,
+          isSelfFallback: true // 🎯 Flag option parameter signals the front-end it's their own look!
+        } 
+      };
+    }
+
+    return { outOfCandidates: true };
   } catch (err) {
     console.error("Failed to retrieve candidate entries:", err);
     return null;
@@ -90,6 +106,11 @@ export async function castDotwVote(targetEntryId: string, voteType: "DOLL" | "DU
   try {
     const targetCheck = await prisma.dollOfTheWeekEntry.findUnique({ where: { id: targetEntryId } });
     if (!targetCheck) return { error: "Target competitor look no longer exists." };
+
+    // 🛡️ Safe Guard: If voting on your own fallback image preview, ignore increments to protect vote metrics integrity!
+    if (targetCheck.userId === currentUser.id) {
+      return { success: true, isSelfFallbackVote: true };
+    }
 
     await prisma.dollOfTheWeekEntry.update({
       where: { id: targetEntryId },
@@ -128,23 +149,18 @@ export async function compileWeeklyDotwWinnerAndReset() {
     });
 
     if (keysToPurge.length > 0) {
-      await utapi.deleteFiles(keysToPurge).catch((utErr) => console.error(utErr));
+      await utapi.deleteFiles(keysToPurge).catch((utErr) => console.error("Cloud storage purge error:", utErr));
     }
 
     if (topDoll && topDoll.dollVotes > 0) {
-      // Find your official system administrator account row cleanly
       const systemAdminProfile = await prisma.user.findFirst({
         where: { role: "ADMIN" }
       });
 
       await prisma.post.create({
         data: {
-          // 🚀 THE UN-SPOOFABLE SYSTEM INJECTION GATES:
-          // Tying the post straight to your verified Admin profile ID row acts as the perfect, 
-          // un-fakeable cryptographic marker. Users cannot duplicate this because they can 
-          // never copy or claim your administrative user account row ID token!
           userId: systemAdminProfile?.id || topDoll.userId, 
-          content: `👑👑 DOLL OF THE WEEK REVEAL: Congratulations to @${topDoll.user.username}! She was just crowned Doll of the Week with an amazing ${topDoll.dollVotes} total ✨ DOLL votes! 🩰🌸\n\n👉 Click here to celebrate her look: https://chloeishot.vercel.app/${topDoll.user.username}`,
+          content: `👑👑 DOLL OF THE WEEK REVEAL: Congratulations to @${topDoll.user.username}! She was just crowned Doll of the Week with an amazing ${topDoll.dollVotes} total ✨ DOLL votes! 🩰🌸\n\n👉 Click here to celebrate her look: https://vercel.app{topDoll.user.username}`,
           linkUrl: null,
           linkTitle: null,
           linkDesc: null,
@@ -154,6 +170,7 @@ export async function compileWeeklyDotwWinnerAndReset() {
     }
 
     await prisma.dollOfTheWeekEntry.deleteMany({});
+    
     revalidatePath("/");
     return { success: true, winner: topDoll?.user?.username || "None" };
   } catch (err) {
