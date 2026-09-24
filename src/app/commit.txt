@@ -1,10 +1,10 @@
 git add .
-git commit -m "FIXED - Bans"
+git commit -m "DOTW edit, UT cleanup"
 git push
 
 
-git tag -a v0.7.8.3b -m "Chat + mobile client, settings, dark mode (early alpha)"
-git push origin v0.7.8.3b
+git tag -a v0.7.8.5 -m "REMOVE DARK mode entirely, rebuilt"
+git push origin v0.7.8.5
 
 
 git tag
