@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { castDotwVote, getRandomDotwCandidate } from "@/app/actions/dotw";
+import { castDotwVote, getRandomDotwCandidate, deleteDotwEntryAction } from "@/app/actions/dotw";
 import { useRouter } from "next/navigation";
 
 interface DollOfTheWeekWidgetProps {
@@ -161,14 +161,47 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
             </p>
             
             {isDisplayingSelfLook ? (
-              <button 
-                type="button"
-                onClick={() => setIsLightboxOpen(false)}
-                className="w-full bg-white/20 hover:bg-white/30 text-white font-black text-xs py-3 rounded-xl transition cursor-pointer"
-              >
-                Return to Feed Timeline
-              </button>
-            ) : (
+              <div className="flex items-center gap-3 w-full">
+    
+                {/* RETURNING STANDARD ACTION NAVIGATION TAB PILL */}
+                <button 
+                  type="button"
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="flex-1 bg-white/20 hover:bg-white/30 text-white font-black text-xs py-3.5 rounded-xl transition cursor-pointer active:scale-95 shadow-sm"
+                >
+                  Return to Feed Timeline
+                </button>
+
+                {/* 🚀 THE PREMIUM UN-SPOOFABLE DELETION TRASH BIN BUTTON */}
+                <button
+                  type="button"
+                  disabled={isPending}
+                  onClick={async () => {
+                    // Trigger a secure browser window warning confirmation gate block first
+                    if (confirm("Are you absolutely sure you want to withdraw and delete your photo from this week's Doll of the Week tournament? ⚠️ This will permanently remove your votes and look from the system feed list!")) {
+                      startTransition(async () => {
+                        const res = await deleteDotwEntryAction();
+                        if (res?.success) {
+                          setIsLightboxOpen(false); // Gracefully slide the viewport overlay shut
+                          window.location.reload(); // Flush page caches and reload to present the initial submission uploader button!
+                        } else if (res?.error) {
+                          alert(res.error);
+                        }
+                      });
+                    }
+                  }}
+                  className="w-12 h-12 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition flex items-center justify-center cursor-pointer shrink-0 active:scale-95 shadow-md hover:scale-105 duration-200"
+                  title="Delete Tournament Submission Photo Look"
+                >
+                  {isPending ? (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin block" />
+                  ) : (
+                    "🗑️"
+                  )}
+                </button>
+
+              </div>
+            ) : (			
               <div className="grid grid-cols-2 gap-4 w-full">
                 <button 
                   type="button"
@@ -176,7 +209,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
                   disabled={isPending}
                   className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs py-3.5 rounded-xl transition shadow-md cursor-pointer flex items-center justify-center space-x-1.5 active:scale-[0.98]"
                 >
-                  <span>✨ BRAND AS DOLL</span>
+                  <span>✨ TELL HER SHE'S A DOLL</span>
                 </button>
                 <button 
                   type="button"
@@ -184,7 +217,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
                   disabled={isPending}
                   className="bg-white/20 hover:bg-white/30 text-white font-black text-xs py-3.5 rounded-xl transition border border-white/10 cursor-pointer flex items-center justify-center space-x-1.5 active:scale-[0.98]"
                 >
-                  <span>🗑️ MARK AS DULL</span>
+                  <span>🥀️ NO BABE, YOU'RE DULL</span>
                 </button>
               </div>
             )}

@@ -178,3 +178,37 @@ export async function compileWeeklyDotwWinnerAndReset() {
     return { error: "Reset transaction execution crashed." };
   }
 }
+
+export async function deleteDotwEntryAction() {
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) return { error: "Unauthorized: Please log in first." };
+
+  try {
+    // 1. Locate the current doll's active tournament submission entry record
+    const entry = await prisma.dollOfTheWeekEntry.findUnique({
+      where: { userId: sessionUser.id }
+    });
+
+    if (!entry) return { error: "No active tournament entry found to remove." };
+
+    // 2. Extract and parse the unique UploadThing reference key from the image URL string
+    const cloudFileKey = extractUploadThingKey(entry.imageUrl);
+    if (cloudFileKey) {
+      // Cleanly purge the raw file from your live cloud asset storage buckets
+      await utapi.deleteFiles(cloudFileKey).catch((utErr) => 
+        console.error("UploadThing file deletion rejected:", utErr)
+      );
+    }
+
+    // 3. Delete the configuration entry row from your database schema rows cleanly
+    await prisma.dollOfTheWeekEntry.delete({
+      where: { userId: sessionUser.id }
+    });
+
+    revalidatePath("/");
+    return { success: true };
+  } catch (err) {
+    console.error("Failed to delete DOTW contest look:", err);
+    return { error: "Database transaction execution crashed." };
+  }
+}
