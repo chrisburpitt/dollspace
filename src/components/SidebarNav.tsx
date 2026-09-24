@@ -1,4 +1,4 @@
-// src/components/SidebarNav.tsx
+// src/components/SidebarNav.tsx (FULL THEME RESOLUTION HARMONIZATION)
 "use client";
 
 import Link from "next/link";
@@ -12,13 +12,12 @@ interface SidebarNavProps {
 export default function SidebarNav({ currentUsername, unreadMailCount }: SidebarNavProps) {
   const pathname = usePathname();
 
-  // Helper utility function to apply highlight classes to the active button navigation row
   const getLinkStyle = (targetPath: string) => {
     const isActive = pathname === targetPath || (targetPath !== "/" && pathname.startsWith(targetPath));
     return `px-4 py-2.5 font-bold rounded-xl text-sm transition flex items-center justify-between ${
       isActive 
         ? "bg-rose-50 dark:bg-rose-950/20 text-rose-500 border border-rose-100/50 dark:border-rose-900/30 shadow-sm" 
-        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 font-semibold"
+        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-rose-600 dark:hover:text-rose-400 font-semibold"
     }`;
   };
 
@@ -33,20 +32,20 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
         </Link>
 
         <Link href={`/${currentUsername}`} className={getLinkStyle(`/${currentUsername}`)}>
-          <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
+          {/* 🚀 THE THEME HARMONIZATION: Fixed 'hover:bg-gray-50' lists to use uniform getLinkStyle blocks */}
+          <span className="flex items-center space-x-2">
             <span>👑 My Profile</span>
           </span>
         </Link>
 
         <Link href="/chat" className={getLinkStyle("/chat")}>
-          <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
+          <span className="flex items-center space-x-2">
             <span>💬 Chat Lounge</span>
           </span>
         </Link>
 
-        {/* 🚀 UPGRADED: Dynamic internal mail badge bubble indicator nested cleanly inside the sidebar navigation component */}
         <Link href="/mail" className={getLinkStyle("/mail")}>
-          <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
+          <span className="flex items-center space-x-2">
             <span>💌 Mailbox</span>
 		  </span>
           {unreadMailCount > 0 && (
@@ -57,13 +56,13 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
         </Link>
 
         <Link href="/discover" className={getLinkStyle("/discover")}>
-          <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
+          <span className="flex items-center space-x-2">
             <span>🔍 Find Friends</span>
           </span>
         </Link>
 
         <Link href="/settings" className={getLinkStyle("/settings")}>
-          <span className="flex items-center hover:bg-gray-50 hover:text-rose-600 space-x-2">
+          <span className="flex items-center space-x-2">
             <span>⚙️ Settings</span>
           </span>
         </Link>

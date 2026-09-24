@@ -1,4 +1,4 @@
-// src/components/InlineNotificationDropdown.tsx (AUTO-FETCHING REMEDY)
+// src/components/InlineNotificationDropdown.tsx (THEME RESOLUTION COHESION)
 "use client";
 
 import { useState, useTransition, useEffect, useRef } from "react";
@@ -9,12 +9,11 @@ export default function InlineNotificationDropdown({ currentUserId, notification
   const [isOpen, setIsOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [localNotifications, setLocalNotifications] = useState<any[]>(initialNotifications);
-  const [isLoading, setIsLoading] = useState(false); // 🚀 Tracks background data fetching state
+  const [isLoading, setIsLoading] = useState(false); 
   
   const dropdownRef = useRef<HTMLDivElement>(null);
   const unreadCount = localNotifications.filter(n => !n.isRead).length;
 
-  // 🚀 BACKGROUND SYNC: Pulls live notifications on demand when clicking the bell icon
   const handleToggleOpen = async () => {
     const nextOpenState = !isOpen;
     setIsOpen(nextOpenState);
@@ -66,33 +65,37 @@ export default function InlineNotificationDropdown({ currentUserId, notification
   return (
     <div className="relative" ref={dropdownRef}>
       <button 
-        onClick={handleToggleOpen} // 🚀 Calls your safe, on-demand data fetcher!
+        onClick={handleToggleOpen} 
+        // 🚀 THE THEME HARMONIZATION: Fixed 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50' to follow dark theme!
         className={`p-2.5 rounded-xl border transition relative text-sm cursor-pointer ${
-          isOpen ? "bg-rose-50 border-rose-200 text-rose-500" : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+          isOpen 
+            ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-500" 
+            : "bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-900"
         }`}
       >
         <span>🔔</span>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[9px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white animate-scale-up">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white font-black text-[9px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-950 animate-scale-up">
             {unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-xl w-80 h-auto max-h-[380px] flex flex-col z-50 p-2 animate-scale-up text-left overflow-hidden min-h-0">
-          <div className="px-3 py-2 border-b border-gray-50 flex items-center justify-between shrink-0">
-            <span className="text-xs font-black text-gray-900 uppercase tracking-wider">Recent Activity</span>
+        // 🚀 THE THEME HARMONIZATION: Fixed container box to be responsive 'bg-white dark:bg-gray-950 border-gray-200 dark:border-gray-800 text-left'
+        <div className="absolute right-0 top-full mt-2 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-xl w-80 h-auto max-h-[380px] flex flex-col z-50 p-2 animate-scale-up text-left overflow-hidden min-h-0">
+          <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-900 flex items-center justify-between shrink-0">
+            <span className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider">Recent Activity</span>
             {unreadCount > 0 && !isLoading && (
-              <button onClick={handleMarkAllAsRead} className="bg-rose-50 hover:bg-rose-100 text-rose-500 font-bold text-[9px] px-2 py-0.5 rounded-full transition uppercase tracking-wide cursor-pointer">Clear All 🎯</button>
+              <button onClick={handleMarkAllAsRead} className="bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-500 font-bold text-[9px] px-2 py-0.5 rounded-full transition uppercase tracking-wide cursor-pointer">Clear All 🎯</button>
             )}
           </div>
 
-          <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-gray-50 mt-1 pr-0.5 w-full max-h-full">
+          <div className="flex-1 overflow-y-auto min-h-0 divide-y divide-gray-100 dark:divide-gray-900 mt-1 pr-0.5 w-full max-h-full">
             {isLoading ? (
-              <p className="text-gray-400 text-xs text-center py-10 font-medium animate-pulse">Syncing timeline alerts... 👑</p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs text-center py-10 font-medium animate-pulse">Syncing timeline alerts... 👑</p>
             ) : localNotifications.length === 0 ? (
-              <p className="text-gray-400 text-xs text-center py-10 font-medium">Your notification center is clear! 🌸</p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs text-center py-10 font-medium">Your notification center is clear! 🌸</p>
             ) : (
               localNotifications.map((notif) => {
                 const normalisedType = notif.type.toUpperCase();
@@ -103,25 +106,28 @@ export default function InlineNotificationDropdown({ currentUserId, notification
                     <Link
                       href={targetLinkUrl}
                       onClick={() => setIsOpen(false)} 
+                      // 🚀 THE THEME HARMONIZATION: Fixed 'hover:bg-gray-50' text loops to use dynamic text pairings!
                       className={`p-3 pr-20 rounded-xl flex items-start space-x-2.5 transition block border border-transparent text-left w-full ${
-                        !notif.isRead ? "bg-rose-50/40 hover:bg-rose-50" : "hover:bg-gray-50"
+                        !notif.isRead 
+                          ? "bg-rose-50/40 dark:bg-rose-950/20 hover:bg-rose-50 dark:hover:bg-rose-950/30" 
+                          : "hover:bg-gray-50 dark:hover:bg-gray-900"
                       }`}
                     >
                       {notif.issuer.avatarUrl ? (
-                        <img src={notif.issuer.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-100" />
+                        <img src={notif.issuer.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-100 dark:border-gray-800" />
                       ) : (
                         <div className="w-8 h-8 bg-rose-400 text-white rounded-full flex items-center justify-center font-bold text-xs uppercase shrink-0">{notif.issuer.displayName.charAt(0)}</div>
                       )}
                       
                       <div className="flex-1 min-w-0 text-xs text-left">
-                        <p className="text-gray-800 leading-normal font-medium text-left w-full block">
-                          <strong className="font-black text-gray-900">{notif.issuer.displayName}</strong>{" "}
+                        <p className="text-gray-800 dark:text-gray-200 leading-normal font-medium text-left w-full block">
+                          <strong className="font-black text-gray-900 dark:text-gray-100">{notif.issuer.displayName}</strong>{" "}
                           {normalisedType === "FOLLOW" && "started following your profile card."}
                           {normalisedType === "COMMENT" && "replied to one of your timeline updates."}
                           {normalisedType === "LIKE" && "liked your update post."}
                           {normalisedType === "MENTION" && "tagged you inside a timeline discussion comment."}
                         </p>
-                        <span className="text-[10px] text-gray-400 font-semibold block mt-0.5 text-left">
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold block mt-0.5 text-left">
                           {new Date(notif.createdAt).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -129,9 +135,9 @@ export default function InlineNotificationDropdown({ currentUserId, notification
 
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover/item:opacity-100 transition-opacity duration-200 z-10">
                       {!notif.isRead && (
-                        <button type="button" onClick={(e) => handleMarkAsReadInline(e, notif.id)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 hover:bg-rose-50 text-gray-400 hover:text-rose-500 flex items-center justify-center text-[10px] cursor-pointer" title="Mark Read">✓</button>
+                        <button type="button" onClick={(e) => handleMarkAsReadInline(e, notif.id)} className="w-6 h-6 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-gray-400 dark:text-gray-300 flex items-center justify-center text-[10px] cursor-pointer" title="Mark Read">✓</button>
                       )}
-                      <button type="button" onClick={(e) => handleRemoveInline(e, notif.id)} className="w-6 h-6 rounded-lg bg-white border border-gray-200 hover:bg-red-50 text-gray-400 hover:text-red-500 flex items-center justify-center text-[11px] cursor-pointer" title="Remove">✕</button>
+                      <button type="button" onClick={(e) => handleRemoveInline(e, notif.id)} className="w-6 h-6 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-red-950/40 text-gray-400 dark:text-gray-300 flex items-center justify-center text-[11px] cursor-pointer" title="Remove">✕</button>
                     </div>
                   </div>
                 );
