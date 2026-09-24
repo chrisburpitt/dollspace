@@ -1,8 +1,11 @@
 // tailwind.config.js
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  // 🚀 FIXED: Hard-restricts scanning paths to ONLY your true source directories
-  // This explicitly overrides and kills Tailwind's broken automatic background scanner!
+  // 🚀 THE ULTIMATE VISUAL TRIGGER:
+  // Instantly commands your headers, sidebars, and home feeds to follow your settings toggle click!
+  darkMode: "class",
+
+  // Keeps your high-speed source scan paths fully locked down
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
