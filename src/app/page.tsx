@@ -158,7 +158,7 @@ export default async function HomePage() {
 	status: currentUser.status,
     role: currentUser.role || "USER",
     avatarUrl: currentUser.avatarUrl || defaultAvatarUrl,
-    isDarkMode: currentUser.isDarkMode === true 
+    isDarkMode: currentUser?.isDarkMode === true 
 };
 
 // src/app/page.tsx (PART 2 - DYNAMIC REINFORCED MARKUP VIEWPORT)

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation"; 
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
 import MobileNavShell from "@/components/MobileNavShell";
@@ -14,6 +15,7 @@ interface SettingsClientProps {
 }
 
 export default function SettingsClient({ currentUser, unreadMailCount }: SettingsClientProps) {
+  const router = useRouter(); 
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingUsername, setIsChangingUsername] = useState(false);
 
@@ -120,11 +122,10 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                 type="button"
                 onClick={async () => {
                   const nextThemeState = !isDarkMode;
-                  setIsDarkMode(nextThemeState); // 1. Flip local state instantly for UI fluidness
-                  
+                  setIsDarkMode(nextThemeState); // 1. Toggle UI view state immediately
+    
                   try {
-                    // 🚀 THE REAL-TIME UNLOCK HOOK: 
-                    // Fires the server action immediately on click, writing the true state to Neon PostgreSQL!
+                    // 2. Write the selection to your Neon database instantly on click
                     await saveUserSettingsAction({
                       isDarkMode: nextThemeState,
                       swearFilter,
@@ -136,19 +137,16 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
                       notifMail,
                       notifDms
                     });
-                    
-                    // ⚡ FLUSH SERVER CACHES: 
-                    // Forces Next.js to pull fresh data down, updating your global header, 
-                    // sidebars, and homepage layout structures instantly!
-                    window.location.reload(); 
+      
+                    // 3. 🚀 Tells Next.js to quietly update your layout models behind the scenes,
+                    // switching your header, homepage, and sidebars to light mode without any error flashing!
+                    router.refresh(); 
                   } catch (err) {
-                    console.error("Theme toggle update failed:", err);
+                    console.error(err);
                   }
                 }}
                 className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
               >
-                <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
-              </button>
             </div>
           </section>
 

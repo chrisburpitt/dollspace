@@ -20,11 +20,14 @@ export default async function SettingsPage() {
 
   const unreadMailCount = await getUnreadMailCount();
 
-  // Safely passes data parameters down into the Client Component only AFTER server lookups complete!
-  return (
-    <SettingsClient 
-      currentUser={currentUser} 
-      unreadMailCount={unreadMailCount || 0} 
-    />
-  );
-}
+  const validatedHeaderUser = {
+    ...currentUser,
+    isDarkMode: currentUser?.isDarkMode === true
+  };
+
+return (
+  <SettingsClient 
+    currentUser={validatedHeaderUser} 
+    unreadMailCount={unreadMailCount || 0} 
+  />
+);
