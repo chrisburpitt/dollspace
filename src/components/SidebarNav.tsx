@@ -14,7 +14,7 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
   // Helper utility function to apply native pink highlight states to the active page row
   const getLinkStyle = (targetPath: string) => {
     const isActive = pathname === targetPath || (targetPath !== "/" && pathname.startsWith(targetPath));
-    return `px-4 py-2.5 font-black rounded-xl text-sm uppercase tracking-wider transition-all duration-200 hover:scale-[1.01] flex items-center justify-between ${
+    return `px-4 py-2.5 font-black rounded-xl text-sm tracking-wider transition-all duration-200 hover:scale-[1.01] flex items-center justify-between ${
       isActive 
         ? "bg-rose-50 text-rose-500 border border-rose-100/60 shadow-xs" 
         : "text-gray-500 hover:bg-rose-50/50 hover:text-rose-500 font-bold"
@@ -22,8 +22,6 @@ export default function SidebarNav({ currentUsername, unreadMailCount }: Sidebar
   };
 
   return (
-    // 🚀 PURE LIGHT MODE PLATFORM SLATE: 
-    // Completely strips out all 'dark:' tokens so this column always stays a pristine, gorgeous light panel layout!
     <div className="bg-white border border-rose-100 rounded-3xl p-5 text-gray-900 shadow-sm space-y-2 text-left transition-all duration-300">
       <nav className="flex flex-col space-y-1">
         

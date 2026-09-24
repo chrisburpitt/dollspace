@@ -167,8 +167,6 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
           </section>
 
 
-// src/app/settings/SettingsClient.tsx (PART 2 - NOTIFICATIONS, DANGER ZONES & STRUCTURAL CLOSURES)
-
           {/* SECTION 3: EMAIL NOTIFICATION NETWORKS */}
           <section className="space-y-4 border-t border-gray-100 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">📧 Email Notifications</h2>
