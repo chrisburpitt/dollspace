@@ -155,10 +155,11 @@ export default async function HomePage() {
 
   const validatedHeaderUser = {
     id: currentUser.id,
-    status: currentUser.status,
+	status: currentUser.status,
     role: currentUser.role || "USER",
-    avatarUrl: currentUser.avatarUrl || defaultAvatarUrl
-  };
+    avatarUrl: currentUser.avatarUrl || defaultAvatarUrl,
+    isDarkMode: currentUser.isDarkMode === true 
+};
 
 // src/app/page.tsx (PART 2 - DYNAMIC REINFORCED MARKUP VIEWPORT)
 
