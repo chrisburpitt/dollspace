@@ -106,7 +106,7 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </p>
           </div>
 
-          {/* SECTION 1: INTERFACE THEME PREFERENCES */}
+          {/* SECTION 1: INTERFACE THEME PREFERENCES (UPGRADED TO LIVE ACTION) */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
             <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Dollspace Theme</h2>
             <div className={`p-4 rounded-2xl flex items-center justify-between border ${
@@ -118,8 +118,34 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
               </div>
               <button
                 type="button"
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
+                onClick={async () => {
+                  const nextThemeState = !isDarkMode;
+                  setIsDarkMode(nextThemeState); // 1. Flip local state instantly for UI fluidness
+                  
+                  try {
+                    // 🚀 THE REAL-TIME UNLOCK HOOK: 
+                    // Fires the server action immediately on click, writing the true state to Neon PostgreSQL!
+                    await saveUserSettingsAction({
+                      isDarkMode: nextThemeState,
+                      swearFilter,
+                      xxxFilter,
+                      blockMaleAttention,
+                      notifComments,
+                      notifReactions,
+                      notifFollows,
+                      notifMail,
+                      notifDms
+                    });
+                    
+                    // ⚡ FLUSH SERVER CACHES: 
+                    // Forces Next.js to pull fresh data down, updating your global header, 
+                    // sidebars, and homepage layout structures instantly!
+                    window.location.reload(); 
+                  } catch (err) {
+                    console.error("Theme toggle update failed:", err);
+                  }
+                }}
+                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${isDarkMode ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
               >
                 <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
               </button>
