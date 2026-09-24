@@ -1,4 +1,3 @@
-// src/components/PostCard.tsx
 "use client";
 
 import { useState, useTransition } from "react";
@@ -33,12 +32,10 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   if (domainName.includes("twitter.com") || domainName.includes("x.com")) customSocialBrandIcon = "🐦";
   if (domainName.includes("pinterest.com")) customSocialBrandIcon = "📌";
 
-  // Robust collector handles new multi-image rows AND legacy single-image fields
   const dbPhotoUrls = post.images?.map((img: any) => img.url) || [];
   const legacyPhotoUrl = post.imageUrl ? [post.imageUrl] : [];
   const combinedImages: string[] = dbPhotoUrls.length > 0 ? dbPhotoUrls : legacyPhotoUrl;
 
-  // 🚀 FIXED: Re-added missing authorization boolean checker variable to clear compile errors!
   const isOwner = post.userId === currentUserId;
 
   const handleSaveInlineEdit = () => {
@@ -61,10 +58,13 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   return (
     <div 
       id={`post-${post.id}`} 
+      // 🚀 THE LIGHT BACKGROUND BLUEPRINT:
+      // Hardcodes the timeline cards to crisp 'bg-white border-rose-100/70', while keeping 
+      // your official un-spoofable premium soft pink style active for Admin announcements!
       className={`p-6 border rounded-2xl shadow-sm text-left animate-fade-in select-none scroll-margin-top-24 transition-all duration-500 ${
-        post.type === "ANNOUNCEMENT"
-          ? "bg-rose-50/50 dark:bg-rose-950/10 border-rose-200/60 dark:border-rose-900/30 ring-2 ring-rose-400/10" // 🌸 OFFICIAL LIGHT PINK GLOW
-          : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
+        post.type === "ANNOUNCEMENT" || post.user?.role === "ADMIN" || post.user?.username?.toLowerCase() === "admin"
+          ? "bg-rose-50/60 border-rose-200 ring-2 ring-rose-400/10" 
+          : "bg-white border-rose-100/70 text-gray-900" 
       }`}
     >
       
@@ -73,18 +73,18 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         <div className="flex items-center space-x-3">
           <Link href={`/${post.user.username}`} className="shrink-0">
             {post.user.avatarUrl ? (
-              <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
+              <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-rose-100 shadow-xs" />
             ) : (
-              <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase shadow-sm">
+              <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-black text-sm uppercase shadow-sm">
                 {post.user.displayName.charAt(0)}
               </div>
             )}
           </Link>
           <div className="text-left">
-            <Link href={`/${post.user.username}`} className="font-bold text-gray-900 block text-sm leading-tight hover:underline">
+            <Link href={`/${post.user.username}`} className="font-black text-gray-900 block text-sm leading-tight hover:underline">
               {post.user.displayName}
             </Link>
-            <span className="text-gray-400 text-xs">@{post.user.username}</span>
+            <span className="text-gray-400 font-bold text-xs">@{post.user.username}</span>
           </div>
         </div>
 
@@ -92,9 +92,9 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
           <div className="flex items-center space-x-2.5 text-[10px] uppercase font-black tracking-wider text-gray-400">
             {isEditing ? (
               <>
-                <button type="button" onClick={handleSaveInlineEdit} disabled={isPending} className="text-green-500 hover:text-green-600 transition">Save</button>
+                <button type="button" onClick={handleSaveInlineEdit} disabled={isPending} className="text-green-500 hover:text-green-600 transition font-black">Save</button>
                 <span>•</span>
-                <button type="button" onClick={() => { setIsEditing(false); setEditText(post.content); }} className="text-gray-400 hover:text-gray-600 transition">Cancel</button>
+                <button type="button" onClick={() => { setIsEditing(false); setEditText(post.content); }} className="text-gray-400 hover:text-gray-600 transition font-black">Cancel</button>
               </>
             ) : null}
           </div>
@@ -106,21 +106,20 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
           <textarea
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            className="w-full text-sm border border-gray-200 bg-gray-50 p-3 rounded-xl focus:outline-none focus:bg-white text-gray-800 font-medium resize-none leading-relaxed"
+            className="w-full text-sm border border-rose-100 bg-rose-50/20 p-3 rounded-xl focus:outline-none focus:bg-white text-gray-800 font-semibold resize-none leading-relaxed"
             rows={3}
             disabled={isPending}
           />
         </div>
       ) : (
-        <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
-          {/* 🎯 Filters the swear words first, then renders the clickable @tags safely! */}
+        <p className="text-gray-800 text-base mb-4 font-semibold leading-relaxed whitespace-pre-wrap text-left break-words">
           {renderPostContentWithClickableTags(filterProfanity(post.content, (post.user as any).swearFilter ?? true))}
         </p>
       )}
 
-      {/* PHOTO COLUMNS GRID (Forces 3 pictures side-by-side cleanly) */}
+      {/* PHOTO COLUMNS GRID */}
       {combinedImages.length > 0 && (
-        <div className={`grid gap-2 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-4 ${
+        <div className={`grid gap-2 rounded-2xl overflow-hidden border border-rose-100/40 bg-rose-50/10 mb-4 ${
           combinedImages.length === 1 ? "grid-cols-1" :
           combinedImages.length === 2 ? "grid-cols-2" : "grid-cols-3"
         }`}>
@@ -141,24 +140,24 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
 
       {/* RICH DYNAMIC LINK PREVIEWS */}
       {post.linkUrl && (
-        <a href={post.linkUrl} target="_blank" rel="noopener noreferrer" className="mb-4 rounded-2xl border border-gray-200 bg-gray-50/30 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50/80 transition block shadow-sm">
-          <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200/60 flex items-center justify-center p-2">
+        <a href={post.linkUrl} target="_blank" rel="noopener noreferrer" className="mb-4 rounded-2xl border border-rose-100 bg-rose-50/10 flex flex-col sm:flex-row overflow-hidden hover:bg-rose-50/30 transition block shadow-xs">
+          <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-rose-100/50 flex items-center justify-center p-2">
             {customSocialBrandIcon ? (
               <div className="w-full h-full bg-rose-50/60 rounded-xl flex items-center justify-center text-3xl shadow-inner border border-rose-100/50">{customSocialBrandIcon}</div>
             ) : post.linkImage ? (
               <div className="w-full h-full relative">
-                <img src={post.linkImage} alt="" className="w-full h-full object-contain rounded-lg" draggable="false" />
+                <img src={post.linkImage} alt="" className="w-contain max-h-full object-contain rounded-lg" draggable="false" />
                 <div className="absolute inset-0 bg-transparent z-10" onContextMenu={(e) => e.preventDefault()} />
               </div>
             ) : (
-              <div className="w-full h-full bg-gray-50 rounded-xl flex items-center justify-center text-xl text-gray-400 font-bold border border-gray-100">🌐</div>
+              <div className="w-full h-full bg-rose-50/10 rounded-xl flex items-center justify-center text-xl text-rose-300 font-bold border border-rose-100/40">🌐</div>
             )}
           </div>
           <div className="p-4 flex flex-col justify-center min-w-0 flex-1 text-left">
             <span className="text-[10px] uppercase font-black text-rose-400 tracking-widest block mb-0.5">{customSocialBrandIcon ? `✨ Social Link` : "🔗 External Link"}</span>
             <h4 className="font-black text-xs text-gray-900 block truncate leading-snug">{post.linkTitle || post.linkUrl}</h4>
             <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1 leading-relaxed">{post.linkDesc || "Click to open link safely."}</p>
-            <span className="text-[10px] text-gray-400 font-bold block mt-1 truncate">{domainName.replace("www.", "")}</span>
+            <span className="text-[10px] text-rose-400 font-bold block mt-1 truncate">{domainName.replace("www.", "")}</span>
           </div>
         </a>
       )}
@@ -179,7 +178,7 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
         currentUserId={currentUserId} 
         comments={post.comments} 
         initialOpen={hasCommentsPresent}
-		followersList={followersList} 
+        followersList={followersList} 
       />
     </div>
   );

@@ -104,51 +104,51 @@ export default function SettingsClient({ currentUser, unreadMailCount }: Setting
             </p>
           </div>
 
-          {/* SECTION 1: INTERFACE THEME PREFERENCES (CENTRALIZED HOOK UPGRADE) */}
-          <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
-            <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Dollspace Theme</h2>
-            <div className={`p-4 rounded-2xl flex items-center justify-between border ${
-              theme === "dark" ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
-            }`}>
-              <div>
-                <span className="text-xs font-black block">Dark Mode</span>
-                <span className="text-[10px] font-bold text-gray-400 block">Switch between light and dark themes across Dollspace.</span>
-              </div>
-              <button
-                type="button"
-                onClick={async () => {
-                  const targetDarkState = theme !== "dark";
-                  
-                  // 🚀 1. INSTANT SITE-WIDE TRANSITION:
-                  // Drops or adds the 'dark' utility classes across every page node 
-                  // the exact millisecond the mouse tap finishes!
-                  setTheme(targetDarkState ? "dark" : "light");
-                  setIsDarkMode(targetDarkState); // Synchronise local layout states
-                  
-                  try {
-                    // 🔒 2. SECURE BACKGROUND PERSISTENCE:
-                    // Records the true choice permanently to your Neon PostgreSQL tables
-                    await saveUserSettingsAction({
-                      isDarkMode: targetDarkState,
-                      swearFilter,
-                      xxxFilter,
-                      blockMaleAttention,
-                      notifComments,
-                      notifReactions,
-                      notifFollows,
-                      notifMail,
-                      notifDms
-                    });
-                  } catch (err) {
-                    console.error("Failed to commit global preferences:", err);
-                  }
-                }}
-                className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${theme === "dark" ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
-              >
-                <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
-              </button>
-            </div>
-          </section>
+ //         {/* SECTION 1: INTERFACE THEME PREFERENCES (CENTRALIZED HOOK UPGRADE) */}
+ //         <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
+   //         <h2 className="text-sm font-black uppercase tracking-wider text-rose-500">🌓 Dollspace Theme</h2>
+     //       <div className={`p-4 rounded-2xl flex items-center justify-between border ${
+       //       theme === "dark" ? "bg-gray-950/40 border-gray-800" : "bg-gray-50 border-gray-100"
+         //   }`}>
+ //             <div>
+ //               <span className="text-xs font-black block">Dark Mode</span>
+ //               <span className="text-[10px] font-bold text-gray-400 block">Switch between light and dark themes across Dollspace.</span>
+ //             </div>
+ //             <button
+ //               type="button"
+//                onClick={async () => {
+//                  const targetDarkState = theme !== "dark";
+//                  
+//                  // 🚀 1. INSTANT SITE-WIDE TRANSITION:
+//                  // Drops or adds the 'dark' utility classes across every page node 
+//                  // the exact millisecond the mouse tap finishes!
+//                  setTheme(targetDarkState ? "dark" : "light");
+//                  setIsDarkMode(targetDarkState); // Synchronise local layout states
+ //                 
+ //                 try {
+ //                   // 🔒 2. SECURE BACKGROUND PERSISTENCE:
+ //                   // Records the true choice permanently to your Neon PostgreSQL tables
+ //                   await saveUserSettingsAction({
+ //                     isDarkMode: targetDarkState,
+ //                     swearFilter,
+ //                     xxxFilter,
+ //                     blockMaleAttention,
+ //                     notifComments,
+ //                     notifReactions,
+ //                     notifFollows,
+ //                     notifMail,
+ //                     notifDms
+ //                   });
+ //                 } catch (err) {
+ //                   console.error("Failed to commit global preferences:", err);
+ //                 }
+//                }}
+ //               className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 cursor-pointer ${theme === "dark" ? "bg-rose-500 justify-end" : "bg-gray-300 justify-start"}`}
+//              >
+//                <span className="bg-white w-4 h-4 rounded-full shadow-md block transition-transform duration-300" />
+//              </button>
+//            </div>
+//          </section>
 
           {/* SECTION 2: CONTENT MODERATION & SAFETY FILTERS */}
           <section className="space-y-4 border-t border-gray-100 dark:border-gray-800 pt-6">
