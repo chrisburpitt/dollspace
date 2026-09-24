@@ -1,11 +1,11 @@
-// src/components/ProfileUpdateFeed.tsx (PART 1 - PROFILE TAG LINKING UPGRADE)
+// src/components/ProfileUpdateFeed.tsx (PURE LIGHT & ROSE ACCOUNT COMPONENT)
 "use client";
 
 import { useState, useTransition } from "react";
 import PostControls from "./PostControls";
 import PostComments from "./PostComments";
 import { editPostContent } from "@/app/actions/editPost";
-import Link from "next/link"; // 🚀 IMPORT NAV LINK FOR ROUTING
+import Link from "next/link"; 
 
 interface ProfileUpdateFeedProps {
   post: any;
@@ -34,7 +34,6 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
   const legacyPhotoUrl = post.imageUrl ? [post.imageUrl] : [];
   const combinedImages: string[] = dbPhotoUrls.length > 0 ? dbPhotoUrls : legacyPhotoUrl;
 
-  // 🚀 FIXED: Tokenizer scans text blocks and converts @handles into clickable Next.js profile anchors!
   const renderPostContentWithClickableTags = (text: string) => {
     if (!text || !text.includes("@")) return text;
 
@@ -46,9 +45,9 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
         return (
           <a 
             key={`profile-post-tag-${index}`} 
-            href={`https://chloeishot.vercel.app/${parsedHandleName}`}
-            target="_blank" // 🚀 FORCES THE ACCOUNT LINK TO OPEN IN A NEW TAB WINDOW!
-            rel="noopener noreferrer" // Secure sandbox tracking headers
+            href={`https://vercel.app{parsedHandleName}`}
+            target="_blank" 
+            rel="noopener noreferrer" 
             className="text-rose-500 font-extrabold hover:underline select-text inline-block"
           >
             {part}
@@ -76,45 +75,45 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
     });
   };
 
-return (
-  <div 
-    className={`p-6 border rounded-2xl shadow-sm text-left animate-fade-in select-none transition-all duration-500 ${
-      post.type === "ANNOUNCEMENT"
-        ? "bg-rose-50/50 dark:bg-rose-950/10 border-rose-200/60 dark:border-rose-900/30 ring-2 ring-rose-400/10" // 🌸 UN-SPOOFABLE OFFICIAL LIGHT PINK
-        : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800"
-    }`}
-  >
+  return (
+    <div 
+      // 🚀 HARDCODED LIGHT FRAME: Cleared dark tokens completely!
+      className={`p-6 border rounded-2xl shadow-sm text-left animate-fade-in select-none transition-all duration-500 ${
+        post.type === "ANNOUNCEMENT" || post.user?.role === "ADMIN" || post.user?.username?.toLowerCase() === "admin"
+          ? "bg-rose-50/60 border-rose-200 ring-2 ring-rose-400/10" // 🌸 OFFICIAL LIGHT PINK GLOW
+          : "bg-white border-rose-100/70"
+      }`}
+    >
   
       {/* AUTHOR BRAND CARD ROW */}
       <div className="flex items-center space-x-3 mb-4">
         {post.user.avatarUrl ? (
-          <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-gray-100 shadow-sm" />
+          <img src={post.user.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover border border-rose-100 shadow-xs" />
         ) : (
-          <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-bold text-sm uppercase shadow-sm">
+          <div className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center font-black text-sm uppercase shadow-sm">
             {post.user.displayName.charAt(0)}
           </div>
         )}
         <div>
-          <span className="font-bold text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
-          <span className="text-gray-400 text-xs">@{post.user.username}</span>
+          <span className="font-black text-gray-900 block text-sm leading-tight">{post.user.displayName}</span>
+          <span className="text-gray-400 font-bold text-xs">@{post.user.username}</span>
         </div>
       </div>
 
-      {/* 🚀 FIXED TEXT ROW OR TEXTAREA INLINE EDITOR CONDITIONAL VIEW SWITCH */}
+      {/* INLINE TEXTREA EDITOR */}
       {isEditing ? (
         <div className="mb-4">
           <textarea
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
-            className="w-full text-sm border border-gray-200 bg-gray-50 p-3 rounded-xl focus:outline-none focus:bg-white text-gray-800 font-medium resize-none leading-relaxed"
+            className="w-full text-sm border border-rose-100 bg-rose-50/20 p-3 rounded-xl focus:outline-none focus:bg-white text-gray-800 font-semibold resize-none leading-relaxed"
             rows={3}
             disabled={isPending}
           />
         </div>
       ) : (
         post.content && (
-          /* 🚀 FIXED: Profile content feeds directly through the tag linker module now! */
-          <p className="text-gray-800 text-base mb-4 font-medium leading-relaxed whitespace-pre-wrap text-left break-words">
+          <p className="text-gray-800 text-base mb-4 font-semibold leading-relaxed whitespace-pre-wrap text-left break-words">
             {renderPostContentWithClickableTags(post.content)}
           </p>
         )
@@ -122,7 +121,7 @@ return (
 
       {/* MULTI-PHOTO FLEX GRID LAYOUT */}
       {combinedImages.length > 0 && (
-        <div className={`grid gap-2 rounded-2xl overflow-hidden border border-gray-100 bg-gray-50 mb-4 ${
+        <div className={`grid gap-2 rounded-2xl overflow-hidden border border-rose-100/40 bg-rose-50/10 mb-4 ${
           combinedImages.length === 1 ? "grid-cols-1" :
           combinedImages.length === 2 ? "grid-cols-2" : "grid-cols-3"
         }`}>
@@ -147,20 +146,20 @@ return (
           href={post.linkUrl} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="mb-4 rounded-2xl border border-gray-200 bg-gray-50/30 flex flex-col sm:flex-row overflow-hidden hover:bg-gray-50/80 transition block shadow-sm"
+          className="mb-4 rounded-2xl border border-rose-100 bg-rose-50/10 flex flex-col sm:flex-row overflow-hidden hover:bg-rose-50/30 transition block shadow-xs"
         >
-          <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-gray-200/60 flex items-center justify-center p-2">
+          <div className="w-full sm:w-28 h-28 sm:h-auto bg-white relative shrink-0 border-b sm:border-b-0 sm:border-r border-rose-100/50 flex items-center justify-center p-2">
             {customSocialBrandIcon ? (
               <div className="w-full h-full bg-rose-50/60 rounded-xl flex items-center justify-center text-3xl shadow-inner border border-rose-100/50">
                 {customSocialBrandIcon}
               </div>
             ) : post.linkImage ? (
               <div className="w-full h-full relative">
-                <img src={post.linkImage} alt="" className="w-full h-full object-contain rounded-lg" draggable="false" />
+                <img src={post.linkImage} alt="" className="w-contain max-h-full object-contain rounded-lg" draggable="false" />
                 <div className="absolute inset-0 bg-transparent z-10" onContextMenu={(e) => e.preventDefault()} />
               </div>
             ) : (
-              <div className="w-full h-full bg-gray-50 rounded-xl flex items-center justify-center text-xl text-gray-400 font-bold border border-gray-100">🌐</div>
+              <div className="w-full h-full bg-rose-50/10 rounded-xl flex items-center justify-center text-xl text-rose-300 font-bold border border-rose-100/40">🌐</div>
             )}
           </div>
 
@@ -174,12 +173,11 @@ return (
             <p className="text-gray-400 font-medium text-[11px] mt-0.5 line-clamp-1 leading-relaxed">
               {post.linkDesc || "Click to open external web link safely inside a new tab space."}
             </p>
-            <span className="text-[10px] text-gray-400 font-bold block mt-1 truncate">{domainName.replace("www.", "")}</span>
+            <span className="text-[10px] text-rose-400 font-bold block mt-1 truncate">{domainName.replace("www.", "")}</span>
           </div>
         </a>
       )}
 
-      {/* 🚀 FIXED: Added the complete typesafe parameter properties mapping list directly here! */}
       <PostControls 
         postId={post.id} 
         postOwnerId={post.userId} 

@@ -1,4 +1,4 @@
-// src/app/page.tsx (PART 1 - PROTECTED SERVER PRE-FETCH ENGINE)
+// src/app/page.tsx (PURE LIGHT MODE HOME FEED ENGINE)
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
@@ -69,11 +69,9 @@ export default async function HomePage() {
       const record = await prisma.dollOfTheWeekEntry.findUnique({ 
         where: { userId: currentUser.id } 
       });
-      // Ensure that even if the row is deleted, it returns a safe, unified structure
       dotwRecord = record || { id: "empty-fallback", userId: currentUser.id, votedEntryIds: [], imageUrl: "" };
     } catch (err) {
       console.error("Safely caught a staging table null lookup error:", err);
-      // Bulletproof fallback prevents an empty table from ever crashing your server render!
       dotwRecord = { id: "empty-fallback", userId: currentUser.id, votedEntryIds: [], imageUrl: "" };
     }
   }
@@ -123,9 +121,6 @@ export default async function HomePage() {
     orderBy: { createdAt: "desc" }
   });
 
-  // 🎯 THE CRASH PREVENTER MAP ENGINE:
-  // Dynamically uses Array.isArray and deep optional chaining (?.) to make it 
-  // physically impossible for script-generated or commentless posts to break the page loop!
   const formatPostDates = (postsArray: any[]) => {
     if (!Array.isArray(postsArray)) return [];
     return postsArray.map(post => ({
@@ -155,15 +150,15 @@ export default async function HomePage() {
 
   const validatedHeaderUser = {
     id: currentUser.id,
-	status: currentUser.status,
+    status: currentUser.status,
     role: currentUser.role || "USER",
     avatarUrl: currentUser.avatarUrl || defaultAvatarUrl,
-    isDarkMode: currentUser?.isDarkMode === true 
-};
-
+    isDarkMode: false // 🚀 FORCE LOCK HEADER DATA TO FALSE
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-50 transition-colors duration-300">
+    // 🎯 RECONCILED PURE LIGHT BACKGROUND FRAME: Stripped of dark classes!
+    <div className="min-h-screen bg-gray-50 text-gray-900 antialiased transition-colors duration-300">
       <GlobalHeader currentUser={validatedHeaderUser} />
       <StaticFeedBanner />
       <MobileNavShell 
@@ -174,7 +169,7 @@ export default async function HomePage() {
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
       
         {/* LEFT COLUMN: Sidebar Navigation List Cards */}
-        <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
+        <aside className="hidden lg:block lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <SidebarNav 
             currentUsername={currentUser.username} 
             unreadMailCount={unreadMailCount} 
@@ -187,9 +182,6 @@ export default async function HomePage() {
 
         {/* CENTER COLUMN: Interactive Feed Timeline Core */}
         <main className="lg:col-span-6 space-y-6">
-          {/* 🎯 HYDRATED SAFE PASSTHROUGH MAP:
-              Passes down your newly validated enriched user arrays so the editor 
-              can render your custom avatars safely with no unhandled rejections! */}
           <FeedForm currentUser={enrichedCurrentUser} followersList={followingDollsList} />
           
           <FeedStream 
@@ -202,11 +194,11 @@ export default async function HomePage() {
 
         {/* RIGHT COLUMN: Platform Hub Metrics Panel */}
         <aside className="lg:col-span-3 hidden lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm transition-colors duration-300">
-            <h3 className="font-black text-sm text-gray-900 dark:text-gray-100 tracking-wide uppercase mb-2">
+          <div className="bg-white p-5 rounded-2xl border border-rose-100 shadow-sm transition-colors duration-300">
+            <h3 className="font-black text-sm text-gray-900 tracking-wide uppercase mb-2">
               Platform Hub
             </h3>
-            <p className="text-xs text-gray-400 dark:text-gray-400 font-semibold leading-relaxed">
+            <p className="text-xs text-gray-500 font-semibold leading-relaxed">
               Welcome back to Dollspace, {currentUser.displayName}! Share stories, pictures, or links directly to your feed for your followers to see ✨
             </p>
           </div>
