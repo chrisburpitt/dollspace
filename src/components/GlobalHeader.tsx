@@ -1,4 +1,3 @@
-// src/components/GlobalHeader.tsx (FULL THEME HARMONIZATION REFACTOR)
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -16,7 +15,6 @@ interface GlobalHeaderProps {
     displayName?: string;
     avatarUrl?: string | null;
     role?: string; 
-    isDarkMode?: boolean; 
   };
   notifications?: any[];
   onStatusChange?: (newStatus: string) => void; 
@@ -26,26 +24,14 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
   const router = useRouter();
   const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(currentUser?.status || "ONLINE");
-  
+  const statusMenuRef = useRef<HTMLDivElement>(null);
+  const normalizedUserRole = currentUser?.role?.toUpperCase() || "";
+
   useEffect(() => {
     if (currentUser?.status) {
       setCurrentStatus(currentUser.status);
     }
   }, [currentUser?.status]);
-
-  // 🚀 FIXED CACHE OVERRIDES: Let the layout.tsx class handle the document element class naturally
-  useEffect(() => {
-    if (!currentUser) return;
-    const shouldBeDark = currentUser.isDarkMode === true;
-    if (shouldBeDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [currentUser?.isDarkMode]);
-
-  const statusMenuRef = useRef<HTMLDivElement>(null);
-  const normalizedUserRole = currentUser?.role?.toUpperCase() || "";
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -60,10 +46,7 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
   const handleStatusChange = async (newStatus: string) => {
     setCurrentStatus(newStatus);
     setShowStatusMenu(false);
-    
-    if (onStatusChange) {
-      onStatusChange(newStatus);
-    }
+    if (onStatusChange) onStatusChange(newStatus);
 	
     try {
       await updateUserStatusAction(newStatus);
@@ -74,25 +57,29 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
   };
 
   return (
-    <header className="w-full bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 py-4 px-6 shadow-sm sticky top-0 z-50 transition-colors duration-300 text-left">
+    <header className="w-full bg-white border-b border-rose-100 text-gray-900 py-4 px-6 shadow-sm sticky top-0 z-50 text-left">
       <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
         
-        <Link href="/" className="font-black text-xl text-rose-500 tracking-tighter hover:scale-[1.01] transition">
-          Dollspace <span className="text-gray-900 dark:text-white transition-colors duration-300">👑</span>
+        {/* LEFT BRANDING: Crisp signature rose pink branding logo */}
+        <Link href="/" className="font-black text-xl text-rose-500 tracking-tighter hover:scale-[1.02] transition active:scale-95 duration-200">
+          Dollspace 👑
         </Link>
 
+        {/* RIGHT ACTIONS MODULE */}
         <div className="flex items-center space-x-3 relative">
           
+          {/* STAFF Command Portal Link */}
           {(normalizedUserRole === "ADMIN" || normalizedUserRole === "MODERATOR") && (
             <Link
               href="/admin"
-              className="p-2.5 rounded-xl border border-purple-200 dark:border-purple-900/50 text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/30 transition text-sm flex items-center justify-center shadow-xs animate-scale-up cursor-pointer"
+              className="p-2.5 rounded-xl border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 transition text-sm flex items-center justify-center shadow-xs animate-scale-up cursor-pointer"
               title="Admin Command Panel"
             >
               <span>🛡️</span>
             </Link>
           )}
           
+          {/* Notification Button Module Component */}
           <div className="hidden lg:block relative">
             <InlineNotificationDropdown 
               currentUserId={currentUser.id} 
@@ -100,12 +87,11 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
             />
           </div>
 
-          {/* WIDGET B: LIVE STATUS SELECTOR DROPDOWN BUTTON */}
+          {/* DYNAMIC PRESENTATION SELECTOR BUTTON */}
           <div className="relative" ref={statusMenuRef}>
             <button 
               onClick={() => setShowStatusMenu(!showStatusMenu)}
-              // 🚀 THE THEME HARMONIZATION: Fixed 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900'
-              className="flex items-center space-x-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2 text-xs font-black text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 transition shadow-sm cursor-pointer"
+              className="flex items-center space-x-2 bg-rose-50/40 border border-rose-100 rounded-xl px-4 py-2 text-xs font-black text-gray-700 hover:bg-rose-50 transition shadow-xs cursor-pointer"
 			>
               <span>
                 {currentStatus === "ONLINE" && "🟢"}
@@ -113,12 +99,12 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
                 {currentStatus === "BUSY" && "🔴"}
                 {currentStatus === "OFFLINE" && "⚫"}
               </span>
-              <span className="capitalize">{currentStatus.toLowerCase().replace("_", " ")}</span>
-              <span className="text-[10px] text-gray-400">▼</span>
+              <span className="capitalize font-extrabold text-rose-600">{currentStatus.toLowerCase().replace("_", " ")}</span>
+              <span className="text-[10px] text-rose-300">▼</span>
             </button>
 
             {showStatusMenu && (
-              <div className="absolute right-0 top-full mt-2 w-44 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl p-1 animate-scale-up z-50 divide-y divide-gray-100 dark:divide-gray-900 text-left">
+              <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-rose-100 rounded-xl shadow-xl p-1 animate-scale-up z-50 divide-y divide-rose-50 text-left">
                 {[
                   { key: "ONLINE", icon: "🟢", label: "Online" },
                   { key: "AWAY", icon: "🟡", label: "Away" },
@@ -131,8 +117,8 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
                     onClick={() => handleStatusChange(item.key)}
                     className={`w-full px-4 py-2.5 text-left text-xs font-black transition flex items-center space-x-2.5 cursor-pointer ${
                       currentStatus === item.key 
-                        ? "bg-rose-50 dark:bg-rose-950/30 text-rose-500 font-extrabold" 
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 hover:text-rose-600"
+                        ? "bg-rose-50 text-rose-500 font-extrabold" 
+                        : "text-gray-600 hover:bg-gray-50 hover:text-rose-600"
                     }`}
                   >
                     <span>{item.icon}</span>
@@ -143,13 +129,11 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
             )}
           </div>
 
+          {/* SECURE LOGOUT CONTROL LINK */}
           <button 
             type="button"
-            onClick={async () => {
-              await logoutUser();
-            }}
-            // 🚀 THE THEME HARMONIZATION: Balanced 'bg-gray-50 dark:bg-gray-950 text-gray-600 dark:text-gray-400 border-gray-200/80 dark:border-gray-800'
-            className="bg-gray-100 dark:bg-gray-950 hover:bg-red-50 dark:hover:bg-red-950/20 text-gray-600 dark:text-gray-400 hover:text-red-500 border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-sm cursor-pointer"
+            onClick={async () => { await logoutUser(); }}
+            className="bg-gray-50 hover:bg-red-50 text-gray-600 hover:text-red-500 border border-gray-200 hover:border-red-200 rounded-xl px-4 py-2 text-xs font-black tracking-wider transition shadow-xs cursor-pointer"
 		  >
             Logout
           </button>
