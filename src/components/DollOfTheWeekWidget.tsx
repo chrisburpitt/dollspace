@@ -130,7 +130,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
 
       {/* THE IMMERSIVE FULL-SCREEN LIGHTBOX OVERLAY WINDOW */}
       {isLightboxOpen && targetPhotoUrl && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex flex-col items-center justify-between p-4 animate-fade-in select-none">
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-[9999] flex flex-col items-center justify-between p-4 animate-fade-in select-none">
           
           {/* Exit Button */}
           <div className="w-full max-w-4xl flex justify-end pt-2">
