@@ -1,5 +1,6 @@
 // src/app/settings/blocked/page.tsx (BLOCKED & IGNORED DOLLS BOARD)
 import { getCurrentUser } from "@/app/actions/auth";
+import { getUnreadMailCount } from "@/app/actions/mailCount"; // 🚀 1. IMPORT YOUR MAIL UTILITY COUNTER CONTRACT
 import { getPersonalBlockRoster, liftBlockRelationAction } from "@/app/actions/privacySettings";
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
@@ -16,6 +17,9 @@ export default async function BlockedSettingsPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
 
+  // 🚀 2. THE COMPILER KEY: Freshly fetch your real-time unread mail badge count row from the database!
+  const unreadMailCount = await getUnreadMailCount();
+
   const restrictionsList = await getPersonalBlockRoster();
 
   // Inline Client Action Handler Component passthrough wrapper
@@ -25,22 +29,32 @@ export default async function BlockedSettingsPage() {
     await liftBlockRelationAction(id);
   }
 
+  // Synchronise your global header data mapping parameters securely
+  const validatedHeaderUser = {
+    id: currentUser.id,
+    status: currentUser.status,
+    role: currentUser.role || "USER",
+    avatarUrl: currentUser.avatarUrl || "https://ufs.sh",
+    isDarkMode: false
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
-      <GlobalHeader currentUser={currentUser} />
-	  <MobileNavShell currentUsername={currentUser?.username} unreadMailCount={unreadMailCount || 0} />
+      <GlobalHeader currentUser={validatedHeaderUser} />
+      {/* 🚀 FIXED: Custom variable now safely feeds into the mobile nav shell payload! */}
+      <MobileNavShell currentUsername={currentUser?.username} unreadMailCount={unreadMailCount || 0} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* Left Side Navigation Menu Column */}
         <aside className="hidden lg:block lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          <SidebarNav currentUsername={currentUser.username} unreadMailCount={0} />
+          <SidebarNav currentUsername={currentUser.username} unreadMailCount={unreadMailCount || 0} />
         </aside>
 
         {/* Center Panel Workspace Card */}
         <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-3xl p-6 sm:p-10 shadow-sm text-left space-y-6">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-gray-950 flex items-center gap-2">
-              Privacy & <span className="text-rose-500">Block Control</span> 🔒
+              Privacy & <span className="text-rose-500">Block Control</span> 🛡️
             </h1>
             <p className="text-xs font-semibold text-gray-400 mt-1">
               Manage your connections and restore chat access lines across Dollspace.
@@ -50,8 +64,8 @@ export default async function BlockedSettingsPage() {
           <div className="border-t border-gray-100 pt-6">
             {restrictionsList.length === 0 ? (
               <div className="border border-dashed border-gray-200 p-16 rounded-2xl text-center text-gray-400">
-                <span className="text-3xl block mb-2">🌸</span>
-                <p className="font-black text-xs uppercase tracking-wider text-gray-400">Your burn book is empty 🔥</p>
+                <span className="text-3xl block mb-2">🔒</span>
+                <p className="font-black text-xs uppercase tracking-wider text-gray-400">Your burn book is empty 📖</p>
                 <p className="text-[11px] mt-0.5 font-medium">You haven't ignored or blocked any users on Dollspace yet.</p>
               </div>
             ) : (
@@ -66,7 +80,7 @@ export default async function BlockedSettingsPage() {
                     >
                       <div className="flex items-center space-x-3 min-w-0">
                         <img 
-                          src={item.doll.avatarUrl || "/default-avatar.png"} 
+                          src={item.doll.avatarUrl || "https://ufs.sh"} 
                           className="w-10 h-10 rounded-full object-cover shadow-xs border border-gray-200 shrink-0" 
                         />
                         <div className="min-w-0 text-left">
@@ -100,7 +114,7 @@ export default async function BlockedSettingsPage() {
                           type="submit"
                           className="bg-white hover:bg-rose-50 text-gray-600 hover:text-rose-500 font-black px-4 py-2 border border-gray-200 hover:border-rose-200 rounded-xl text-[11px] uppercase tracking-wider transition shadow-xs cursor-pointer"
                         >
-                          Restore Access ✨
+                          Restore Access 🔄
                         </button>
                       </form>
                     </div>
@@ -115,7 +129,7 @@ export default async function BlockedSettingsPage() {
               href="/settings"
               className="bg-white hover:bg-rose-50 text-gray-700 hover:text-rose-500 border border-gray-200 hover:border-rose-200 font-black text-xs uppercase tracking-widest px-8 py-3.5 rounded-xl transition shadow-sm hover:shadow-md cursor-pointer transform hover:-translate-y-[1px] active:translate-y-0"
             >
-              Return to Settings 👑
+              Return to Settings ⚙️
             </Link>
           </div>
 		  
