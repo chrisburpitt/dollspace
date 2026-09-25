@@ -102,8 +102,6 @@ export default function PostComments({
       }
     });
   };
-
-  // src/components/PostComments.tsx (PART 2 - AUTCOMPLETE COMMENTING FIELD UPGRADE)
   
   // 🚀 IMPORT THE MENTION PICKER MODULE ENGINE
   const MentionInput = require("./MentionInput").default;
@@ -161,7 +159,15 @@ export default function PostComments({
           )}
 
           {/* Inline Comment Composition Form */}
-          <form onSubmit={handleCommentSubmit} className="flex items-center gap-2 pt-1">
+          <form 
+            onSubmit={handleCommentSubmit} 
+            name="comment-form-stream"
+            autoComplete="off"
+            autoCapitalize="sentences"
+			spellCheck="true"
+            data-1password-ignore="true"
+            className="flex items-center gap-2 pt-1"
+          >
             <div className="flex-1">
               <MentionInput 
                 value={commentText}
@@ -170,13 +176,7 @@ export default function PostComments({
                 isTextArea={false}
                 disabled={isPending}
                 followersList={followersList} 
-                className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:bg-white text-gray-800 placeholder-gray-400 transition"
-                
-				name="comment-content-field-stream"
-                autoComplete="off"
-                autoCapitalize="sentences"
-                spellCheck="true"
-                data-1password-ignore="true"
+                className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
               />
             </div>
 
@@ -188,7 +188,6 @@ export default function PostComments({
               {isPending ? "Posting..." : "Reply"}
             </button>
           </form>
-
         </div>
       )}
     </div>

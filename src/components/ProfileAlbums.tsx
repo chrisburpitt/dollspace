@@ -321,7 +321,15 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
                 </div>
 
                 {/* STICKY INTERACTIVE ENTRY FIELD BAR */}
-                <form onSubmit={handlePostInspectorComment} className="pt-2 border-t border-gray-100 flex flex-col gap-2 shrink-0 text-left bg-white">
+                <form 
+                  onSubmit={handlePostInspectorComment} 
+                  name="album-comment-form-panel"
+                  autoComplete="off"
+                  autoCapitalize="sentences"
+	              spellCheck="true"
+				  data-1password-ignore="true"
+                  className="pt-2 border-t border-gray-100 flex flex-col gap-2 shrink-0 text-left bg-white"
+                >
                   <div className="w-full relative">
                     <MentionInput 
                       value={commentText}
@@ -331,9 +339,6 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
                       disabled={isPending}
                       followersList={followersList} 
                       className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
-                      name="album-comment-entry-field"
-                      autoComplete="off"
-                      data-1password-ignore="true"
                     />
                   </div>
                   <div className="flex justify-end shrink-0">
