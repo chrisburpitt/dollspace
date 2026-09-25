@@ -201,10 +201,15 @@ export async function toggleReaction(postId: string) {
     where: { id: postId }, 
     include: { user: { select: { id: true, genderIdentity: true } } } 
   });
-  if (!post) return { error: "Post not found." };
+  
+  // 🚀 TYPESAFE NULL GUARD: Resolves TS18047 by immediately returning if the database lookup fails!
+  if (!targetPost) {
+    return { error: "Post not found." };
+  }
 
-  // 🚀 ACTION BACKEND HOOK: If the post owner blocks male attention and the session user is a man, deny engagement!
-  if (targetPost.user.id !== sessionUser.id) {
+  // 🚀 FIXED ATTENTION HOOK: 
+  // If the post owner blocks male attention and the session user is a man, deny engagement!
+  if (targetPost.userId !== sessionUser.id) {
     const ownerProfile = await prisma.user.findUnique({ where: { id: targetPost.userId } });
     if (ownerProfile?.blockMaleAttention) {
       const sessionGender = sessionUser.genderIdentity?.toLowerCase().trim() || "";
