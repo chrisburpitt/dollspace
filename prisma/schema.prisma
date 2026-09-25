@@ -177,8 +177,7 @@ model InternalMail {
   recipient      User              @relation("MailsAsRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
   recipientArchived Boolean         @default(false)
   recipientDeleted  Boolean         @default(false)
-
-  // 🚀 ATTACHMENT MULTI-IMAGE CHILD CONNECTIONS
+  recipientJunked   Boolean         @default(false)
   attachments    MailAttachment[] @relation("MailAttachments")
 
   @@index([senderId])
