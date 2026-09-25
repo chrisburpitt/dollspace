@@ -260,9 +260,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               </div>
             </form>
           </div>
-        ) : (
-
-          selectedMail ? (
+        ) : selectedMail ? (
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full min-h-0 text-left">
             <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
               <div className="flex flex-col gap-3 w-full">
