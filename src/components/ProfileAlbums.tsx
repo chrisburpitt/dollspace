@@ -1,4 +1,3 @@
-// src/components/ProfileAlbums.tsx (PART 1 - THREE PIECE MODULAR SPLIT)
 "use client";
 
 import { useState, useTransition } from "react";
@@ -12,7 +11,7 @@ interface PhotoItem { id: string; url: string; }
 interface AlbumItem { id: string; name: string; description: string | null; isPrivate: boolean; photos: PhotoItem[]; }
 interface ProfileAlbumsProps { albums: AlbumItem[]; isOwner: boolean; onPhotoClick: (url: string) => void; forceActiveAlbumsViewTabNatively: () => void; followersList?: any[]; }
 
-// 🚀 FREE BROWSER CANVAS COMPRESSOR: Down-samples image nodes to 1200px at 80% JPEG quality
+// 🚀 BROWSER CANVAS COMPRESSOR
 function compressAlbumPhoto(file: File, maxWidth = 1200, quality = 0.8): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -32,22 +31,19 @@ function compressAlbumPhoto(file: File, maxWidth = 1200, quality = 0.8): Promise
   });
 }
 
-export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoClick, forceActiveAlbumsViewTabNatively,followersList = [] }: ProfileAlbumsProps) {
+export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoClick, forceActiveAlbumsViewTabNatively, followersList = [] }: ProfileAlbumsProps) {
   const [albums, setAlbums] = useState<AlbumItem[]>(initialAlbums);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isPending, startTransition] = useTransition();
 
-  // Interactive Deck Management Inspector States
   const [selectedAlbum, setSelectedAlbum] = useState<AlbumItem | null>(null);
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
   
-  // Inline edit state trackers
   const [isEditingAlbumMeta, setIsEditingAlbumMeta] = useState(false);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [editPrivate, setEditPrivate] = useState(false);
 
-  // Live Comments Storage Arrays
   const [commentsList, setCommentsList] = useState<any[]>([]);
   const [commentText, setCommentText] = useState("");
 
@@ -63,7 +59,6 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
     ]);
   };
 
-  // src/components/ProfileAlbums.tsx (PART 2 - THREE PIECE MODULAR SPLIT)
   const handleOpenPhotoInspector = (photo: PhotoItem) => {
     setSelectedPhoto(photo);
     setCommentText("");
@@ -132,7 +127,7 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
       <div className="flex items-center justify-between border-b border-gray-100 pb-3">
         <h3 className="font-black text-base text-gray-900 tracking-wide">Photo Albums ({albums.length})</h3>
         {isOwner && (
-          <button onClick={() => setShowCreateModal(true)} className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-3.5 py-2 rounded-xl transition shadow-sm">
+          <button onClick={() => setShowCreateModal(true)} className="bg-rose-500 hover:bg-rose-600 text-white font-black text-xs px-3.5 py-2 rounded-xl transition shadow-sm cursor-pointer">
             ➕ Create New Album
           </button>
         )}
@@ -161,8 +156,8 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
               </select>
             </div>
             <div className="flex space-x-2 pt-2">
-              <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-2.5 rounded-xl text-xs">Cancel</button>
-              <SubmitButton label="Create" loadingLabel="Building..." className="flex-1 bg-rose-500 text-white font-black p-2.5 rounded-xl text-xs" />
+              <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 bg-gray-100 text-gray-600 font-bold p-2.5 rounded-xl text-xs cursor-pointer">Cancel</button>
+              <SubmitButton label="Create" loadingLabel="Building..." className="flex-1 bg-rose-500 text-white font-black p-2.5 rounded-xl text-xs cursor-pointer" />
             </div>
           </form>
         </div>
@@ -189,147 +184,171 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
         })}
       </div>
 
-      {/* src/components/ProfileAlbums.tsx (PART 3 - THREE PIECE MODULAR SPLIT) */}
-      {/* 🚀 HIGH-FIDELITY FLOATING STUDIO INSPECTOR commanded via state management */}
+      {/* 🚀 MOBILE-OPTIMIZED 60/40 SPLIT FLOATING MODAL HUB */}
       {selectedAlbum && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-fade-in text-left">
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl max-w-4xl w-full h-[85vh] flex flex-col md:flex-row overflow-hidden relative animate-scale-up">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in text-left">
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl border border-gray-100 shadow-2xl max-w-4xl w-full h-[90vh] sm:h-[85vh] flex flex-col overflow-hidden relative animate-scale-up">
             
-            <button onClick={() => { setSelectedAlbum(null); setSelectedPhoto(null); }} className="absolute top-4 right-4 bg-gray-100 hover:bg-rose-500 text-gray-500 hover:text-white rounded-full w-8 h-8 flex items-center justify-center font-black transition text-xs z-50 shadow-sm">✕</button>
+            {/* Structural Exit Cross Toggle Button */}
+            <button 
+              type="button"
+              onClick={() => { setSelectedAlbum(null); setSelectedPhoto(null); }} 
+              className="absolute top-4 right-4 bg-gray-100 hover:bg-rose-500 text-gray-500 hover:text-white rounded-full w-8 h-8 flex items-center justify-center font-black transition text-xs z-50 shadow-sm cursor-pointer"
+            >
+              ✕
+            </button>
 
-            {/* LEFT INSPECTOR CANVAS BLOCK */}
-            <div className="flex-1 p-6 overflow-y-auto space-y-4 flex flex-col h-full justify-between bg-gray-50/50">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b pb-2 flex-wrap gap-2">
-                  {isEditingAlbumMeta ? (
-                    <div className="w-full space-y-2">
-                      <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full border rounded-xl p-2 font-black text-sm bg-white" placeholder="Album Title" />
-                      <textarea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} rows={2} className="w-full border rounded-xl p-2 text-xs font-semibold bg-white resize-none" placeholder="Description content..." />
-                      <div className="flex items-center space-x-2 pt-1">
-                        <select value={String(editPrivate)} onChange={(e) => setEditPrivate(e.target.value === "true")} className="border rounded-lg p-1.5 text-xs font-bold text-gray-700">
-                          <option value="false">🔓 Public Deck</option>
-                          <option value="true">🔒 Private Deck</option>
-                        </select>
-                        <button type="button" onClick={handleSaveAlbumMetaChanges} disabled={isPending} className="bg-green-500 text-white font-black text-[10px] px-3 py-1.5 rounded-lg uppercase tracking-wide">Save 💾</button>
-                        <button type="button" onClick={() => setIsEditingAlbumMeta(false)} className="bg-gray-200 text-gray-600 font-bold text-[10px] px-3 py-1.5 rounded-lg uppercase tracking-wide">Cancel</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div>
-                      <span className="text-[10px] font-black text-rose-400 tracking-widest block uppercase mb-0.5">Viewing Album Folder Hub</span>
-                      <h3 className="font-black text-xl text-gray-900 leading-tight">{selectedAlbum.name}</h3>
-                      {selectedAlbum.description && <p className="text-gray-400 font-medium text-xs mt-1 leading-normal">{selectedAlbum.description}</p>}
-                    </div>
-                  )}
-
-                  {isOwner && !isEditingAlbumMeta && (
-                    <div className="flex items-center space-x-2 text-[10px] font-black uppercase tracking-wider text-gray-400">
-                      <button onClick={() => setIsEditingAlbumMeta(true)} className="hover:text-rose-500 transition">✏️ Edit Meta</button>
-                      <span>•</span>
-                      <button onClick={handleDeleteAlbumClick} className="hover:text-red-500 transition">🗑️ Delete Folder</button>
-                    </div>
-                  )}
+            {/* UPPER CORE HUB: Meta Headers & Action Controllers */}
+            <div className="p-5 border-b border-gray-100 shrink-0 bg-white text-left pr-14">
+              {isEditingAlbumMeta ? (
+                <div className="w-full space-y-2">
+                  <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full border rounded-xl p-2 font-black text-sm bg-white" placeholder="Album Title" />
+                  <textarea value={editDesc} onChange={(e) => setEditDesc(e.target.value)} rows={1} className="w-full border rounded-xl p-2 text-xs font-semibold bg-white resize-none" placeholder="Description content..." />
+                  <div className="flex items-center space-x-2 pt-0.5">
+                    <select value={String(editPrivate)} onChange={(e) => setEditPrivate(e.target.value === "true")} className="border rounded-lg p-1.5 text-xs font-bold text-gray-700">
+                      <option value="false">🔓 Public Deck</option>
+                      <option value="true">🔒 Private Deck</option>
+                    </select>
+                    <button type="button" onClick={handleSaveAlbumMetaChanges} disabled={isPending} className="bg-green-500 text-white font-black text-[10px] px-3 py-1.5 rounded-lg uppercase tracking-wide cursor-pointer">Save 💾</button>
+                    <button type="button" onClick={() => setIsEditingAlbumMeta(false)} className="bg-gray-200 text-gray-600 font-bold text-[10px] px-3 py-1.5 rounded-lg uppercase tracking-wide cursor-pointer">Cancel</button>
+                  </div>
                 </div>
-
-                {/* THUMBNAILS CONTAINER */}
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 pt-1">
-                  {selectedAlbum.photos.map((pic) => {
-                    const isZoomActive = selectedPhoto?.id === pic.id;
-                    return (
-                      <div key={pic.id} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white">
-                        <img src={pic.url} onClick={() => handleOpenPhotoInspector(pic)} alt="" className={`w-full h-full object-cover cursor-zoom-in transition duration-200 ${isZoomActive ? "ring-4 ring-rose-500 scale-[1.02]" : "hover:opacity-95"}`} />
-                        <div className="absolute inset-0 bg-transparent z-10 pointer-events-none" onContextMenu={(e) => e.preventDefault()} />
-                        {isOwner && (
-                          <button onClick={(e) => { e.stopPropagation(); handleDeletePhotoClick(pic.id); }} className="absolute top-1 right-2 bg-black/60 hover:bg-red-500 text-white font-black text-[9px] w-5 h-5 rounded-full flex items-center justify-center transition shadow-md z-20">✕</button>
-                        )}
+              ) : (
+                <div className="space-y-1">
+                  <span className="text-[9px] font-black text-rose-400 tracking-widest block uppercase">Viewing Album Folder Hub</span>
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <h3 className="font-black text-base sm:text-xl text-gray-900 leading-tight">{selectedAlbum.name}</h3>
+                    {isOwner && (
+                      <div className="flex items-center space-x-1.5 text-[9px] font-black uppercase tracking-wider text-gray-400">
+                        <button type="button" onClick={() => setIsEditingAlbumMeta(true)} className="hover:text-rose-500 transition cursor-pointer">✏️ Edit</button>
+                        <span>•</span>
+                        <button type="button" onClick={handleDeleteAlbumClick} className="hover:text-red-500 transition cursor-pointer">🗑️ Delete</button>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* API FORM ROUTING INPUT LOOP */}
-              {isOwner && (
-                <div className="border-t border-gray-100 pt-4 w-full">
-                  <label className="flex items-center justify-center space-x-1.5 px-4 py-3 bg-rose-500 hover:bg-rose-600 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition select-none tracking-wide">
-                    <span>{isPending ? "Compressing Web Matrix..." : "📷 Upload Fresh Snapshot Into This Album Folder"}</span>
-                    <input type="file" accept="image/*" disabled={isPending} className="hidden" onChange={(e) => {
-                      const file = e.target.files?.[0]; if (!file) return;
-                      startTransition(async () => {
-                        const compressedBase64 = await compressAlbumPhoto(file);
-                        const response = await fetch("/api/albums/upload", {
-                          method: "POST", headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ photoBase64: compressedBase64, albumId: selectedAlbum.id })
-                        });
-                        const data = await response.json();
-                        if (data.success && data.photo) {
-                          const updated = [...selectedAlbum.photos, data.photo];
-                          setAlbums((prev) => prev.map(a => a.id === selectedAlbum.id ? { ...a, photos: updated } : a));
-                          setSelectedAlbum((prev: any) => ({ ...prev, photos: updated }));
-                          alert("📸 Gorgeous image uploaded into album successfully!");
-                          forceActiveAlbumsViewTabNatively();
-                        }
-                      });
-                    }} />
-                  </label>
+                    )}
+                  </div>
+                  {selectedAlbum.description && <p className="text-gray-400 font-medium text-[11px] sm:text-xs leading-tight">{selectedAlbum.description}</p>}
                 </div>
               )}
             </div>
 
-            {/* RIGHT SIDEBAR INSPECTION THREAD */}
-            <div className="w-full md:w-80 border-t md:border-t-0 md:border-l border-gray-100 p-6 flex flex-col justify-between h-full bg-white shrink-0">
-              <div className="flex flex-col h-full justify-between space-y-4 overflow-hidden">
-                <div className="min-h-0 flex-1 flex flex-col">
-                  <div className="border-b pb-2 mb-3 text-left">
-                    <span className="text-[10px] uppercase tracking-wider font-black text-gray-400 block">Active Inspection Target</span>
-                    <h5 className="font-black text-xs text-gray-800 uppercase mt-0.5 tracking-wide">
-                      {selectedPhoto ? "🎯 Specific Photo Media File" : "📁 Album Comments Thread Link"}
-                    </h5>
-                  </div>
-
-                  {selectedPhoto && (
-                    <div onClick={() => onPhotoClick(selectedPhoto.url)} className="w-full h-32 rounded-xl bg-gray-50 border border-gray-100 overflow-hidden relative cursor-zoom-in mb-3 shadow-sm select-none animate-scale-up">
-                      <img src={selectedPhoto.url} alt="" className="w-full h-full object-contain" />
-                      <div className="absolute inset-0 bg-transparent z-10" onContextMenu={(e) => e.preventDefault()} />
-                      <button onClick={(e) => { e.stopPropagation(); setSelectedPhoto(null); }} className="absolute bottom-2 right-2 bg-black/60 px-2 py-0.5 rounded text-[8px] font-black uppercase text-gray-300">View Folder Meta</button>
-                    </div>
-                  )}
-
-                  <div className="min-h-0 flex-1 overflow-y-auto pr-1 space-y-2.5">
-                    {commentsList.map((c) => (
-                      <div key={c.id} className="text-xs text-left leading-normal border-b border-gray-50 pb-2">
-                        <div className="flex items-center justify-between text-[10px] font-bold text-gray-400 mb-0.5">
-                          <span className="font-black text-gray-800">@{c.user.username}</span>
-                          <span>Just now</span>
-                        </div>
-                        <p className="font-medium text-gray-600 break-words">{c.content}</p>
+            {/* LOWER INSPECTOR WORKSPACE: Splits beautifully between previews and active chat feeds */}
+            <div className="flex-1 flex flex-col md:flex-row min-h-0 h-full w-full divide-y md:divide-y-0 md:divide-x divide-gray-100">
+              
+              {/* 📷 SPLIT PANEL LEFT/TOP (55% Height on Mobile): Previews Matrix Grid */}
+              <div className="h-[55%] md:h-full md:flex-1 p-4 overflow-y-auto bg-gray-50/40 flex flex-col justify-between gap-4">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {selectedAlbum.photos.map((pic) => (
+                      <div key={pic.id} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-100 shadow-sm bg-white">
+                        <img 
+                          src={pic.url} 
+                          // 🚀 INSTANT LIGHTFRAME TUNNEL: Calls your shared viewer with left & right arrow nav arrays!
+                          onClick={() => onPhotoClick(pic.url)} 
+                          alt="Album Content" 
+                          className="w-full h-full object-cover cursor-zoom-in transition duration-200 hover:scale-102" 
+                        />
+                        <div className="absolute inset-0 bg-transparent z-10 pointer-events-none" onContextMenu={(e) => e.preventDefault()} />
+                        {isOwner && (
+                          <button 
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleDeletePhotoClick(pic.id); }} 
+                            className="absolute top-1 right-1 bg-black/60 hover:bg-red-500 text-white font-black text-[9px] w-5 h-5 rounded-full flex items-center justify-center transition shadow-md z-20 cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <form onSubmit={handlePostInspectorComment} className="pt-2 border-t flex flex-col gap-1.5 shrink-0 text-left">
-                  <div className="w-full">
+                {/* API IMAGE UPLOADER ACTION DRAWER BAR */}
+                {isOwner && (
+                  <div className="border-t border-gray-100 pt-3 shrink-0 w-full">
+                    <label className="flex items-center justify-center space-x-1.5 px-4 py-2.5 bg-rose-500 hover:bg-rose-600 text-white font-black text-xs rounded-xl shadow-xs cursor-pointer transition select-none tracking-wide text-center">
+                      <span>{isPending ? "Compressing Web Matrix..." : "📷 Upload New Photo Look"}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        disabled={isPending} 
+                        className="hidden" 
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]; 
+                          if (!file) return;
+                          startTransition(async () => {
+                            const compressedBase64 = await compressAlbumPhoto(file);
+                            const response = await fetch("/api/albums/upload", {
+                              method: "POST", 
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ photoBase64: compressedBase64, albumId: selectedAlbum.id })
+                            });
+                            const data = await response.json();
+                            if (data.success && data.photo) {
+                              const updated = [...selectedAlbum.photos, data.photo];
+                              setAlbums((prev) => prev.map(a => a.id === selectedAlbum.id ? { ...a, photos: updated } : a));
+                              setSelectedAlbum((prev: any) => ({ ...prev, photos: updated }));
+                              alert("📸 Gorgeous image uploaded into album successfully!");
+                              forceActiveAlbumsViewTabNatively();
+                            }
+                          });
+                        }} 
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+
+              {/* 💬 SPLIT PANEL RIGHT/BOTTOM (Remaining Flex Height): Dedicated Chat Feed Stream */}
+              <div className="flex-1 md:w-80 p-4 flex flex-col justify-between bg-white min-h-0 overflow-hidden">
+                <div className="min-h-0 flex-1 flex flex-col overflow-hidden">
+                  <div className="border-b pb-1.5 mb-2 shrink-0">
+                    <span className="text-[9px] uppercase tracking-wider font-black text-gray-400 block">Active Inspection Target</span>
+                    <h5 className="font-black text-xs text-gray-800 uppercase tracking-wide">💬 Album Comments & Notes</h5>
+                  </div>
+
+                  {/* SCROLLABLE COMMENTS STREAM PANEL CONTAINER */}
+                  <div className="min-h-0 flex-1 overflow-y-auto pr-0.5 space-y-3 pb-2">
+                    {commentsList.map((c) => (
+                      <div key={c.id} className="text-xs text-left leading-normal border-b border-gray-50 pb-2 animate-fade-in">
+                        <div className="flex items-center justify-between text-[9px] font-bold text-gray-400 mb-0.5">
+                          <span className="font-black text-gray-800">@{c.user.username}</span>
+                          <span className="font-semibold text-gray-400">Just now</span>
+                        </div>
+                        <p className="font-medium text-gray-600 break-words leading-relaxed">{c.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* STICKY INTERACTIVE ENTRY FIELD BAR */}
+                <form onSubmit={handlePostInspectorComment} className="pt-2 border-t border-gray-100 flex flex-col gap-2 shrink-0 text-left bg-white">
+                  <div className="w-full relative">
                     <MentionInput 
                       value={commentText}
                       onChange={(val: string) => setCommentText(val)}
-                      placeholder={selectedPhoto ? "Comment on photo... use @ to tag!" : "Comment on album... use @ to tag!"}
+                      placeholder="Write a comment look... tag with @!"
                       isTextArea={false}
                       disabled={isPending}
-                      // Safely pulls follower connection tokens passed down from your props matrix
                       followersList={followersList} 
                       className="w-full border border-gray-200 rounded-xl p-2.5 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 placeholder-gray-400 transition"
+                      name="album-comment-entry-field"
+                      autoComplete="off"
+                      data-1password-ignore="true"
                     />
                   </div>
-                  <div className="flex justify-end pt-0.5">
-                    <button type="submit" className="bg-gray-900 text-white font-black text-xs px-4 py-2 rounded-xl hover:bg-rose-500 transition shadow-sm tracking-wide">
+                  <div className="flex justify-end shrink-0">
+                    <button 
+                      type="submit" 
+                      disabled={isPending || !commentText.trim()}
+                      className="bg-gray-900 text-white font-black text-xs px-4 py-2 rounded-xl hover:bg-rose-500 transition shadow-xs tracking-wide cursor-pointer disabled:opacity-40"
+                    >
                       Post Comment
                     </button>
                   </div>
                 </form>
               </div>
-            </div>
 
+            </div> {/* Close lower workspace flex splitter */}
           </div>
         </div>
       )}
