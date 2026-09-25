@@ -1,4 +1,3 @@
-// src/app/mail/page.tsx
 export const dynamic = "force-dynamic";
 
 import { getCurrentUser } from "@/app/actions/auth";
@@ -18,26 +17,28 @@ export const metadata: Metadata = {
   description: "Manage your inbox, sent items, archives, and deleted folders smoothly.",
 };
 
-const currentUser = await getCurrentUser();
-if (!currentUser) redirect("/login");
+// 🚀 FIXED: Restored the main async page function wrapper so the layout compiles flawlessly!
+export default async function MailPage() {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) redirect("/login");
 
-// 🚀 FREE-TIER AUTOPURGE HOOK: 
-// Quietly executes on every page load to delete trash older than 30 days with zero Cron needed!
-try {
-  const thirtyDaysAgoLine = new Date();
-  thirtyDaysAgoLine.setDate(thirtyDaysAgoLine.getDate() - 30);
+  // 🚀 FREE-TIER AUTOPURGE HOOK: 
+  // Quietly executes on every page load to delete trash older than 30 days with zero Cron needed!
+  try {
+    const thirtyDaysAgoLine = new Date();
+    thirtyDaysAgoLine.setDate(thirtyDaysAgoLine.getDate() - 30);
 
-  await prisma.internalMail.deleteMany({
-    where: {
-      recipientDeleted: true,
-      createdAt: { lt: thirtyDaysAgoLine }
-    }
-  });
-} catch (purgeErr) {
-  console.error("[Mail Shield] Free-tier lazy purge execution error:", purgeErr);
-}
+    await prisma.internalMail.deleteMany({
+      where: {
+        recipientDeleted: true,
+        createdAt: { lt: thirtyDaysAgoLine }
+      }
+    });
+  } catch (purgeErr) {
+    console.error("[Mail Shield] Free-tier lazy purge execution error:", purgeErr);
+  }
 
-const unreadMailCount = await getUnreadMailCount();
+  const unreadMailCount = await getUnreadMailCount();
   
   const registeredUsers = await prisma.user.findMany({
     where: { id: { not: currentUser.id } },
@@ -90,7 +91,7 @@ const unreadMailCount = await getUnreadMailCount();
           <OnlineUsersSidebar users={await getOnlineDollsRoster()} />
         </aside>
 
-        {/* RIGHT FLEXIBLE CONTAINER HUB (Inherits full height parameters cleanly) */}
+        {/* RIGHT COLUMN GRID CANVAS WORKSPACE FRAME */}
         <main className="col-span-1 lg:col-span-9 bg-white border border-gray-200 rounded-2xl sm:rounded-3xl overflow-hidden shadow-sm h-full max-h-full min-h-0 flex flex-col lg:h-[calc(100vh-140px)]">
           <MailDashboardClient 
             currentUser={currentUser} 
