@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { sendInternalMail, toggleMailState } from "@/app/actions/mail";
 import SubmitButton from "@/components/SubmitButton";
 
-// 🚀 UPGRADED PORTFOLIO CATEGORY TYPES: Added 'JUNK' folder directories!
 type FolderType = "INBOX" | "SENT" | "ARCHIVE" | "DELETED" | "JUNK";
 type MobileViewStage = "FOLDERS" | "MESSAGES" | "READING" | "COMPOSE";
 
@@ -25,7 +24,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
     const isRecipient = mail.recipientId === currentUser.id;
 
     if (activeFolder === "INBOX") {
-      // 🚀 THE INBOX RECONCILE: Excludes junked records so they stay completely invisible!
       return isRecipient && !mail.recipientArchived && !mail.recipientDeleted && !mail.recipientJunked;
     }
     if (activeFolder === "SENT") {
@@ -42,7 +40,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
       return false;
     }
     if (activeFolder === "JUNK") {
-      // 🚀 THE JUNK GATEWAY FILTER: Displays isolated items sent from male attention accounts!
       return isRecipient && mail.recipientJunked && !mail.recipientDeleted;
     }
     return false;
@@ -68,7 +65,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   return (
     <div className="flex h-full max-h-full min-h-0 divide-x divide-gray-200 select-none w-full relative overflow-hidden items-stretch">
       
-      {/* 📥 COLUMN 1: FOLDERS NAVIGATION MENU PANEL (REFACTORED WITH JUNK BUTTON) */}
+      {/* 📥 COLUMN 1: FOLDERS NAVIGATION */}
       <div 
         className={`bg-white flex flex-col justify-between shrink-0 p-3 transition-all duration-300 lg:w-1/4 lg:p-3 lg:px-3 lg:items-start lg:flex ${
           mobileStage === "COMPOSE" || mobileStage === "READING"
@@ -94,18 +91,16 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
           </button>
           
           {(["INBOX", "SENT", "JUNK", "ARCHIVE", "DELETED"] as FolderType[]).map(folder => {
-            // Convert folder string labels to your matching action names
             let folderActionType: "ARCHIVE" | "DELETE" | "UNJUNK" | "MARK_READ" = "ARCHIVE";
             if (folder === "DELETED") folderActionType = "DELETE";
-            if (folder === "INBOX") folderActionType = "UNJUNK"; // Moving back to Inbox clears Junk flags!
+            if (folder === "INBOX") folderActionType = "UNJUNK";
 
             return (
               <button
                 key={folder}
                 type="button"
-                // 🚀 DRAG-AND-DROP UNLOCK 2: Turns this button tab into an active drop zone!
                 onDragOver={(e) => {
-                  e.preventDefault(); // This is mandatory to let the browser allow dropping!
+                  e.preventDefault();
                   e.dataTransfer.dropEffect = "move";
                 }}
                 onDrop={(e) => {
@@ -113,12 +108,11 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   const draggedMailId = e.dataTransfer.getData("text/plain");
                   if (!draggedMailId) return;
 
-                  // Fire your existing action engine instantly upon release!
                   startTransition(async () => {
                     const res = await toggleMailState(draggedMailId, folderActionType);
                     if (res?.success) {
-                      setSelectedMail(null); // Reset read layout view
-                      window.location.reload(); // Refresh local list caches
+                      setSelectedMail(null);
+                      window.location.reload();
                     }
                   });
                 }}
@@ -131,25 +125,25 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   mobileStage === "FOLDERS" ? "w-full px-4 py-2.5 justify-start" : "w-10 h-10 p-0 justify-center"
                 } ${activeFolder === folder ? "bg-rose-50 text-rose-500 border border-rose-100" : "text-gray-500 hover:bg-gray-50"}`}
               >
-              <span className="text-sm shrink-0">
-                {folder === "INBOX" && "📥"}
-                {folder === "SENT" && "🚀"}
-                {folder === "JUNK" && "☣️"}
-                {folder === "ARCHIVE" && "📦"}
-                {folder === "DELETED" && "🗑️"}
-              </span>
-              <span className={`lg:inline ${mobileStage === "FOLDERS" ? "inline" : "hidden"}`}>
-                {folder === "INBOX" && "Inbox"}
-                {folder === "SENT" && "Sent"}
-                {folder === "JUNK" && "Junk Folder"}
-                {folder === "ARCHIVE" && "Archive"}
-                {folder === "DELETED" && "Trash"}
-              </span>
-            </button>
-		  );
-        ))}
+                <span className="text-sm shrink-0">
+                  {folder === "INBOX" && "📥"}
+                  {folder === "SENT" && "🚀"}
+                  {folder === "JUNK" && "☣️"}
+                  {folder === "ARCHIVE" && "📦"}
+                  {folder === "DELETED" && "🗑️"}
+                </span>
+                <span className={`lg:inline ${mobileStage === "FOLDERS" ? "inline" : "hidden"}`}>
+                  {folder === "INBOX" && "Inbox"}
+                  {folder === "SENT" && "Sent"}
+                  {folder === "JUNK" && "Junk Folder"}
+                  {folder === "ARCHIVE" && "Archive"}
+                  {folder === "DELETED" && "Trash"}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
-    </div>
 
       {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST */}
       <div 

@@ -1,10 +1,10 @@
 git add .
-git commit -m "DOTW edit, UT cleanup"
+git commit -m "dsbannerii"
 git push
 
 
-git tag -a v0.7.8.5 -m "REMOVE DARK mode entirely, rebuilt"
-git push origin v0.7.8.5
+git tag -a v0.7.8.6 -m "DOTW updates - see your entry, delete, expand view"
+git push origin v0.7.8.6
 
 
 git tag
