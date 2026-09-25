@@ -1,11 +1,11 @@
-// src/app/mail/MailDashboardClient.tsx (PART 1 - TRANSACTION MOTORS)
 "use client";
 
 import { useState, useTransition } from "react";
 import { sendInternalMail, toggleMailState } from "@/app/actions/mail";
 import SubmitButton from "@/components/SubmitButton";
 
-type FolderType = "INBOX" | "SENT" | "ARCHIVE" | "DELETED";
+// 🚀 UPGRADED PORTFOLIO CATEGORY TYPES: Added 'JUNK' directory paths!
+type FolderType = "INBOX" | "SENT" | "ARCHIVE" | "DELETED" | "JUNK";
 type MobileViewStage = "FOLDERS" | "MESSAGES" | "READING" | "COMPOSE";
 
 export default function MailDashboardClient({ currentUser, initialMails, registeredUsers }: any) {
@@ -17,7 +17,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [mobileStage, setMobileStage] = useState<MobileViewStage>("FOLDERS");
 
-  // 🚀 CUSTOM SUBJECT/BODY FORM BUFFER FIELDS: Allows actions like Reply/Forward to populate fields automatically
   const [formSubject, setFormSubject] = useState("");
   const [formBody, setFormBody] = useState("");
 
@@ -26,7 +25,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
     const isRecipient = mail.recipientId === currentUser.id;
 
     if (activeFolder === "INBOX") {
-      return isRecipient && !mail.recipientArchived && !mail.recipientDeleted;
+      // 🚀 THE INBOX RECONCILE: Excludes junked records so they stay completely invisible!
+      return isRecipient && !mail.recipientArchived && !mail.recipientDeleted && !mail.recipientJunked;
     }
     if (activeFolder === "SENT") {
       return isSender && !mail.senderArchived && !mail.senderDeleted;
@@ -40,6 +40,10 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
       if (isSender && mail.senderDeleted) return true;
       if (isRecipient && mail.recipientDeleted) return true;
       return false;
+    }
+    if (activeFolder === "JUNK") {
+      // 🚀 THE JUNK GATEWAY FILTER: Displays isolated items sent from male attention accounts!
+      return isRecipient && mail.recipientJunked && !mail.recipientDeleted;
     }
     return false;
   });
@@ -64,7 +68,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   return (
     <div className="flex h-full max-h-full min-h-0 divide-x divide-gray-200 select-none w-full relative overflow-hidden items-stretch">
       
-      {/* 📥 COLUMN 1: FOLDERS NAVIGATION */}
+      {/* 📥 COLUMN 1: FOLDERS NAVIGATION MENU PANEL (REFACTORED WITH JUNK BUTTON) */}
       <div 
         className={`bg-white flex flex-col justify-between shrink-0 p-3 transition-all duration-300 lg:w-1/4 lg:p-3 lg:px-3 lg:items-start lg:flex ${
           mobileStage === "COMPOSE" || mobileStage === "READING"
@@ -83,13 +87,13 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               setFormBody("");
               setMobileStage("COMPOSE"); 
             }} 
-            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black text-xs py-3 rounded-xl transition shadow-sm mb-4 flex items-center justify-center gap-2"
+            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black text-xs py-3 rounded-xl transition shadow-sm mb-4 flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>📝</span>
             <span className={`lg:inline ${mobileStage === "FOLDERS" ? "inline" : "hidden"}`}>Compose</span>
           </button>
           
-          {(["INBOX", "SENT", "ARCHIVE", "DELETED"] as FolderType[]).map(folder => (
+          {(["INBOX", "SENT", "JUNK", "ARCHIVE", "DELETED"] as FolderType[]).map(folder => (
             <button
               key={folder}
               type="button"
@@ -105,12 +109,14 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               <span className="text-sm shrink-0">
                 {folder === "INBOX" && "📥"}
                 {folder === "SENT" && "🚀"}
+                {folder === "JUNK" && "☣️"}
                 {folder === "ARCHIVE" && "📦"}
                 {folder === "DELETED" && "🗑️"}
               </span>
               <span className={`lg:inline ${mobileStage === "FOLDERS" ? "inline" : "hidden"}`}>
                 {folder === "INBOX" && "Inbox"}
                 {folder === "SENT" && "Sent"}
+                {folder === "JUNK" && "Junk Folder"}
                 {folder === "ARCHIVE" && "Archive"}
                 {folder === "DELETED" && "Trash"}
               </span>
@@ -119,6 +125,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
         </div>
       </div>
 
+
+// src/app/mail/MailDashboardClient.tsx (PART 2A - MESSAGES PREVIEW FEED LIST)
 
       {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST */}
       <div 
@@ -136,7 +144,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
           mobileStage === "READING" ? "text-center lg:text-left lg:px-4" : "text-left px-4"
         }`}>
           {mobileStage === "READING" ? <span className="lg:hidden">✉️</span> : null}
-          <span className={`lg:inline ${mobileStage === "READING" ? "hidden" : "inline"}`}>{activeFolder} Messages</span>
+          <span className={`lg:inline ${mobileStage === "READING" ? "hidden" : "inline"}`}>{activeFolder === "JUNK" ? "Junk" : activeFolder} Messages</span>
         </div>
         
         <div className="flex-1 overflow-y-auto p-2 space-y-1 w-full">
@@ -168,7 +176,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   <p className="text-[11px] text-gray-400 line-clamp-1 leading-snug">{mail.body}</p>
                 </div>
 
-                {/* 🚀 FIXED LOGIC: On mobile split mode, this keeps the letter initial visible but dyes the circle background rose pink when selected! */}
                 <div className={`lg:hidden ${mobileStage === "READING" ? "block" : "hidden"}`}>
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs border uppercase shrink-0 shadow-sm transition-colors duration-200 ${
                     isSelected 
@@ -187,7 +194,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
           <button 
             type="button"
             onClick={() => setMobileStage("MESSAGES")}
-            className="mx-auto my-3 w-8 h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-xs font-bold shadow-sm transition lg:hidden"
+            className="mx-auto my-3 w-8 h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-xs font-bold shadow-sm transition lg:hidden cursor-pointer"
           >
             ⬅️
           </button>
@@ -197,7 +204,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
 
       {/* 📖 COLUMN 3: TEXT MAIN AREA DISPLAY CANVAS PANEL */}
       <div 
-        className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 lg:flex-1 h-full max-h-full min-h-0 ${
+        className={`bg-white flex flex-col overflow-hidden text-left transition-all duration-300 lg:flex-1 h-full max-h-full min-h-0 ${
           mobileStage === "COMPOSE" ? "w-[90%] lg:w-auto" : mobileStage === "FOLDERS" ? "w-0 hidden lg:block lg:w-auto" : "w-[75%] lg:w-auto"
         }`}
       >
@@ -208,7 +215,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                 <h4 className="font-black text-sm text-gray-900 uppercase tracking-wide">Create New Mail</h4>
                 <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Internal Broadcast Panel</p>
               </div>
-              <button type="button" onClick={() => setMobileStage("FOLDERS")} className="text-[11px] font-black bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-200 px-3 py-1.5 rounded-xl transition">Close View ❌</button>
+              <button type="button" onClick={() => setMobileStage("FOLDERS")} className="text-[11px] font-black bg-gray-50 hover:bg-gray-100 text-gray-500 border border-gray-200 px-3 py-1.5 rounded-xl transition cursor-pointer">Close View ❌</button>
             </div>
 
             <form
@@ -233,7 +240,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                 {showSuggestions && filteredUserSuggestions.length > 0 && (
                   <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 mt-1 overflow-hidden divide-y divide-gray-50 text-left">
                     {filteredUserSuggestions.map((u: any) => (
-                      <button key={u.username} type="button" onClick={() => { setRecipientInput(u.username); setShowSuggestions(false); }} className="w-full px-4 py-2.5 text-left text-xs font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-between">
+                      <button key={u.username} type="button" onClick={() => { setRecipientInput(u.username); setShowSuggestions(false); }} className="w-full px-4 py-2.5 text-left text-xs font-bold text-gray-700 hover:bg-rose-50 hover:text-rose-500 flex items-center justify-between cursor-pointer">
                         <span>{u.displayName}</span><span className="text-[10px] text-gray-400">@{u.username}</span>
                       </button>
                     ))}
@@ -259,56 +266,76 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               </div>
 
               <div className="pt-2 w-full">
-                <SubmitButton label="Send Internal Mail 🚀" loadingLabel="Piping Asset Buffer..." className="w-full bg-rose-500 text-white font-black py-3.5 rounded-xl text-xs shadow-sm" />
+                <SubmitButton label="Send Internal Mail 🚀" loadingLabel="Piping Asset Buffer..." className="w-full bg-rose-500 text-white font-black py-3.5 rounded-xl text-xs shadow-sm cursor-pointer" />
               </div>
             </form>
           </div>
-        ) : selectedMail ? (
-          /* 📖 CORE READING WORKSPACE CANVAS WITH NEW TOOLBOX ACTIONS */
+        ) : (
+
+
+          selectedMail ? (
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full min-h-0 text-left">
             <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
               <div className="flex flex-col gap-3 w-full">
                 <h3 className="text-xl font-black text-gray-900 leading-snug break-words tracking-tight w-full block text-left">{selectedMail.subject}</h3>
                 <p className="text-xs text-gray-400 font-semibold block text-left">From: <strong className="text-gray-700">@{selectedMail.sender.username}</strong> to <strong className="text-gray-700">@{selectedMail.recipient.username}</strong></p>
                 
-                {/* 🚀 NEW WORKSPACE TOOLBOX ACTIONS: Reply, Forward, Dynamic Archive & Delete Controls */}
                 <div className="flex flex-wrap gap-1.5 mt-1">
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setRecipientInput(selectedMail.sender.username);
-                      setFormSubject(`Re: ${selectedMail.subject}`);
-                      setFormBody(`\n\n=== On ${new Date(selectedMail.createdAt).toLocaleDateString()}, @${selectedMail.sender.username} wrote ===\n> ${selectedMail.body}`);
-                      setMobileStage("COMPOSE");
-                    }}
-                    className="bg-rose-500 hover:bg-rose-600 text-white font-black text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider shadow-sm"
-                  >
-                    💬 Reply
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setRecipientInput("");
-                      setFormSubject(`Fwd: ${selectedMail.subject}`);
-                      setFormBody(`\n\n=== Forwarded Message ===\nFrom: @${selectedMail.sender.username}\nSubject: ${selectedMail.subject}\n\n${selectedMail.body}`);
-                      setMobileStage("COMPOSE");
-                    }}
-                    className="bg-gray-800 hover:bg-gray-900 text-white font-black text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider shadow-sm"
-                  >
-                    ➡️ Forward
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "ARCHIVE"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider"
-                  >
-                    {/* Dynamically monitors database state to toggle strings automatically */}
-                    {((selectedMail.senderId === currentUser.id && selectedMail.senderArchived) || (selectedMail.recipientId === currentUser.id && selectedMail.recipientArchived)) ? "📦 Unarchive" : "📦 Archive"}
-                  </button>
+                  {/* Hide standard reply & forward controls when viewing filtered junk emails */}
+                  {!selectedMail.recipientJunked && (
+                    <>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setRecipientInput(selectedMail.sender.username);
+                          setFormSubject(`Re: ${selectedMail.subject}`);
+                          setFormBody(`\n\n=== On ${new Date(selectedMail.createdAt).toLocaleDateString()}, @${selectedMail.sender.username} wrote ===\n> ${selectedMail.body}`);
+                          setMobileStage("COMPOSE");
+                        }}
+                        className="bg-rose-500 hover:bg-rose-600 text-white font-black text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider shadow-sm cursor-pointer"
+                      >
+                        💬 Reply
+                      </button>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setRecipientInput("");
+                          setFormSubject(`Fwd: ${selectedMail.subject}`);
+                          setFormBody(`\n\n=== Forwarded Message ===\nFrom: @${selectedMail.sender.username}\nSubject: ${selectedMail.subject}\n\n${selectedMail.body}`);
+                          setMobileStage("COMPOSE");
+                        }}
+                        className="bg-gray-800 hover:bg-gray-900 text-white font-black text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider shadow-sm cursor-pointer"
+                      >
+                        ➡️ Forward
+                      </button>
+                    </>
+                  )}
+
+                  {/* 🚀 THE NOT SPAM RESCUE ACTION PILL */}
+                  {selectedMail.recipientId === currentUser.id && selectedMail.recipientJunked && (
+                    <button 
+                      type="button" 
+                      onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "UNJUNK"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
+                      className="bg-green-500 hover:bg-green-600 text-white font-black text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider shadow-sm cursor-pointer animate-scale-up"
+                    >
+                      ✨ Not Spam
+                    </button>
+                  )}
+
+                  {!selectedMail.recipientJunked && (
+                    <button 
+                      type="button" 
+                      onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "ARCHIVE"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider cursor-pointer"
+                    >
+                      {((selectedMail.senderId === currentUser.id && selectedMail.senderArchived) || (selectedMail.recipientId === currentUser.id && selectedMail.recipientArchived)) ? "📦 Unarchive" : "📦 Archive"}
+                    </button>
+                  )}
+                  
                   <button 
                     type="button" 
                     onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "DELETE"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
-                    className="bg-red-50 hover:bg-red-100 text-red-500 font-bold text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider"
+                    className="bg-red-50 hover:bg-red-100 text-red-500 font-bold text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider cursor-pointer"
                   >
                     🗑️ Delete
                   </button>
