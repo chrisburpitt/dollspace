@@ -7,6 +7,15 @@ import { UTApi } from "uploadthing/server";
 
 const utapi = new UTApi();
 
+// 🚀 HIGH-PERFORMANCE MALE IDENTIFICATION RULE ARRAY:
+// Matches your profile options exactly to identify male accounts!
+const BLOCKED_MALE_IDENTITIES = [
+  "trans man",
+  "trans boy",
+  "cis man",
+  "cis boy"
+];
+
 export async function saveImage(file: File): Promise<string | null> {
   try {
     const response = await utapi.uploadFiles(file);
@@ -23,11 +32,7 @@ function extractUploadThingKey(url: string | null): string | null {
   return splitParts.length > 1 ? splitParts[1] : null;
 }
 
-// 🎯 THE INDESTRUCTIBLE METADATA SCRAPER
 async function scrapeUrlMetadata(url: string) {
-  // 🚀 AIRTIGHT VALIDATION GATE: 
-  // If the link text is a relative route slug (like "/Chloe") instead of an absolute link,
-  // skip the scraper completely to prevent ERR_INVALID_URL server crashes!
   if (!url || !url.startsWith("http://") && !url.startsWith("https://")) {
     return null;
   }
@@ -101,6 +106,7 @@ async function scrapeUrlMetadata(url: string) {
     }
   }
 }
+
 
 export async function createPost(formData: FormData) {
   const sessionUser = await getCurrentUser();
@@ -190,14 +196,31 @@ export async function toggleReaction(postId: string) {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) return { error: "Unauthorized: Please log in first." };
 
+  // Fetch target post to check ownership before recording notification triggers
+  const targetPost = await prisma.post.findUnique({ 
+    where: { id: postId }, 
+    include: { user: { select: { id: true, genderIdentity: true } } } 
+  });
+  if (!post) return { error: "Post not found." };
+
+  // 🚀 ACTION BACKEND HOOK: If the post owner blocks male attention and the session user is a man, deny engagement!
+  if (targetPost.user.id !== sessionUser.id) {
+    const ownerProfile = await prisma.user.findUnique({ where: { id: targetPost.userId } });
+    if (ownerProfile?.blockMaleAttention) {
+      const sessionGender = sessionUser.genderIdentity?.toLowerCase().trim() || "";
+      if (BLOCKED_MALE_IDENTITIES.includes(sessionGender)) {
+        return { error: "Action blocked by the user's configuration parameters." };
+      }
+    }
+  }
+
   const existingReaction = await prisma.reaction.findFirst({ where: { postId, userId: sessionUser.id } });
   if (existingReaction) {
     await prisma.reaction.delete({ where: { id: existingReaction.id } });
   } else {
     await prisma.reaction.create({ data: { postId, userId: sessionUser.id, emoji: "❤️" } });
-    const postOwner = await prisma.post.findUnique({ where: { id: postId }, select: { userId: true } });
-    if (postOwner && postOwner.userId !== sessionUser.id) {
-      await prisma.notification.create({ data: { type: "LIKE", recipientId: postOwner.userId, issuerId: sessionUser.id, postId } });
+    if (targetPost.userId !== sessionUser.id) {
+      await prisma.notification.create({ data: { type: "LIKE", recipientId: targetPost.userId, issuerId: sessionUser.id, postId } });
     }
   }
   revalidatePath("/");
