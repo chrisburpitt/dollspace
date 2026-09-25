@@ -57,16 +57,16 @@ export default function GlobalHeader({ currentUser, notifications = [], onStatus
   };
 
   return (
-    <header className="w-full bg-white border-b border-rose-100 text-gray-900 py-4 px-6 shadow-sm sticky top-0 z-50 text-left">
-      <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
-        
-        {/* LEFT BRANDING: Crisp signature rose pink branding logo */}
-        <Link href="/" className="font-black text-xl text-rose-500 tracking-tighter hover:scale-[1.02] transition active:scale-95 duration-200">
+    <header className="w-full bg-white border-b border-rose-100 text-gray-900 py-3 px-2 sm:px-6 shadow-sm sticky top-0 z-50 text-left transition-all duration-300">
+      <div className="max-w-7xl mx-auto h-full px-1 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-3">
+      
+        {/* LEFT BRANDING: Pushed beautifully toward the left border edge on phones */}
+        <Link href="/" className="font-black text-lg sm:text-xl text-rose-500 tracking-tighter hover:scale-[1.02] transition active:scale-95 duration-200 shrink-0">
           Dollspace 👑
         </Link>
 
-        {/* RIGHT ACTIONS MODULE */}
-        <div className="flex items-center space-x-3 relative">
+        {/* RIGHT ACTIONS MODULE: Gains maximum room to keep status buttons and logout text items linear */}
+        <div className="flex items-center space-x-1.5 sm:space-x-3 relative shrink-0">
           
           {/* STAFF Command Portal Link */}
           {(normalizedUserRole === "ADMIN" || normalizedUserRole === "MODERATOR") && (
