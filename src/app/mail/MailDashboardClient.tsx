@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { sendInternalMail, toggleMailState } from "@/app/actions/mail";
 import SubmitButton from "@/components/SubmitButton";
 
-// 🚀 UPGRADED PORTFOLIO CATEGORY TYPES: Added 'JUNK' directory paths!
+// 🚀 UPGRADED PORTFOLIO CATEGORY TYPES: Added 'JUNK' folder directories!
 type FolderType = "INBOX" | "SENT" | "ARCHIVE" | "DELETED" | "JUNK";
 type MobileViewStage = "FOLDERS" | "MESSAGES" | "READING" | "COMPOSE";
 
@@ -261,15 +261,15 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             </form>
           </div>
         ) : (
+
           selectedMail ? (
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full min-h-0 text-left">
-            <div className="w-full block text-left border-b border-b-gray-100 pb-4 relative">
+            <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
               <div className="flex flex-col gap-3 w-full">
                 <h3 className="text-xl font-black text-gray-900 leading-snug break-words tracking-tight w-full block text-left">{selectedMail.subject}</h3>
                 <p className="text-xs text-gray-400 font-semibold block text-left">From: <strong className="text-gray-700">@{selectedMail.sender.username}</strong> to <strong className="text-gray-700">@{selectedMail.recipient.username}</strong></p>
                 
                 <div className="flex flex-wrap gap-1.5 mt-1">
-                  {/* Hide standard reply & forward controls when viewing filtered junk emails */}
                   {!selectedMail.recipientJunked && (
                     <>
                       <button 
