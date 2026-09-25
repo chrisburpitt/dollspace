@@ -125,9 +125,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
         </div>
       </div>
 
-
-// src/app/mail/MailDashboardClient.tsx (PART 2A - MESSAGES PREVIEW FEED LIST)
-
       {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST */}
       <div 
         className={`bg-gray-50/30 flex flex-col overflow-hidden transition-all duration-300 text-left ${
@@ -140,11 +137,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                 : "w-[71%] lg:w-1/3 border-r"
         }`}
       >
-        <div className={`p-4 border-b border-gray-100 bg-white font-black text-xs uppercase text-gray-400 truncate w-full shrink-0 ${
-          mobileStage === "READING" ? "text-center lg:text-left lg:px-4" : "text-left px-4"
-        }`}>
-          {mobileStage === "READING" ? <span className="lg:hidden">✉️</span> : null}
-          <span className={`lg:inline ${mobileStage === "READING" ? "hidden" : "inline"}`}>{activeFolder === "JUNK" ? "Junk" : activeFolder} Messages</span>
+        <div className="p-4 border-b border-gray-100 bg-white font-black text-xs uppercase text-gray-400 truncate w-full shrink-0">
+          <span>{activeFolder === "JUNK" ? "Junk" : activeFolder} Messages</span>
         </div>
         
         <div className="flex-1 overflow-y-auto p-2 space-y-1 w-full">
@@ -178,9 +172,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
 
                 <div className={`lg:hidden ${mobileStage === "READING" ? "block" : "hidden"}`}>
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center font-black text-xs border uppercase shrink-0 shadow-sm transition-colors duration-200 ${
-                    isSelected 
-                      ? "bg-rose-500 text-white border-rose-600 animate-scale-up" 
-                      : "bg-white text-gray-700 border-gray-200"
+                    isSelected ? "bg-rose-500 text-white border-rose-600 animate-scale-up" : "bg-white text-gray-700 border-gray-200"
                   }`}>
                     {partner.displayName.charAt(0)}
                   </div>
@@ -192,15 +184,13 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
 
         {mobileStage === "READING" && (
           <button 
-            type="button"
-            onClick={() => setMobileStage("MESSAGES")}
+            type="button" onClick={() => setMobileStage("MESSAGES")}
             className="mx-auto my-3 w-8 h-8 rounded-full border border-gray-200 bg-white hover:bg-gray-50 flex items-center justify-center text-xs font-bold shadow-sm transition lg:hidden cursor-pointer"
           >
             ⬅️
           </button>
         )}
       </div>
-
 
       {/* 📖 COLUMN 3: TEXT MAIN AREA DISPLAY CANVAS PANEL */}
       <div 
@@ -271,11 +261,9 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             </form>
           </div>
         ) : (
-
-
           selectedMail ? (
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 animate-fade-in w-full h-full min-h-0 text-left">
-            <div className="w-full block text-left border-b border-gray-100 pb-4 relative">
+            <div className="w-full block text-left border-b border-b-gray-100 pb-4 relative">
               <div className="flex flex-col gap-3 w-full">
                 <h3 className="text-xl font-black text-gray-900 leading-snug break-words tracking-tight w-full block text-left">{selectedMail.subject}</h3>
                 <p className="text-xs text-gray-400 font-semibold block text-left">From: <strong className="text-gray-700">@{selectedMail.sender.username}</strong> to <strong className="text-gray-700">@{selectedMail.recipient.username}</strong></p>
@@ -340,7 +328,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                     🗑️ Delete
                   </button>
                 </div>
-
               </div>
             </div>
             <div className="text-sm font-medium text-gray-800 leading-relaxed whitespace-pre-wrap bg-gray-50/40 p-4 rounded-2xl border border-gray-100 min-h-[150px] break-words text-left w-full select-text">{selectedMail.body}</div>
@@ -349,7 +336,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
           <div className="flex-1 flex flex-col items-center justify-center text-gray-400 h-full"><span className="text-4xl block mb-2">💌</span><p className="font-bold text-xs uppercase tracking-wider">Select a message card</p></div>
         )}
       </div>
-
     </div>
   );
 }
