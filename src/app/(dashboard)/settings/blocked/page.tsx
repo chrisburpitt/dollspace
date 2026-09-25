@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/app/actions/auth";
 import { getPersonalBlockRoster, liftBlockRelationAction } from "@/app/actions/privacySettings";
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
+import MobileNavShell from "@/components/MobileNavShell";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -27,6 +28,7 @@ export default async function BlockedSettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
       <GlobalHeader currentUser={currentUser} />
+	  <MobileNavShell currentUsername={currentUser?.username} unreadMailCount={unreadMailCount || 0} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         {/* Left Side Navigation Menu Column */}

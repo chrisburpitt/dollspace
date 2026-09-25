@@ -171,7 +171,6 @@ export default async function HomePage() {
   };
 
   return (
-    // 🎯 RECONCILED PURE LIGHT BACKGROUND FRAME: Stripped of dark classes!
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased transition-colors duration-300">
       <GlobalHeader currentUser={validatedHeaderUser} />
       <StaticFeedBanner />
@@ -180,7 +179,7 @@ export default async function HomePage() {
         unreadMailCount={unreadMailCount || 0} 
       />	
 
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
+      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
       
         {/* LEFT COLUMN: Sidebar Navigation List Cards */}
         <aside className="hidden lg:block lg:col-span-3 lg:flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">

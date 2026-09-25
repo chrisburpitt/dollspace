@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import GlobalHeader from "@/components/GlobalHeader";
 import SidebarNav from "@/components/SidebarNav";
+import MobileNavShell from "@/components/MobileNavShell";
 import { getUnreadMailCount } from "@/app/actions/mailCount";
 import AdminControlsClient from "./AdminControlsClient";
 import { Metadata } from "next";
@@ -77,6 +78,7 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">
       <GlobalHeader currentUser={validatedHeaderUser} />
+	  <MobileNavShell currentUsername={currentUser?.username} unreadMailCount={unreadMailCount || 0} />
 
       <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10">
         <aside className="lg:col-span-3 flex flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
