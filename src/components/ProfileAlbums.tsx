@@ -186,20 +186,30 @@ export default function ProfileAlbums({ albums: initialAlbums, isOwner, onPhotoC
 
       {/* 🚀 MOBILE-OPTIMIZED 60/40 SPLIT FLOATING MODAL HUB */}
       {selectedAlbum && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in text-left">
-          <div className="bg-white rounded-t-3xl sm:rounded-3xl border border-gray-100 shadow-2xl max-w-4xl w-full h-[90vh] sm:h-[85vh] flex flex-col overflow-hidden relative animate-scale-up">
-            
-            {/* Structural Exit Cross Toggle Button */}
+        <div 
+          // 🚀 DRAG CLICK-AWAY DISMISSAL UNLOCKED: 
+          // Tapping outside the white canvas frame sets 'selectedAlbum(null)', gracefully closing the popup window!
+          onClick={() => { setSelectedAlbum(null); setSelectedPhoto(null); }}
+          className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fade-in text-left cursor-zoom-out"
+        >
+          <div 
+            // 🛡️ Safe Guard Stop Propagation: Prevents clicks *inside* the card from accidentally triggering the close handler!
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-t-3xl sm:rounded-3xl border border-gray-100 shadow-2xl max-w-4xl w-full h-[90vh] sm:h-[85vh] flex flex-col overflow-hidden relative animate-scale-up cursor-default"
+          >
+      
+            {/* Structural Exit Cross Toggle Button - 🚀 FIXED: Adjusted top placement for flawless un-buried visibility */}
             <button 
               type="button"
               onClick={() => { setSelectedAlbum(null); setSelectedPhoto(null); }} 
-              className="absolute top-4 right-4 bg-gray-100 hover:bg-rose-500 text-gray-500 hover:text-white rounded-full w-8 h-8 flex items-center justify-center font-black transition text-xs z-50 shadow-sm cursor-pointer"
+              className="absolute top-16 sm:top-4 right-4 bg-gray-100 hover:bg-rose-500 text-gray-500 hover:text-white rounded-full w-8 h-8 flex items-center justify-center font-black transition text-xs z-50 shadow-sm cursor-pointer active:scale-95"
+              title="Close Studio View"
             >
               ✕
             </button>
 
-            {/* UPPER CORE HUB: Meta Headers & Action Controllers */}
-            <div className="p-5 border-b border-gray-100 shrink-0 bg-white text-left pr-14">
+            {/* UPPER CORE HUB: Meta Headers & Action Controllers - 🚀 FIXED: Added 'pt-16 sm:pt-5' padding spacing buffer */}
+            <div className="p-5 pt-16 sm:pt-5 border-b border-gray-100 shrink-0 bg-white text-left pr-14 w-full">
               {isEditingAlbumMeta ? (
                 <div className="w-full space-y-2">
                   <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full border rounded-xl p-2 font-black text-sm bg-white" placeholder="Album Title" />
