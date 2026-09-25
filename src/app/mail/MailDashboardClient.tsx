@@ -93,19 +93,44 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             <span className={`lg:inline ${mobileStage === "FOLDERS" ? "inline" : "hidden"}`}>Compose</span>
           </button>
           
-          {(["INBOX", "SENT", "JUNK", "ARCHIVE", "DELETED"] as FolderType[]).map(folder => (
-            <button
-              key={folder}
-              type="button"
-              onClick={() => {
-                setActiveFolder(folder);
-                setSelectedMail(null);
-                setMobileStage("MESSAGES");
-              }}
-              className={`text-left rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center gap-3 lg:w-full lg:px-4 lg:py-2.5 lg:justify-start ${
-                mobileStage === "FOLDERS" ? "w-full px-4 py-2.5 justify-start" : "w-10 h-10 p-0 justify-center"
-              } ${activeFolder === folder ? "bg-rose-50 text-rose-500 border border-rose-100" : "text-gray-500 hover:bg-gray-50"}`}
-            >
+          {(["INBOX", "SENT", "JUNK", "ARCHIVE", "DELETED"] as FolderType[]).map(folder => {
+            // Convert folder string labels to your matching action names
+            let folderActionType: "ARCHIVE" | "DELETE" | "UNJUNK" | "MARK_READ" = "ARCHIVE";
+            if (folder === "DELETED") folderActionType = "DELETE";
+            if (folder === "INBOX") folderActionType = "UNJUNK"; // Moving back to Inbox clears Junk flags!
+
+            return (
+              <button
+                key={folder}
+                type="button"
+                // 🚀 DRAG-AND-DROP UNLOCK 2: Turns this button tab into an active drop zone!
+                onDragOver={(e) => {
+                  e.preventDefault(); // This is mandatory to let the browser allow dropping!
+                  e.dataTransfer.dropEffect = "move";
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const draggedMailId = e.dataTransfer.getData("text/plain");
+                  if (!draggedMailId) return;
+
+                  // Fire your existing action engine instantly upon release!
+                  startTransition(async () => {
+                    const res = await toggleMailState(draggedMailId, folderActionType);
+                    if (res?.success) {
+                      setSelectedMail(null); // Reset read layout view
+                      window.location.reload(); // Refresh local list caches
+                    }
+                  });
+                }}
+                onClick={() => {
+                  setActiveFolder(folder);
+                  setSelectedMail(null);
+                  setMobileStage("MESSAGES");
+                }}
+                className={`text-left rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center gap-3 lg:w-full lg:px-4 lg:py-2.5 lg:justify-start hover:scale-[1.01] hover:border-rose-200/60 duration-200 ${
+                  mobileStage === "FOLDERS" ? "w-full px-4 py-2.5 justify-start" : "w-10 h-10 p-0 justify-center"
+                } ${activeFolder === folder ? "bg-rose-50 text-rose-500 border border-rose-100" : "text-gray-500 hover:bg-gray-50"}`}
+              >
               <span className="text-sm shrink-0">
                 {folder === "INBOX" && "📥"}
                 {folder === "SENT" && "🚀"}
@@ -151,6 +176,12 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               <button
                 key={mail.id}
                 type="button"
+                // 🚀 DRAG-AND-DROP UNLOCK 1: Marks the card as draggable and attaches its ID payload!
+                draggable="true"
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", mail.id);
+                  e.dataTransfer.effectAllowed = "move";
+                }}
                 onClick={() => handleMailItemSelect(mail)}
                 className={`w-full rounded-xl border transition flex flex-col gap-1 relative overflow-hidden lg:p-3 lg:text-left ${
                   mobileStage === "READING" ? "p-2 items-center justify-center h-12 lg:h-auto lg:p-3 lg:text-left lg:items-start" : "p-3 text-left"

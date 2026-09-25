@@ -18,11 +18,26 @@ export const metadata: Metadata = {
   description: "Manage your inbox, sent items, archives, and deleted folders smoothly.",
 };
 
-export default async function MailPage() {
-  const currentUser = await getCurrentUser();
-  if (!currentUser) redirect("/login");
+const currentUser = await getCurrentUser();
+if (!currentUser) redirect("/login");
 
-  const unreadMailCount = await getUnreadMailCount(); 
+// 🚀 FREE-TIER AUTOPURGE HOOK: 
+// Quietly executes on every page load to delete trash older than 30 days with zero Cron needed!
+try {
+  const thirtyDaysAgoLine = new Date();
+  thirtyDaysAgoLine.setDate(thirtyDaysAgoLine.getDate() - 30);
+
+  await prisma.internalMail.deleteMany({
+    where: {
+      recipientDeleted: true,
+      createdAt: { lt: thirtyDaysAgoLine }
+    }
+  });
+} catch (purgeErr) {
+  console.error("[Mail Shield] Free-tier lazy purge execution error:", purgeErr);
+}
+
+const unreadMailCount = await getUnreadMailCount();
   
   const registeredUsers = await prisma.user.findMany({
     where: { id: { not: currentUser.id } },
