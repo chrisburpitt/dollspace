@@ -8,9 +8,17 @@ type FolderType = "INBOX" | "SENT" | "ARCHIVE" | "DELETED" | "JUNK";
 type MobileViewStage = "FOLDERS" | "MESSAGES" | "READING" | "COMPOSE";
 
 export default function MailDashboardClient({ currentUser, initialMails, registeredUsers }: any) {
+  // 🚀 ACTIVE CLIENT LOCAL TRACKING STATES:
+  // Initialises local mail arrays so we can update folder rows instantly on screen 
+  // with ZERO page flashes or window.location.reload() glitches!
+  const [mailsPool, setMailsPool] = useState<any[]>(initialMails);
   const [activeFolder, setActiveFolder] = useState<FolderType>("INBOX");
   const [selectedMail, setSelectedMail] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
+
+  // 🚀 DROP ZONE HIGHLIGHT STATE:
+  // Tracks exactly which folder is being hovered over during a drag event!
+  const [dragOverFolder, setDragOverFolder] = useState<FolderType | null>(null);
 
   const [recipientInput, setRecipientInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -19,7 +27,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   const [formSubject, setFormSubject] = useState("");
   const [formBody, setFormBody] = useState("");
 
-  const filteredMails = initialMails.filter((mail: any) => {
+  const filteredMails = mailsPool.filter((mail: any) => {
     const isSender = mail.senderId === currentUser.id;
     const isRecipient = mail.recipientId === currentUser.id;
 
@@ -56,6 +64,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
     setSelectedMail(mail);
     setMobileStage("READING"); 
     if (mail.recipientId === currentUser.id && !mail.isRead) {
+      // Quietly update local read state arrays
+      setMailsPool(prev => prev.map(m => m.id === mail.id ? { ...m, isRead: true } : m));
       startTransition(async () => {
         await toggleMailState(mail.id, "MARK_READ");
       });
@@ -65,7 +75,7 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
   return (
     <div className="flex h-full max-h-full min-h-0 divide-x divide-gray-200 select-none w-full relative overflow-hidden items-stretch">
       
-      {/* 📥 COLUMN 1: FOLDERS NAVIGATION */}
+      {/* 📥 COLUMN 1: FOLDERS NAVIGATION MENU PANEL (WITH LIVE GLOW DROP HIGHLIGHTS) */}
       <div 
         className={`bg-white flex flex-col justify-between shrink-0 p-3 transition-all duration-300 lg:w-1/4 lg:p-3 lg:px-3 lg:items-start lg:flex ${
           mobileStage === "COMPOSE" || mobileStage === "READING"
@@ -95,25 +105,47 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
             if (folder === "DELETED") folderActionType = "DELETE";
             if (folder === "INBOX") folderActionType = "UNJUNK";
 
+            const isCurrentlyHoveredDropZone = dragOverFolder === folder;
+
             return (
               <button
                 key={folder}
                 type="button"
+                // 🚀 DRAG RESPONSIVE DROPPING RE-ENGINEERED WITH HIGHLIGHT HOVER LIGHTS:
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.dataTransfer.dropEffect = "move";
+                  if (dragOverFolder !== folder) setDragOverFolder(folder); // Turn on highlights!
+                }}
+                onDragLeave={() => {
+                  setDragOverFolder(null); // Turn off highlights when leaving bounds!
                 }}
                 onDrop={(e) => {
                   e.preventDefault();
+                  setDragOverFolder(null); // Clear active highlighting maps cleanly
                   const draggedMailId = e.dataTransfer.getData("text/plain");
                   if (!draggedMailId) return;
 
-                  startTransition(async () => {
-                    const res = await toggleMailState(draggedMailId, folderActionType);
-                    if (res?.success) {
-                      setSelectedMail(null);
-                      window.location.reload();
+                  // 🚀 HOOK: Instantly filter the card out of local arrays on screen!
+                  // Completely eliminates Vercel's page-reload flash!
+                  setMailsPool(prev => prev.map(m => {
+                    if (m.id === draggedMailId) {
+                      const isSend = m.senderId === currentUser.id;
+                      return {
+                        ...m,
+                        senderArchived: folder === "ARCHIVE" && isSend ? true : m.senderArchived,
+                        recipientArchived: folder === "ARCHIVE" && !isSend ? true : m.recipientArchived,
+                        senderDeleted: folder === "DELETED" && isSend ? true : m.senderDeleted,
+                        recipientDeleted: folder === "DELETED" && !isSend ? true : m.recipientDeleted,
+                        recipientJunked: folder === "JUNK" ? true : folder === "INBOX" ? false : m.recipientJunked
+                      };
                     }
+                    return m;
+                  }));
+                  setSelectedMail(null);
+
+                  startTransition(async () => {
+                    await toggleMailState(draggedMailId, folderActionType);
                   });
                 }}
                 onClick={() => {
@@ -121,9 +153,14 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   setSelectedMail(null);
                   setMobileStage("MESSAGES");
                 }}
-                className={`text-left rounded-xl text-xs font-black uppercase tracking-wider transition flex items-center gap-3 lg:w-full lg:px-4 lg:py-2.5 lg:justify-start hover:scale-[1.01] hover:border-rose-200/60 duration-200 ${
-                  mobileStage === "FOLDERS" ? "w-full px-4 py-2.5 justify-start" : "w-10 h-10 p-0 justify-center"
-                } ${activeFolder === folder ? "bg-rose-50 text-rose-500 border border-rose-100" : "text-gray-500 hover:bg-gray-50"}`}
+                // 🚀 DYNAMIC HIGHLIGHT STYLE: Lights up gorgeous rose pink when a mail card is hovered over it!
+                className={`text-left rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-3 lg:w-full lg:px-4 lg:py-2.5 lg:justify-start duration-200 cursor-pointer ${
+                  isCurrentlyHoveredDropZone
+                    ? "bg-rose-100 text-rose-600 border border-rose-300 scale-[1.03] shadow-md ring-2 ring-rose-400/20"
+                    : activeFolder === folder 
+                      ? "bg-rose-50 text-rose-500 border border-rose-100" 
+                      : "text-gray-500 hover:bg-gray-50 border border-transparent"
+                }`}
               >
                 <span className="text-sm shrink-0">
                   {folder === "INBOX" && "📥"}
@@ -171,7 +208,8 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
               <button
                 key={mail.id}
                 type="button"
-                // 🚀 DRAG-AND-DROP UNLOCK 1: Marks the card as draggable and attaches its ID payload!
+                // 🚀 UNRESTRICTED DRAG HARNESS ACTIVATED:
+                // Hard-locked to true so cards can be dragged out of Archive/Trash at any time!
                 draggable="true"
                 onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", mail.id);
@@ -327,7 +365,13 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   {selectedMail.recipientId === currentUser.id && selectedMail.recipientJunked && (
                     <button 
                       type="button" 
-                      onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "UNJUNK"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
+                      onClick={() => startTransition(async () => {
+                        // Optimistically remove from local view arrays instantly to secure seamless loop response feedback
+                        setMailsPool(prev => prev.map(m => m.id === selectedMail.id ? { ...m, recipientJunked: false } : m));
+                        setSelectedMail(null);
+                        setMobileStage("MESSAGES");
+                        await toggleMailState(selectedMail.id, "UNJUNK");
+                      })} 
                       className="bg-green-500 hover:bg-green-600 text-white font-black text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider shadow-sm cursor-pointer animate-scale-up"
                     >
                       ✨ Not Spam
@@ -337,7 +381,13 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   {!selectedMail.recipientJunked && (
                     <button 
                       type="button" 
-                      onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "ARCHIVE"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
+                      onClick={() => startTransition(async () => {
+                        const isSend = selectedMail.senderId === currentUser.id;
+                        setMailsPool(prev => prev.map(m => m.id === selectedMail.id ? { ...m, senderArchived: isSend ? true : m.senderArchived, recipientArchived: !isSend ? true : m.recipientArchived } : m));
+                        setSelectedMail(null);
+                        setMobileStage("MESSAGES");
+                        await toggleMailState(selectedMail.id, "ARCHIVE");
+                      })} 
                       className="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider cursor-pointer"
                     >
                       {((selectedMail.senderId === currentUser.id && selectedMail.senderArchived) || (selectedMail.recipientId === currentUser.id && selectedMail.recipientArchived)) ? "📦 Unarchive" : "📦 Archive"}
@@ -346,7 +396,13 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   
                   <button 
                     type="button" 
-                    onClick={() => startTransition(async () => { await toggleMailState(selectedMail.id, "DELETE"); setSelectedMail(null); setMobileStage("MESSAGES"); })} 
+                    onClick={() => startTransition(async () => {
+                      const isSend = selectedMail.senderId === currentUser.id;
+                      setMailsPool(prev => prev.map(m => m.id === selectedMail.id ? { ...m, senderDeleted: isSend ? true : m.senderDeleted, recipientDeleted: !isSend ? true : m.recipientDeleted } : m));
+                      setSelectedMail(null);
+                      setMobileStage("MESSAGES");
+                      await toggleMailState(selectedMail.id, "DELETE");
+                    })} 
                     className="bg-red-50 hover:bg-red-100 text-red-500 font-bold text-[10px] px-3 py-1.5 rounded-lg transition uppercase tracking-wider cursor-pointer"
                   >
                     🗑️ Delete
