@@ -101,42 +101,52 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
           </button>
           
           {(["INBOX", "SENT", "JUNK", "ARCHIVE", "DELETED"] as FolderType[]).map(folder => {
+            // 🚀 HIGH-SPEED ACTION RESOLVER MATRIX
             let folderActionType: "ARCHIVE" | "DELETE" | "UNJUNK" | "MARK_READ" = "ARCHIVE";
             if (folder === "DELETED") folderActionType = "DELETE";
-            if (folder === "INBOX") folderActionType = "UNJUNK";
-
+  
             const isCurrentlyHoveredDropZone = dragOverFolder === folder;
 
             return (
               <button
                 key={folder}
-                type="button"
-                // 🚀 DRAG RESPONSIVE DROPPING RE-ENGINEERED WITH HIGHLIGHT HOVER LIGHTS:
+                          type="button"
                 onDragOver={(e) => {
                   e.preventDefault();
                   e.dataTransfer.dropEffect = "move";
-                  if (dragOverFolder !== folder) setDragOverFolder(folder); // Turn on highlights!
+                  if (dragOverFolder !== folder) setDragOverFolder(folder);
                 }}
                 onDragLeave={() => {
-                  setDragOverFolder(null); // Turn off highlights when leaving bounds!
+                  setDragOverFolder(null);
                 }}
                 onDrop={(e) => {
                   e.preventDefault();
-                  setDragOverFolder(null); // Clear active highlighting maps cleanly
+                  setDragOverFolder(null);
                   const draggedMailId = e.dataTransfer.getData("text/plain");
                   if (!draggedMailId) return;
 
-                  // 🚀 HOOK: Instantly filter the card out of local arrays on screen!
-                  // Completely eliminates Vercel's page-reload flash!
+                  // 🚀 SMART FREE-FLOW INTERCEPTOR:
+                  // Finds the target item inside your local pool and calculates its exact original position
+                  const targetMailItem = mailsPool.find(m => m.id === draggedMailId);
+                  const isSend = targetMailItem?.senderId === currentUser.id;
+
+                  // Determine dynamic fallback tokens depending on where it came from
+                  let resolvedAction: "ARCHIVE" | "DELETE" | "UNJUNK" | "MARK_READ" = folderActionType;
+                  if (folder === "INBOX") {
+                    // If it was junked, use UNJUNK. If it was archived, use ARCHIVE to trigger the toggle un-archive layer!
+                    resolvedAction = targetMailItem?.recipientJunked ? "UNJUNK" : "ARCHIVE";
+                  }
+
+                  // 1. Instantly update client interface states on screen for immediate visual response
                   setMailsPool(prev => prev.map(m => {
                     if (m.id === draggedMailId) {
-                      const isSend = m.senderId === currentUser.id;
                       return {
                         ...m,
-                        senderArchived: folder === "ARCHIVE" && isSend ? true : m.senderArchived,
-                        recipientArchived: folder === "ARCHIVE" && !isSend ? true : m.recipientArchived,
-                        senderDeleted: folder === "DELETED" && isSend ? true : m.senderDeleted,
-                        recipientDeleted: folder === "DELETED" && !isSend ? true : m.recipientDeleted,
+                        // If dropped back into Inbox, strip away ALL isolation tags cleanly!
+                        senderArchived: folder === "INBOX" && isSend ? false : folder === "ARCHIVE" && isSend ? true : m.senderArchived,
+                        recipientArchived: folder === "INBOX" && !isSend ? false : folder === "ARCHIVE" && !isSend ? true : m.recipientArchived,
+                        senderDeleted: folder === "DELETED" && isSend ? true : folder === "INBOX" && isSend ? false : m.senderDeleted,
+                        recipientDeleted: folder === "DELETED" && !isSend ? true : folder === "INBOX" && !isSend ? false : m.recipientDeleted,
                         recipientJunked: folder === "JUNK" ? true : folder === "INBOX" ? false : m.recipientJunked
                       };
                     }
@@ -144,8 +154,9 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   }));
                   setSelectedMail(null);
 
+                  // 2. Fire server actions quietly in the background without layout page flashes
                   startTransition(async () => {
-                    await toggleMailState(draggedMailId, folderActionType);
+                    await toggleMailState(draggedMailId, resolvedAction);
                   });
                 }}
                 onClick={() => {
@@ -153,7 +164,6 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                   setSelectedMail(null);
                   setMobileStage("MESSAGES");
                 }}
-                // 🚀 DYNAMIC HIGHLIGHT STYLE: Lights up gorgeous rose pink when a mail card is hovered over it!
                 className={`text-left rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-3 lg:w-full lg:px-4 lg:py-2.5 lg:justify-start duration-200 cursor-pointer ${
                   isCurrentlyHoveredDropZone
                     ? "bg-rose-100 text-rose-600 border border-rose-300 scale-[1.03] shadow-md ring-2 ring-rose-400/20"
