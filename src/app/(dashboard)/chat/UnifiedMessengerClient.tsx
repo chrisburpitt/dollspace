@@ -144,8 +144,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
   };
 
 
-// src/app/chat/UnifiedMessengerClient.tsx (PART 2 - LEFT COLUMN ROSTERS & BADGES)
-
   const handleSendMessageSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputText.trim()) return;
@@ -319,8 +317,6 @@ export default function UnifiedMessengerClient({ currentUser, platformUsers, ini
                   )}
                 </button>
 
-
-// src/app/chat/UnifiedMessengerClient.tsx (PART 3 - VIEWPORT TEMPLATES & DOCK CLOSURES)
 
                 <div className="relative" ref={activeMenuId === contact.id ? optionMenuRef : null}>
                   <button

@@ -44,5 +44,7 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+/images/
+/backups/
 
 .vercel

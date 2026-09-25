@@ -58,13 +58,11 @@ export default function PostCard({ post, currentUserId, onPhotoClick, followersL
   return (
     <div 
       id={`post-${post.id}`} 
-      // 🚀 THE LIGHT BACKGROUND BLUEPRINT:
-      // Hardcodes the timeline cards to crisp 'bg-white border-rose-100/70', while keeping 
-      // your official un-spoofable premium soft pink style active for Admin announcements!
+      // 🚀 STABILIZED LIGHT FRAME: Hardcoded directly to a beautiful, soft light mode border layout
       className={`p-6 border rounded-2xl shadow-sm text-left animate-fade-in select-none scroll-margin-top-24 transition-all duration-500 ${
         post.type === "ANNOUNCEMENT" || post.user?.role === "ADMIN" || post.user?.username?.toLowerCase() === "admin"
-          ? "bg-rose-50/60 border-rose-200 ring-2 ring-rose-400/10" 
-          : "bg-white border-rose-100/70 text-gray-900" 
+          ? "bg-rose-50/60 border-rose-200 ring-2 ring-rose-400/10" // 🌸 OFFICIAL SYSTEM PINK
+          : "bg-white border-rose-100/70 text-gray-900" // Regular posts
       }`}
     >
       

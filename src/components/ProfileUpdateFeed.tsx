@@ -45,7 +45,7 @@ export default function ProfileUpdateFeed({ post, currentUserId, onPhotoClick }:
         return (
           <a 
             key={`profile-post-tag-${index}`} 
-            href={`https://vercel.app{parsedHandleName}`}
+            href={`https://chloeishot.vercel.app/${parsedHandleName}`}
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-rose-500 font-extrabold hover:underline select-text inline-block"
