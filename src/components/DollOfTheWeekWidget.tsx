@@ -74,7 +74,7 @@ export default function DollOfTheWeekWidget({ currentUserEntry }: DollOfTheWeekW
   };
 
   return (
-    <div className="bg-white border border-rose-100 rounded-3xl p-5 text-gray-900 shadow-sm text-left relative overflow-hidden transition-all duration-300">
+    <div className="bg-white border border-rose-100 rounded-3xl p-5 text-gray-900 shadow-sm text-left relative z-50 low-hidden transition-all duration-300">
       <h3 className="font-black text-xs text-rose-500 uppercase tracking-widest mb-1">Doll Of The Week</h3>
       <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Weekly Tournament</p>
 
