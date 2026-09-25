@@ -146,9 +146,10 @@ export default function MailDashboardClient({ currentUser, initialMails, registe
                 {folder === "DELETED" && "Trash"}
               </span>
             </button>
-          ))}
-        </div>
+		  );
+        ))}
       </div>
+    </div>
 
       {/* 📬 COLUMN 2: MESSAGES PREVIEW FEED LIST */}
       <div 
