@@ -51,11 +51,21 @@ const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => 
   rawFormData.append("genderIdentity", combinedIdentityToken);
 
   startTransition(async () => {
-    // 🚀 THE UNLOCK: This now securely maps to whatever register server action you import or run!
-    // Example wrapper: const res = await yourRegisterAction(rawFormData);
-    alert(`🌸 Account Profile Created Successfully with Automated Handle: @${calculatedUsernameHandle}!`);
+    // 🚀 FIXED: Securely dispatches the form bundle directly to your Prisma database action engine!
+    const result = await registerUser(null, rawFormData);
+      
+    if (result?.error) {
+      alert(`❌ Registration error: ${result.error}`);
+      return;
+    }
+
+    alert(`🌸 Account profile successfully created! Logging you into Dollspace as @${calculatedUsernameHandle}...`);
+      
+    // Auto-trigger a smooth client reload or route switch straight into your welcome login loop gate!
+    window.location.href = "/login";
   });
 };
+
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased flex flex-col font-sans select-none">
