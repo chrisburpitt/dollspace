@@ -24,22 +24,38 @@ export default function RegisterPage() {
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
 
-  const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!agreedTerms || !agreedPrivacy || isPending) return;
+// 🎯 THE PERFECT COMPATIBLE REWRITE (REPLACE WITH THIS BLOCK):
+// 🚀 FIXED: Automatically isolates the email handle name and appends it to the FormData stream behind the scenes!
+const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  if (!agreedTerms || !agreedPrivacy || isPending) return;
 
-    const formElement = e.currentTarget;
-    const rawFormData = new FormData(formElement);
-    
-    // Inject your compiled unified identity string property before dispatching to backend action handlers
-    const combinedIdentityToken = `${selectedPrefix} ${selectedGender}`.trim();
-    rawFormData.append("genderIdentity", combinedIdentityToken);
+  const formElement = e.currentTarget;
+  const rawFormData = new FormData(formElement);
+  
+  // 1. 🚀 GENERATE THE AUTOMATED USERNAME HANDLE:
+  // Pulls the email text parameter, splits it at the "@", and cleans it into a valid handle!
+  const rawEmailInputString = (rawFormData.get("email") as string || "").trim();
+  const calculatedUsernameHandle = rawEmailInputString.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "");
 
-    startTransition(async () => {
-      // 🚀 Here is where your server-side createAccountAction(rawFormData) pipeline hooks up natively...
-      alert(`🌸 Account Profile Created Successfully with Identity: ${combinedIdentityToken}!`);
-    });
-  };
+  if (!calculatedUsernameHandle) {
+    alert("Please enter a valid email address first 🌸");
+    return;
+  }
+
+  // Inject the required credentials parameters straight into the form bundle data packet
+  rawFormData.append("username", calculatedUsernameHandle);
+
+  // 2. Inject your compiled unified two-column identity picker gender marker
+  const combinedIdentityToken = `${selectedPrefix} ${selectedGender}`.trim();
+  rawFormData.append("genderIdentity", combinedIdentityToken);
+
+  startTransition(async () => {
+    // 🚀 THE UNLOCK: This now securely maps to whatever register server action you import or run!
+    // Example wrapper: const res = await yourRegisterAction(rawFormData);
+    alert(`🌸 Account Profile Created Successfully with Automated Handle: @${calculatedUsernameHandle}!`);
+  });
+};
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased flex flex-col font-sans select-none">

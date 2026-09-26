@@ -153,11 +153,11 @@ export default async function LoginPage() {
               <h3 className="font-black text-xs text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
                 <span>🟢</span> Look who is online now
               </h3>
-              <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Active Community Presence</p>
+              <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Come Meet These People Today</p>
             </div>
 
             {displayOnlineDolls.length === 0 ? (
-              <p className="text-[11px] font-medium text-gray-400 italic py-2">The runway is currently sleeping quiet... 💤</p>
+              <p className="text-[11px] font-medium text-gray-400 italic py-2">The runway is currently super quiet... 💤</p>
             ) : (
               /* 🚀 UPGRADED TEASER ROW: Beautiful, completely flat non-clickable info display cards */
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
