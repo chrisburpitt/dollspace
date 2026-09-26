@@ -110,7 +110,7 @@ export default async function LoginPage() {
                   type="password" 
                   name="password" 
                   required 
-                  placeholder="••••••••••" 
+                  placeholder="••••••••••••" 
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
                 />
               </div>
