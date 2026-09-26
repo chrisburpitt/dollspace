@@ -143,8 +143,6 @@ export default function RegisterPage() {
               </div>
 
 
-// src/app/register/page.tsx (PART 2 - DYNAMIC MATRIX SELECTIONS & LEGAL GATES)
-
               {/* 🧬 THE TWO-COLUMN GENDER IDENTITY MATRIX PICKER */}
               <div className="border-t border-gray-100 pt-4 text-left">
                 <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest block mb-2">
@@ -257,7 +255,6 @@ export default function RegisterPage() {
                 <SubmitButton 
                   label="Sign Up & Enter Dollspace 👑" 
                   loadingLabel="Registering Profile Cluster..." 
-                  disabled={isPending || !agreedTerms || !agreedPrivacy}
                   className="w-full bg-rose-500 hover:bg-rose-600 disabled:opacity-40 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-xs cursor-pointer transition transform active:scale-[0.99]" 
                 />
               </div>
