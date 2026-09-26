@@ -68,9 +68,10 @@ export default async function LoginPage() {
               Hello Doll! <span>👋👑</span>
             </h2>
             <p className="text-xs text-gray-500 font-medium leading-relaxed mt-2 select-text">
-              Welcome to the internet's most exclusive sanctuary lounge curated specifically for dolls to share, 
-              connect, and showcase their absolute finest tournament aesthetics completely free from unwanted noise. 
-              Drop a photo update, join our live lounge message chat rooms, or browse our community portfolio hubs!
+              Welcome to the internet's most exclusive ladies lounge curated specifically for the dolls to share, 
+              connect, and showcase their fave pics completely free from unwanted noise. Dollspace is for the trans
+              crossdresser and non-benary community, and all our allies.
+			  Drop a photo update, join our live lounge message chat rooms, or browse our community portfolio hubs!
             </p>
           </div>
 
@@ -91,7 +92,13 @@ export default async function LoginPage() {
               {/* 🚀 THE USERNAME OR EMAIL ENTRY FIELD IS BACK ALIVE! */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username or Email</label>
-                
+                <input 
+                    type="text" 
+                    name="username" 
+                    required 
+                    placeholder="Username or email@example.com" 
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition text-left" 
+                />
               </div>
 
               <div>
@@ -103,7 +110,7 @@ export default async function LoginPage() {
                   type="password" 
                   name="password" 
                   required 
-                  placeholder="••••••••••••" 
+                  placeholder="••••••••••" 
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
                 />
               </div>
