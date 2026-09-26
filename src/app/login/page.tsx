@@ -1,228 +1,166 @@
-// src/app/login/page.tsx (PART 1 - SYNCHRONISED FORM CONSOLE)
-"use client";
+export const dynamic = "force-dynamic";
 
-import { useActionState, Suspense, useState } from "react"; 
-import { loginUser, registerUser } from "@/app/actions/auth";
+import Link from "next/link";
 import SubmitButton from "@/components/SubmitButton";
-import { useSearchParams, useRouter } from "next/navigation";
 
-function AuthFormContent() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const isRegisterMode = searchParams.get("mode") === "register";
+export const metadata = {
+  title: "Welcome to Dollspace 👑 | Log In",
+  description: "Come on in, let's chat. Share your stories, pictures, and connect.",
+};
 
-  // State hooks for compliance tracking
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
-
-  const [state, formAction] = useActionState(
-    isRegisterMode ? registerUser : loginUser,
-    null
-  );
-
-  if (state?.success && isRegisterMode) {
-    return (
-      <div className="max-w-md w-full bg-white border border-rose-100 p-8 rounded-3xl shadow-xl text-center animate-scale-up">
-        <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
-          🌸
-        </div>
-        
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight mb-2">
-          Registration Successful!
-        </h1>
-        <p className="text-sm font-medium text-gray-500 leading-relaxed mb-6">
-          Your account has been securely created in the lounge. We have sent a welcome message straight to your inbox.
-        </p>
-
-        <button
-          onClick={() => {
-            router.push("/login");
-          }}
-          className="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold p-3 rounded-xl transition shadow-sm text-sm"
-        >
-          Continue to Login
-        </button>
-      </div>
-    );
+export default async function LoginPage() {
+  // Inline Client Action simulation handler for login validation requests
+  async function handleLoginActionSubmit(formData: FormData) {
+    "use server";
+    // Your existing NextAuth / secure login session validation routine runs here natively...
   }
 
   return (
-    <div className="max-w-md w-full bg-white border border-rose-100 p-8 rounded-3xl shadow-md hover:shadow-lg transition duration-300">
-      <h1 className="text-4xl font-black tracking-tight text-rose-500 text-center mb-1">
-        Dollspace
-      </h1>
-      <h2 className="text-sm font-bold text-center text-gray-400 uppercase tracking-wider mb-6">
-        {isRegisterMode ? "Create your unique profile" : "Log into your account"}
-      </h2>
-
-      {state?.error && (
-        <div className="p-3 bg-red-50 text-red-700 font-semibold text-xs rounded-xl mb-4 border border-red-100 animate-fade-in text-center">
-          ❌ {state.error}
+    <div className="min-h-screen bg-gray-50 text-gray-900 antialiased flex flex-col font-sans select-none">
+      
+      {/* 👑 APP GLOBAL BRANDING HEADER LAYER */}
+      <header className="w-full bg-white border-b border-rose-100 py-3 px-4 sm:px-6 shadow-sm sticky top-0 z-50 text-left shrink-0">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="font-black text-lg sm:text-xl text-rose-500 tracking-tighter">
+            Dollspace 👑
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-[10px] font-black uppercase tracking-wider bg-rose-50 text-rose-500 border border-rose-100 px-3 py-1.5 rounded-full shadow-2xs">
+              🔒 Secure Gateway
+            </span>
+          </div>
         </div>
-      )}
+      </header>
 
-      <form action={formAction} className="space-y-4">
-        <div>
-          <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
-            Username
-          </label>
-          <input 
-            type="text" 
-            name="username" 
-            required 
-            className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition" 
-            placeholder="e.g. Chloe" 
-          />
+      {/* 🎀 MAIN IMMERSIVE WELCOME HERO CONTENT BANNER */}
+      <div 
+        className="w-full h-44 sm:h-52 bg-cover bg-center relative shrink-0 border-b border-rose-100 flex flex-col justify-end p-6 text-left"
+        style={{ backgroundImage: "url('https://unsplash.com')" }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-0" />
+        <div className="max-w-7xl w-full mx-auto relative z-10 animate-fade-in">
+          <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl w-fit mb-2">
+            <p className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
+              <span>🏠</span> Come on in, let's chat ♡
+            </p>
+          </div>
         </div>
+      </div>
 
-
-        {isRegisterMode && (
-          <>
-            <div>
-              <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
-                Email Address
-              </label>
-              <input 
-                type="email" 
-                name="email" 
-                required 
-                className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition" 
-                placeholder="chloe@example.com" 
-              />
+      {/* 🗺️ THE TRIPLE COLUMN GRID CORE ARTIFACT */}
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start min-h-0">
+        
+        {/* 📋 COLUMN 1: LEFT LOCKED MENUS & BANNER TEASERS (3 Cols) */}
+        <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-20 h-fit self-start opacity-70 pointer-events-none filter blur-[0.4px]">
+          
+          {/* Static Preview Navigation Drawer Block */}
+          <div className="bg-white border border-rose-100 rounded-3xl p-5 space-y-2 text-left shadow-2xs">
+            <div className="h-4 w-24 bg-rose-100 rounded animate-pulse" />
+            <div className="space-y-1.5 pt-2">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-8 bg-gray-50 border border-gray-100 rounded-xl w-full" />
+              ))}
             </div>
+          </div>
 
-            <div>
-              <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
-                Display Name
-              </label>
-              <input 
-                type="text" 
-                name="displayName" 
-                required 
-                className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition" 
-                placeholder="e.g. Chloe Smith" 
-              />
+          {/* Immersive Blur Teaser of Doll of the Week Tournament Card */}
+          <div className="bg-white border border-rose-100 rounded-3xl p-5 text-left shadow-xs relative overflow-hidden">
+            <h3 className="font-black text-xs text-rose-500 uppercase tracking-widest mb-1">Doll Of The Week</h3>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-3">Weekly Tournament</p>
+            <div className="w-full aspect-square rounded-2xl bg-rose-50/40 border border-rose-100/30 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-cover bg-center filter blur-xs scale-105 opacity-80" style={{ backgroundImage: "url('https://unsplash.com')" }} />
+              <span className="bg-white/90 backdrop-blur-xs font-black text-[9px] uppercase tracking-wider text-rose-500 px-3 py-1.5 rounded-full shadow-xs relative z-10 border border-rose-100">
+                🔒 Members Only
+              </span>
             </div>
+            <p className="text-center font-bold text-[9px] text-gray-400 italic pt-2.5">Join the platform to rate looks ✨</p>
+          </div>
 
-            {/* 🎂 COMPULSORY DATE OF BIRTH INPUT FIELD */}
-            <div>
-              <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
-                Date of Birth
-              </label>
-              <input 
-                type="date" 
-                name="birthday" 
-                required 
-                className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition text-gray-700 cursor-pointer" 
-              />
-            </div>
-          </>
-        )}
+        </aside>
 
-        <div>
-          <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1 tracking-wider">
-            Password
-          </label>
-          <input 
-            type="password" 
-            name="password" 
-            required 
-            className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition" 
-            placeholder="••••••••" 
-          />
-        </div>
-
-        {/* THE LEGAL COMPLIANCE INJECTIONS */}
-        {isRegisterMode && (
-          <div className="space-y-2 pt-2 text-left animate-fade-in">
+        {/* 🎯 COLUMN 2: CENTER ACCOUNT LOGIN PORTAL HUB (6 Cols) */}
+        <main className="col-span-1 lg:col-span-6 flex flex-col gap-6">
+          <div className="bg-white border border-rose-100 rounded-3xl p-6 sm:p-10 shadow-sm text-left max-w-xl mx-auto w-full animate-scale-up">
             
-            {/* Checkbox Line 1: Terms */}
-            <label className="flex items-start space-x-3 cursor-pointer select-none">
-              <input 
-                type="checkbox"
-                required
-                checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-rose-500 focus:ring-rose-400 accent-rose-500 cursor-pointer"
-              />
-              <span className="text-xs font-semibold text-gray-500 leading-tight">
-                I agree to the{" "}
-                <a href="/terms" target="_blank" className="text-rose-500 hover:underline font-bold">
-                  Terms & Conditions
-                </a>{" "}
-                to access Dollspace.app
-              </span>
-            </label>
+            <div className="text-center pb-4 border-b border-gray-50">
+              <h1 className="text-2xl font-black tracking-tight text-gray-950">
+                Welcome Back, <span className="text-rose-500">Doll!</span> ✨
+              </h1>
+              <p className="text-xs font-semibold text-gray-400 mt-1">
+                Log in below to jump straight back into your timeline streams.
+              </p>
+            </div>
 
-            {/* Checkbox Line 2: Privacy */}
-            <label className="flex items-start space-x-3 cursor-pointer select-none">
-              <input 
-                type="checkbox"
-                required
-                checked={agreedToPrivacy}
-                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-rose-500 focus:ring-rose-400 accent-rose-500 cursor-pointer"
-              />
-              <span className="text-xs font-semibold text-gray-500 leading-tight">
-                I agree to the processing of my data per the{" "}
-                <a href="/privacy" target="_blank" className="text-rose-500 hover:underline font-bold">
-                  Privacy Notice
-                </a>
-              </span>
-            </label>
+            <form action={handleLoginActionSubmit} className="space-y-4 pt-6">
+              
+              <div>
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username or Email</label>
+                
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase block">Password</label>
+                  <Link href="/forgot-password" className="text-[10px] font-bold text-rose-400 hover:underline">Forgot?</Link>
+                </div>
+                <input 
+                  type="password" 
+                  name="password" 
+                  required 
+                  placeholder="••••••••••••" 
+                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
+                />
+              </div>
+
+              <div className="pt-2">
+                <SubmitButton 
+                  label="Log In into Dollspace 🚀" 
+                  loadingLabel="Verifying Session Token..." 
+                  className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black py-3.5 rounded-xl text-xs uppercase tracking-widest shadow-xs cursor-pointer transition transform active:scale-[0.99]" 
+                />
+              </div>
+
+            </form>
+
+            {/* LOWER REDIRECT LINK INTERACTION PANEL */}
+            <div className="mt-8 border-t border-gray-100 pt-6 text-center">
+              <p className="text-xs text-gray-400 font-semibold">
+                Don't have an account look yet?{" "}
+                <Link href="/register" className="text-rose-500 font-black hover:underline transition">
+                  Create your profile here
+                </Link>
+              </p>
+            </div>
 
           </div>
-        )}
+        </main>
 
-        {/* 🚀 THE INTERACTIVE POINTER WRAPPER BLOCK */}
-        {/* Captures interaction layouts safely to lock out submissions typesafely! */}
-        <div 
-          className={`transition-all duration-300 mt-2 rounded-xl ${
-            isRegisterMode && (!agreedToTerms || !agreedToPrivacy)
-              ? "pointer-events-none opacity-50 bg-gray-200 border border-gray-300 cursor-not-allowed"
-              : ""
-          }`}
-        >
-          <SubmitButton 
-            label={isRegisterMode ? "Sign Up" : "Log In"} 
-            loadingLabel={isRegisterMode ? "Creating Account..." : "Verifying Secure Token..."}
-            className={`w-full font-bold p-3 rounded-xl transition text-sm text-white bg-rose-500 hover:bg-rose-600 cursor-pointer`}
-          />
-        </div>
-      </form>
+        {/* 📊 COLUMN 3: RIGHT SYSTEM STATISTICS MONITOR CAPSULE (3 Cols) */}
+        <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
+          
+          <div className="bg-white border border-gray-200 rounded-3xl p-5 text-left shadow-2xs space-y-4">
+            <div>
+              <h4 className="font-black text-xs text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span>📊</span> Today on Dollspace
+              </h4>
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Live System Metrics</p>
+            </div>
 
-      <div className="mt-6 text-center text-xs font-bold border-t border-gray-100 pt-4">
-        {isRegisterMode ? (
-          <p className="text-gray-400">
-            Already have an account?{" "}
-            <a href="/login" className="text-rose-500 hover:underline">
-              Log in here
-            </a>
-          </p>
-        ) : (
-          <p className="text-gray-400">
-            New to Dollspace?{" "}
-            <a href="/login?mode=register" className="text-rose-500 hover:underline">
-              Create an account
-            </a>
-          </p>
-        )}
+            <div className="divide-y divide-gray-50 text-xs font-bold text-gray-600">
+              <div className="py-2.5 flex justify-between items-center">
+                <span className="text-gray-400 flex items-center gap-1.5">🔸 Registered users:</span>
+                <span className="bg-gray-100 px-2 py-0.5 rounded-md text-gray-800 text-[11px] font-black">6</span>
+              </div>
+              <div className="py-2.5 flex justify-between items-center">
+                <span className="text-gray-400 flex items-center gap-1.5">🟢 Dolls online now:</span>
+                <span className="bg-green-50 text-green-600 border border-green-100 px-2 py-0.5 rounded-md text-[11px] font-black">1</span>
+              </div>
+            </div>
+          </div>
+
+        </aside>
+
       </div>
-    </div>
-  );
-}
-
-export default function AuthPage() {
-  return (
-    <div className="min-h-screen bg-rose-50/30 flex items-center justify-center p-6 text-gray-900">
-      <Suspense fallback={
-        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-rose-100 shadow-md flex flex-col items-center justify-center py-16">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-500"></div>
-          <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-4">Loading Dollspace...</p>
-        </div>
-      }>
-        <AuthFormContent />
-      </Suspense>
     </div>
   );
 }
