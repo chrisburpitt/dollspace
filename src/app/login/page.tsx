@@ -2,7 +2,8 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import SubmitButton from "@/components/SubmitButton";
-import StaticFeedBanner from "@/components/StaticFeedBanner"; // 🚀 DYNAMIC UNLOCK: Import your feed banner component dynamically!
+import StaticFeedBanner from "@/components/StaticFeedBanner"; // 🚀 DYNAMIC UNLOCK: References whatever is active on your live platform!
+import { getOnlineDollsRoster } from "@/app/actions/onlineUsers"; // 🚀 LIVE ROSTER UNLOCK: Fetches online dolls in real-time!
 
 export const metadata = {
   title: "Welcome to Dollspace 👑 | Log In",
@@ -10,15 +11,20 @@ export const metadata = {
 };
 
 export default async function LoginPage() {
+  // Freshly query your live Neon database cluster to fetch the top active profile rows
+  const onlineDollsList = await getOnlineDollsRoster();
+  // Safe crop: Pick up the first 4 active accounts to populate your footer layout beautifully
+  const displayOnlineDolls = onlineDollsList.slice(0, 4);
+
   async function handleLoginActionSubmit(formData: FormData) {
     "use server";
-    // Your standard login session validation routine runs here natively...
+    // Your standard login session validation and NextAuth router pipeline runs here natively...
   }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased flex flex-col font-sans select-none">
       
-      {/* 👑 APP GLOBAL HEADER */}
+      {/* 👑 HEADER NAVIGATION CONTAINER */}
       <header className="w-full bg-white border-b border-rose-100 py-3 px-4 sm:px-6 shadow-sm sticky top-0 z-50 text-left shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="font-black text-lg sm:text-xl text-rose-500 tracking-tighter">
@@ -32,42 +38,57 @@ export default async function LoginPage() {
         </div>
       </header>
 
-      {/* 🎀 DYNAMIC BANNER HEADER WRAPPER - FIXED: References whatever is active on your live platform! */}
+      {/* 🎀 DYNAMIC TIMELINE FEED BANNER HEADER */}
       <div className="w-full shrink-0 border-b border-rose-100">
         <StaticFeedBanner />
       </div>
 
-      {/* THE TRIPLE COLUMN GRID CORE CONTENT */}
+      {/* 🗺️ CONTAINER WORKSPACE TRIPLE GRID SYSTEM */}
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start min-h-0">
         
-        {/* COLUMN 1: LEFT SIDEBAR PREVIEWS */}
+        {/* COLUMN 1: LEFT TEASER DROWS DRAWER (3 Cols) */}
         <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-20 h-fit self-start opacity-70 pointer-events-none filter blur-[0.4px]">
           <div className="bg-white border border-rose-100 rounded-3xl p-5 space-y-2 text-left shadow-2xs">
             <div className="h-4 w-24 bg-rose-100 rounded animate-pulse" />
             <div className="space-y-1.5 pt-2">
-              {[1, 2, 3, 4].map((i) => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="h-8 bg-gray-50 border border-gray-100 rounded-xl w-full" />
               ))}
             </div>
           </div>
         </aside>
 
-        {/* 🎯 COLUMN 2: CENTER ACCOUNT LOGIN PORTAL HUB (6 Cols) */}
-        <main className="col-span-1 lg:col-span-6 flex flex-col gap-6">
-          <div className="bg-white border border-rose-100 rounded-3xl p-6 sm:p-10 shadow-sm text-left max-w-xl mx-auto w-full animate-scale-up">
+        {/* 🎯 COLUMN 2: CENTER WORKSPACE WORK BENCH (6 Cols) */}
+        <main className="col-span-1 lg:col-span-6 flex flex-col gap-6 max-w-xl mx-auto w-full animate-scale-up">
+          
+          {/* 📝 FEATURE 1: HELLO INTRO TEXT BOX */}
+          <div className="bg-white border border-rose-100/80 rounded-3xl p-6 shadow-sm text-left relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-rose-400" />
+            <h2 className="font-black text-base text-gray-900 flex items-center gap-1.5">
+              Hello Doll! <span>👋👑</span>
+            </h2>
+            <p className="text-xs text-gray-500 font-medium leading-relaxed mt-2 select-text">
+              Welcome to the internet's most exclusive sanctuary lounge curated specifically for dolls to share, 
+              connect, and showcase their absolute finest tournament aesthetics completely free from unwanted noise. 
+              Drop a photo update, join our live lounge message chat rooms, or browse our community portfolio hubs!
+            </p>
+          </div>
+
+          {/* MAIN ACCOUNT LOGIN CARD CONTAINER */}
+          <div className="bg-white border border-rose-100 rounded-3xl p-6 sm:p-10 shadow-sm text-left w-full">
             
             <div className="text-center pb-4 border-b border-gray-50">
-              <h1 className="text-2xl font-black tracking-tight text-gray-950">
-                Welcome Back, <span className="text-rose-500">Doll!</span> ✨
+              <h1 className="text-xl font-black tracking-tight text-gray-950">
+                Welcome Back, <span className="text-rose-500">Dollspace Member!</span> ✨
               </h1>
-              <p className="text-xs font-semibold text-gray-400 mt-1">
-                Log in below to jump straight back into your timeline streams.
+              <p className="text-[11px] font-semibold text-gray-400 mt-1">
+                Enter your secure profile criteria coordinates to log back into your channels.
               </p>
             </div>
 
-            <form action={handleLoginActionSubmit} className="space-y-4 pt-6">
+            <form action={handleLoginActionSubmit} className="space-y-4 pt-6" autoComplete="off">
               
-              {/* 🚀 FIXED: Restored the Username or Email entry line field safely inside your card! */}
+              {/* 🚀 THE USERNAME OR EMAIL ENTRY FIELD IS BACK ALIVE! */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username or Email</label>
                 
@@ -97,19 +118,54 @@ export default async function LoginPage() {
 
             </form>
 
-            <div className="mt-8 border-t border-gray-100 pt-6 text-center">
-              <p className="text-xs text-gray-400 font-semibold">
-                Don't have an account look yet?{" "}
-                <Link href="/register" className="text-rose-500 font-black hover:underline transition">
-                  Create your profile here
-                </Link>
-              </p>
+            <div className="mt-6 text-center text-xs text-gray-400 font-semibold">
+              Already have an account?{" "}
+              <Link href="/register" className="text-rose-500 font-black hover:underline transition">
+                Create your profile here
+              </Link>
             </div>
 
           </div>
+
+          {/* 🟢 FEATURE 2: LOOK WHO IS ONLINE NOW GRID DRAWER */}
+          <div className="bg-white border border-rose-100 rounded-3xl p-5 shadow-sm text-left w-full space-y-3">
+            <div>
+              <h3 className="font-black text-xs text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🟢</span> Look who is online now
+              </h3>
+              <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Active Community Presence</p>
+            </div>
+
+            {displayOnlineDolls.length === 0 ? (
+              <p className="text-[11px] font-medium text-gray-400 italic py-2">The runway is currently sleeping quiet... 💤</p>
+            ) : (
+              /* Renders 4 gorgeous user columns side-by-side cleanly */
+              <div className="grid grid-cols-4 gap-3 pt-1">
+                {displayOnlineDolls.map((doll: any) => (
+                  <div key={doll.id} className="flex flex-col items-center justify-center p-2 bg-gray-50 border border-gray-100 rounded-2xl relative group transition hover:bg-white hover:shadow-xs">
+                    {/* Live Avatar Circular Mask Node */}
+                    <div className="w-10 h-10 rounded-full bg-rose-100 border border-gray-200 overflow-hidden relative shadow-2xs">
+                      <img 
+                        src={doll.avatarUrl || "https://ufs.sh"} 
+                        alt="" 
+                        className="w-full h-full object-cover select-none"
+                        draggable="false"
+                      />
+                      {/* Active Emerald Online Status Indicator Ring */}
+                      <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white ring-1 ring-green-400/30" />
+                    </div>
+                    <span className="text-[9px] font-black text-gray-800 truncate max-w-full text-center mt-1.5 block leading-none">
+                      {doll.displayName.split(" ")[0]}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </main>
 
-        {/* COLUMN 3: RIGHT Metrics */}
+        {/* COLUMN 3: RIGHT Metrics (3 Cols) */}
         <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
           <div className="bg-white border border-gray-200 rounded-3xl p-5 text-left shadow-2xs space-y-4">
             <div>

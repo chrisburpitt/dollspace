@@ -137,8 +137,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-// src/app/register/page.tsx (PART 2 - DYNAMIC MATRIX SELECTIONS & LEGAL GATES)
-
               {/* 🧬 THE TWO-COLUMN GENDER IDENTITY MATRIX PICKER */}
               <div className="border-t border-gray-100 pt-4 text-left">
                 <label className="text-[10px] font-black text-rose-500 uppercase tracking-widest block mb-2">
