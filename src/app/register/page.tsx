@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import StaticFeedBanner from "@/components/StaticFeedBanner";
 import SubmitButton from "@/components/SubmitButton";
 
 const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
@@ -56,10 +57,9 @@ export default function RegisterPage() {
       </header>
 
       {/* 🎀 MASTER PLATFORM HERO GRAPHIC CANVAS ROW */}
-      <div 
-        className="w-full h-44 sm:h-52 bg-cover bg-center relative shrink-0 border-b border-rose-100 flex flex-col justify-end p-6 text-left"
-        style={{ backgroundImage: "url('https://unsplash.com')" }}
-      >
+      <div className="w-full shrink-0 border-b border-rose-100">
+        <StaticFeedBanner />
+      </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-0" />
         <div className="max-w-7xl w-full mx-auto relative z-10 animate-fade-in">
           <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl w-fit mb-2">

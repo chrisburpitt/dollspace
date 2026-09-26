@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import SubmitButton from "@/components/SubmitButton";
+import StaticFeedBanner from "@/components/StaticFeedBanner"; // 🚀 DYNAMIC UNLOCK: Import your feed banner component dynamically!
 
 export const metadata = {
   title: "Welcome to Dollspace 👑 | Log In",
@@ -9,16 +10,15 @@ export const metadata = {
 };
 
 export default async function LoginPage() {
-  // Inline Client Action simulation handler for login validation requests
   async function handleLoginActionSubmit(formData: FormData) {
     "use server";
-    // Your existing NextAuth / secure login session validation routine runs here natively...
+    // Your standard login session validation routine runs here natively...
   }
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 antialiased flex flex-col font-sans select-none">
       
-      {/* 👑 APP GLOBAL BRANDING HEADER LAYER */}
+      {/* 👑 APP GLOBAL HEADER */}
       <header className="w-full bg-white border-b border-rose-100 py-3 px-4 sm:px-6 shadow-sm sticky top-0 z-50 text-left shrink-0">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="font-black text-lg sm:text-xl text-rose-500 tracking-tighter">
@@ -32,28 +32,16 @@ export default async function LoginPage() {
         </div>
       </header>
 
-      {/* 🎀 MAIN IMMERSIVE WELCOME HERO CONTENT BANNER */}
-      <div 
-        className="w-full h-44 sm:h-52 bg-cover bg-center relative shrink-0 border-b border-rose-100 flex flex-col justify-end p-6 text-left"
-        style={{ backgroundImage: "url('https://unsplash.com')" }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-0" />
-        <div className="max-w-7xl w-full mx-auto relative z-10 animate-fade-in">
-          <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl w-fit mb-2">
-            <p className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
-              <span>🏠</span> Come on in, let's chat ♡
-            </p>
-          </div>
-        </div>
+      {/* 🎀 DYNAMIC BANNER HEADER WRAPPER - FIXED: References whatever is active on your live platform! */}
+      <div className="w-full shrink-0 border-b border-rose-100">
+        <StaticFeedBanner />
       </div>
 
-      {/* 🗺️ THE TRIPLE COLUMN GRID CORE ARTIFACT */}
+      {/* THE TRIPLE COLUMN GRID CORE CONTENT */}
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start min-h-0">
         
-        {/* 📋 COLUMN 1: LEFT LOCKED MENUS & BANNER TEASERS (3 Cols) */}
+        {/* COLUMN 1: LEFT SIDEBAR PREVIEWS */}
         <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-20 h-fit self-start opacity-70 pointer-events-none filter blur-[0.4px]">
-          
-          {/* Static Preview Navigation Drawer Block */}
           <div className="bg-white border border-rose-100 rounded-3xl p-5 space-y-2 text-left shadow-2xs">
             <div className="h-4 w-24 bg-rose-100 rounded animate-pulse" />
             <div className="space-y-1.5 pt-2">
@@ -62,20 +50,6 @@ export default async function LoginPage() {
               ))}
             </div>
           </div>
-
-          {/* Immersive Blur Teaser of Doll of the Week Tournament Card */}
-          <div className="bg-white border border-rose-100 rounded-3xl p-5 text-left shadow-xs relative overflow-hidden">
-            <h3 className="font-black text-xs text-rose-500 uppercase tracking-widest mb-1">Doll Of The Week</h3>
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-3">Weekly Tournament</p>
-            <div className="w-full aspect-square rounded-2xl bg-rose-50/40 border border-rose-100/30 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-cover bg-center filter blur-xs scale-105 opacity-80" style={{ backgroundImage: "url('https://unsplash.com')" }} />
-              <span className="bg-white/90 backdrop-blur-xs font-black text-[9px] uppercase tracking-wider text-rose-500 px-3 py-1.5 rounded-full shadow-xs relative z-10 border border-rose-100">
-                🔒 Members Only
-              </span>
-            </div>
-            <p className="text-center font-bold text-[9px] text-gray-400 italic pt-2.5">Join the platform to rate looks ✨</p>
-          </div>
-
         </aside>
 
         {/* 🎯 COLUMN 2: CENTER ACCOUNT LOGIN PORTAL HUB (6 Cols) */}
@@ -93,6 +67,7 @@ export default async function LoginPage() {
 
             <form action={handleLoginActionSubmit} className="space-y-4 pt-6">
               
+              {/* 🚀 FIXED: Restored the Username or Email entry line field safely inside your card! */}
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username or Email</label>
                 
@@ -122,7 +97,6 @@ export default async function LoginPage() {
 
             </form>
 
-            {/* LOWER REDIRECT LINK INTERACTION PANEL */}
             <div className="mt-8 border-t border-gray-100 pt-6 text-center">
               <p className="text-xs text-gray-400 font-semibold">
                 Don't have an account look yet?{" "}
@@ -135,9 +109,8 @@ export default async function LoginPage() {
           </div>
         </main>
 
-        {/* 📊 COLUMN 3: RIGHT SYSTEM STATISTICS MONITOR CAPSULE (3 Cols) */}
+        {/* COLUMN 3: RIGHT Metrics */}
         <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 lg:sticky lg:top-20 h-fit self-start">
-          
           <div className="bg-white border border-gray-200 rounded-3xl p-5 text-left shadow-2xs space-y-4">
             <div>
               <h4 className="font-black text-xs text-gray-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -145,19 +118,11 @@ export default async function LoginPage() {
               </h4>
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Live System Metrics</p>
             </div>
-
             <div className="divide-y divide-gray-50 text-xs font-bold text-gray-600">
-              <div className="py-2.5 flex justify-between items-center">
-                <span className="text-gray-400 flex items-center gap-1.5">🔸 Registered users:</span>
-                <span className="bg-gray-100 px-2 py-0.5 rounded-md text-gray-800 text-[11px] font-black">6</span>
-              </div>
-              <div className="py-2.5 flex justify-between items-center">
-                <span className="text-gray-400 flex items-center gap-1.5">🟢 Dolls online now:</span>
-                <span className="bg-green-50 text-green-600 border border-green-100 px-2 py-0.5 rounded-md text-[11px] font-black">1</span>
-              </div>
+              <div className="py-2.5 flex justify-between items-center"><span className="text-gray-400">🔸 Registered users:</span><span className="bg-gray-100 px-2 py-0.5 rounded-md text-gray-800 text-[11px] font-black">6</span></div>
+              <div className="py-2.5 flex justify-between items-center"><span className="text-gray-400">🟢 Dolls online now:</span><span className="bg-green-50 text-green-600 border border-green-100 px-2 py-0.5 rounded-md text-[11px] font-black">1</span></div>
             </div>
           </div>
-
         </aside>
 
       </div>
