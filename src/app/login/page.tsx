@@ -88,15 +88,14 @@ export default async function LoginPage() {
             </div>
 
             <form action={handleLoginActionSubmit} className="space-y-4 pt-6" autoComplete="off">
-              
-              {/* 🚀 THE USERNAME OR EMAIL ENTRY FIELD IS BACK ALIVE! */}
+
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username or Email</label>
                 <input 
                     type="text" 
                     name="username" 
                     required 
-                    placeholder="Username or email@example.com" 
+                    placeholder="Enter your username handle... e.g. Chloe" 
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition text-left" 
                 />
               </div>
