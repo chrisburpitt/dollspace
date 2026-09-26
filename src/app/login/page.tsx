@@ -78,11 +78,12 @@ export default async function LoginPage() {
             <h2 className="font-black text-base text-gray-900 flex items-center gap-1.5">
               Hello Doll! <span>👋👑</span>
             </h2>
-            <p className="text-xs text-gray-500 font-medium leading-relaxed mt-2 select-text">
+            <p className="text-xs text-gray-500 font-medium leading-relaxed mt-2 select-text whitespace-pre-line">
               Welcome to the internet's most exclusive ladies lounge curated just for the dolls to share, 
               connect, and showcase their favoutie stories and pictures free from unwanted noise. 
               Dollspace is built for the trans, crossdresser and non-binary community, and all our allies to 
-			  find friends, support and resources for your journey ✨\n
+			  find friends, support and resources for your journey ✨
+			  
 			  Come on in, post a photo and join our live chat lounge, or just browse our community profiles
 			  and see what the girls are up to!
             </p>
