@@ -85,7 +85,7 @@ export default async function LoginPage() {
 			  find friends, support and resources for your journey ✨
 			  <br /><br /> {/* 🚀 Creates a clean double line space! */}
 			  Come on in, post a photo and join our live chat lounge, or just browse our community profiles
-			  and see what the girls are up to!
+			  and see what the girls are up to 🏳️‍⚧️💖👑
             </p>
           </div>
 
@@ -159,24 +159,30 @@ export default async function LoginPage() {
             {displayOnlineDolls.length === 0 ? (
               <p className="text-[11px] font-medium text-gray-400 italic py-2">The runway is currently sleeping quiet... 💤</p>
             ) : (
-              /* Renders 4 gorgeous user columns side-by-side cleanly */
-              <div className="grid grid-cols-4 gap-3 pt-1">
+              /* 🚀 UPGRADED TEASER ROW: Beautiful, completely flat non-clickable info display cards */
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                 {displayOnlineDolls.map((doll: any) => (
-                  <div key={doll.id} className="flex flex-col items-center justify-center p-2 bg-gray-50 border border-gray-100 rounded-2xl relative group transition hover:bg-white hover:shadow-xs">
-                    {/* Live Avatar Circular Mask Node */}
-                    <div className="w-10 h-10 rounded-full bg-rose-100 border border-gray-200 overflow-hidden relative shadow-2xs">
-                      <img 
-                        src={doll.avatarUrl || "https://ufs.sh"} 
-                        alt="" 
-                        className="w-full h-full object-cover select-none"
-                        draggable="false"
-                      />
-                      {/* Active Emerald Online Status Indicator Ring */}
+                  <div 
+                    key={doll.id} 
+                    className="flex flex-col items-center justify-center p-3.5 bg-gray-50/50 border border-gray-100 rounded-2xl relative select-none"
+                  >
+                    {/* 🌸 STATIC PLACEHOLDER BALANCED IMAGE BALL: Soft pink luxury theme ball with active initial */}
+                    <div className="w-11 h-11 rounded-full bg-rose-400 text-white font-black text-sm flex items-center justify-center shadow-xs select-none relative mb-2 tracking-wide uppercase border-2 border-white ring-4 ring-rose-500/5">
+                      {doll.displayName.charAt(0)}
+                      {/* Active Green Presence indicator node beacon */}
                       <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white ring-1 ring-green-400/30" />
                     </div>
-                    <span className="text-[9px] font-black text-gray-800 truncate max-w-full text-center mt-1.5 block leading-none">
-                      {doll.displayName.split(" ")[0]}
-                    </span>
+
+                    {/* DYNAMIC TEXT TRACKS: Display real profile metadata cleanly without link attachments */}
+                    <div className="w-full text-center min-w-0">
+                      <span className="text-[11px] font-black text-gray-900 truncate block leading-tight">
+                        {doll.displayName}
+                      </span>
+                      <span className="text-[9px] font-bold text-rose-400 uppercase tracking-wider truncate block mt-0.5 leading-none">
+                        📍 {doll.location || "Earth"}
+                      </span>
+                    </div>
+
                   </div>
                 ))}
               </div>
