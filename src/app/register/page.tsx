@@ -118,18 +118,27 @@ const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => 
 
             <form onSubmit={handleRegisterFormSubmit} className="space-y-4 pt-6" autoComplete="off">
               
-              {/* 🚀 FIXED: Removed Username Handle completely! Display Name now fills its own full row layout cleanly */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username</label>
+                <input 
+                  type="text"
+				  name="username"
+				  required
+				  placeholder="e.g. TeaganS" 
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
+                  />
+                </div>
+			  
               <div className="w-full text-left">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
                 <input 
                   type="text" 
                   name="displayName" 
                   required 
-                  placeholder="e.g. Chloe Smith" 
+                  placeholder="e.g. Teagan Storm" 
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
                 />
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Email Address</label>
