@@ -12,11 +12,18 @@ const JWT_SECRET = process.env.JWT_SECRET || "super-secret-dollspace-key-12345";
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
 // 🚀 1. REGISTRATION ACTION WITH AUTOMATED EMAIL ENGINE
+// 🎯 UPDATE your registerUser implementation block inside src/app/actions/auth.ts:
+
 export async function registerUser(prevState: any, formData: FormData) {
   const username = (formData.get("username") as string)?.trim();
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const displayName = (formData.get("displayName") as string)?.trim();
   const password = formData.get("password") as string;
+
+  // 🚀 EXTRACTION UNLOCK: Read your custom form payload elements from the network channel stream!
+  const dateOfBirthRaw = formData.get("dateOfBirth") as string;
+  const genderIdentity = (formData.get("genderIdentity") as string)?.trim();
+  const location = (formData.get("location") as string)?.trim();
 
   if (!username || !email || !displayName || !password) {
     return { error: "All account fields are strictly required." };
@@ -33,9 +40,25 @@ export async function registerUser(prevState: any, formData: FormData) {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
-  // Write new record down into your Neon database tables
+  // 🚀 TYPESAFE DATE BUFFER: Converts input date string tokens into strict database ISO timestamps
+  let parsedBirthdayDateObj: Date | null = null;
+  if (dateOfBirthRaw) {
+    parsedBirthdayDateObj = new Date(dateOfBirthRaw);
+  }
+
+  // Write new record down into your Neon database tables with ALL custom metadata properties active!
   const newUser = await prisma.user.create({
-    data: { username, email, displayName, passwordHash },
+    data: { 
+      username, 
+      email, 
+      displayName, 
+      passwordHash,
+      // 🚀 DATABASE LINK MAPPINGS: Maps variables directly to match your EditProfileModal schema constraints!
+      birthday: parsedBirthdayDateObj,
+      genderIdentity: genderIdentity || "Cis woman",
+      location: location || null,
+      status: "ONLINE", // Automatically flag their landing status map state to active
+    },
   });
 
   // DISPATCH THE TRANSACTION WELCOME EMAIL PIPELINE
@@ -45,7 +68,7 @@ export async function registerUser(prevState: any, formData: FormData) {
       to: email,
       subject: `🌸 Welcome to Dollspace, ${displayName}!`,
       html: `
-        <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ffe4e6; rounded-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #ffe4e6; border-radius: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
           <h1 style="color: #f43f5e; text-align: center; font-size: 28px; font-weight: 900; margin-bottom: 5px;">Dollspace</h1>
           <p style="text-align: center; color: #9ca3af; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 0; margin-bottom: 24px;">Registration Successful</p>
           
@@ -75,6 +98,7 @@ export async function registerUser(prevState: any, formData: FormData) {
   }
   return { success: true };
 }
+
 
 // 🚀 2. LOGIN USER ACTION WITH DYNAMIC STATUS LEASE ACTIVATION
 export async function loginUser(prevState: any, formData: FormData) {

@@ -146,7 +146,7 @@ const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => 
                     type="email" 
                     name="email" 
                     required 
-                    placeholder="chloe@example.com" 
+                    placeholder="teagan_storm_67@hotmail.com" 
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
                   />
                 </div>
