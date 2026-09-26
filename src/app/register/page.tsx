@@ -10,8 +10,8 @@ const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
 const GENDER_OPTIONS = ["woman", "girl", "man", "boy"];
 
 const LOCATION_OPTIONS = [
-  "United States", "United Kingdom", "Canada", "Australia", 
-  "Germany", "France", "Sweden", "Brazil", "Japan"
+  "Australia", "New Zealand", "United Kingdom", "Ireland", "Canada", "France", 
+  "Germany", "Spain", "Italy", "Japan", "United States", "Other"
 ];
 
 export default function RegisterPage() {
@@ -24,12 +24,39 @@ export default function RegisterPage() {
   // Controlled form state attributes for required legal gates
   const [agreedTerms, setAgreedTerms] = useState(false);
   const [agreedPrivacy, setAgreedPrivacy] = useState(false);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [availabilityStatus, setAvailabilityStatus] = useState<"IDLE" | "CHECKING" | "AVAILABLE" | "TAKEN">("IDLE");
+  
+  useEffect(() => {
+    const cleanedHandle = usernameInput.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+    if (!cleanedHandle) {
+      setAvailabilityStatus("IDLE");
+      return;
+    }
 
-// 🎯 THE PERFECT COMPATIBLE REWRITE (REPLACE WITH THIS BLOCK):
-// 🚀 FIXED: Automatically isolates the email handle name and appends it to the FormData stream behind the scenes!
+    setAvailabilityStatus("CHECKING");
+    const debounceTimerToken = setTimeout(async () => {
+      try {
+        // Ping a fast inline API route to check Neon database record rows quietly in the background
+        const res = await fetch(`/api/users/check-username?username=${cleanedHandle}`);
+        const data = await res.json();
+        
+        if (data.available) {
+          setAvailabilityStatus("AVAILABLE");
+        } else {
+          setAvailabilityStatus("TAKEN");
+        }
+      } catch (err) {
+        setAvailabilityStatus("AVAILABLE"); // Graceful fallback on local connection skips
+      }
+    }, 400); // 400ms debounce buffer prevents hitting your Neon database server on every keystroke!
+
+    return () => clearTimeout(debounceTimerToken);
+  }, [usernameInput]);
+
 const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  if (!agreedTerms || !agreedPrivacy || isPending) return;
+  if (!agreedTerms || !agreedPrivacy || isPending || availabilityStatus === "TAKEN") return;
 
   const formElement = e.currentTarget;
   const rawFormData = new FormData(formElement);
@@ -118,16 +145,41 @@ const handleRegisterFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => 
 
             <form onSubmit={handleRegisterFormSubmit} className="space-y-4 pt-6" autoComplete="off">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username</label>
-                <input 
-                  type="text"
-				  name="username"
-				  required
-				  placeholder="e.g. TeaganS" 
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
+              <div className="w-full text-left relative">
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username Handle</label>
+                <div className="relative flex items-center w-full">
+                  <input 
+                    type="text" 
+                    name="username" 
+                    required 
+                    value={usernameInput}
+                    onChange={(e) => setUsernameInput(e.target.value)}
+                    placeholder="e.g. TeaganS" 
+                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition text-left pr-20" 
                   />
+                  
+                  {/* 🚩 REAL-TIME FEEDBACK STATUS PILL BADGE FLAG */}
+                  {availabilityStatus !== "IDLE" && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 select-none pointer-events-none z-10 animate-scale-up">
+                      {availabilityStatus === "CHECKING" && (
+                        <span className="text-[9px] font-black uppercase bg-gray-100 border border-gray-200 text-gray-400 px-2 py-1 rounded-md animate-pulse">
+                          ⏳ Checking
+                        </span>
+                      )}
+                      {availabilityStatus === "AVAILABLE" && (
+                        <span className="text-[9px] font-black uppercase bg-green-50 border border-green-200 text-green-500 px-2 py-1 rounded-md tracking-wider">
+                          ✨ OK!
+                        </span>
+                      )}
+                      {availabilityStatus === "TAKEN" && (
+                        <span className="text-[9px] font-black uppercase bg-red-50 border border-red-200 text-red-500 px-2 py-1 rounded-md tracking-wider">
+                          ❌ Taken
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
+              </div>
 			  
               <div className="w-full text-left">
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
