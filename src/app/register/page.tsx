@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import StaticFeedBanner from "@/components/StaticFeedBanner"; // 🚀 DYNAMIC UNLOCK: Loads whatever is set inside your platform config!
+import StaticFeedBanner from "@/components/StaticFeedBanner";
+import { registerUser } from "@/app/actions/auth"; 
 import SubmitButton from "@/components/SubmitButton";
 
 const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
