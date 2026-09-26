@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import StaticFeedBanner from "@/components/StaticFeedBanner";
 import { registerUser } from "@/app/actions/auth"; 
