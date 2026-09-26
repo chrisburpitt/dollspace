@@ -2,8 +2,9 @@ export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import SubmitButton from "@/components/SubmitButton";
-import StaticFeedBanner from "@/components/StaticFeedBanner"; // 🚀 DYNAMIC UNLOCK: References whatever is active on your live platform!
-import { getOnlineDollsRoster } from "@/app/actions/onlineUsers"; // 🚀 LIVE ROSTER UNLOCK: Fetches online dolls in real-time!
+import StaticFeedBanner from "@/components/StaticFeedBanner";
+import { getOnlineDollsRoster } from "@/app/actions/onlineUsers";
+import { loginUser } from "@/app/actions/auth"; 
 
 export const metadata = {
   title: "Welcome to Dollspace 👑 | Log In",
@@ -18,7 +19,17 @@ export default async function LoginPage() {
 
   async function handleLoginActionSubmit(formData: FormData) {
     "use server";
-    // Your standard login session validation and NextAuth router pipeline runs here natively...
+    try {
+      // 🚀 RESTORED COMPATIBILITY: Passes the required two parameters directly to your custom JWT engine!
+      await loginUser(null, formData);
+    } catch (error) {
+      // Your custom login user logic uses Next.js redirect() which throws a NEXT_REDIRECT signal.
+      // We must rethrow it here so Next.js can safely complete the route change to "/"!
+      if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
+        throw error;
+      }
+      console.error("Dollspace custom login validation error 💖:", error);
+    }
   }
 
   return (
@@ -68,10 +79,12 @@ export default async function LoginPage() {
               Hello Doll! <span>👋👑</span>
             </h2>
             <p className="text-xs text-gray-500 font-medium leading-relaxed mt-2 select-text">
-              Welcome to the internet's most exclusive ladies lounge curated specifically for the dolls to share, 
-              connect, and showcase their fave pics completely free from unwanted noise. Dollspace is for the trans
-              crossdresser and non-benary community, and all our allies.
-			  Drop a photo update, join our live lounge message chat rooms, or browse our community portfolio hubs!
+              Welcome to the internet's most exclusive ladies lounge curated just for the dolls to share, 
+              connect, and showcase their favoutie stories and pictures free from unwanted noise. 
+              Dollspace is built for the trans, crossdresser and non-binary community, and all our allies to 
+			  find friends, support and resources for your journey ✨\n
+			  Come on in, post a photo and join our live chat lounge, or just browse our community profiles
+			  and see what the girls are up to!
             </p>
           </div>
 
@@ -80,7 +93,7 @@ export default async function LoginPage() {
             
             <div className="text-center pb-4 border-b border-gray-50">
               <h1 className="text-xl font-black tracking-tight text-gray-950">
-                Welcome Back, <span className="text-rose-500">Dollspace Member!</span> ✨
+                Welcome Back, <span className="text-rose-500">Babe!</span> ✨
               </h1>
               <p className="text-[11px] font-semibold text-gray-400 mt-1">
                 Enter your secure profile criteria coordinates to log back into your channels.
@@ -95,7 +108,7 @@ export default async function LoginPage() {
                     type="text" 
                     name="username" 
                     required 
-                    placeholder="Enter your username handle... e.g. Chloe" 
+                    placeholder="Enter your username, e.g. TeaganS" 
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition text-left" 
                 />
               </div>
