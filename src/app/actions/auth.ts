@@ -19,8 +19,6 @@ export async function registerUser(prevState: any, formData: FormData) {
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const displayName = (formData.get("displayName") as string)?.trim();
   const password = formData.get("password") as string;
-
-  // 🚀 EXTRACTION UNLOCK: Read your custom form payload elements from the network channel stream!
   const dateOfBirthRaw = formData.get("dateOfBirth") as string;
   const genderIdentity = (formData.get("genderIdentity") as string)?.trim();
   const location = (formData.get("location") as string)?.trim();
@@ -30,8 +28,18 @@ export async function registerUser(prevState: any, formData: FormData) {
   }
 
   const existingUser = await prisma.user.findFirst({
-    where: { OR: [{ username }, { email }] }
-  });
+  where: {
+    OR: [
+      {
+        username: {
+          equals: username,
+          mode: "insensitive" // 🛡️ Checks both uppercase and lowercase matches!
+        }
+      },
+      { email }
+    ]
+  }
+});
 
   if (existingUser) {
     if (existingUser.username === username) return { error: "Username is already registered." };
@@ -53,11 +61,10 @@ export async function registerUser(prevState: any, formData: FormData) {
       email, 
       displayName, 
       passwordHash,
-      // 🚀 DATABASE LINK MAPPINGS: Maps variables directly to match your EditProfileModal schema constraints!
       birthday: parsedBirthdayDateObj,
-      genderIdentity: genderIdentity || "Cis woman",
+      genderIdentity: genderIdentity || "Trans woman",
       location: location || null,
-      status: "ONLINE", // Automatically flag their landing status map state to active
+      status: "ONLINE",
     },
   });
 
