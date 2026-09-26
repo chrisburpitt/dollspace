@@ -38,7 +38,7 @@ export default function RegisterPage() {
     const debounceTimerToken = setTimeout(async () => {
       try {
         // Ping a fast inline API route to check Neon database record rows quietly in the background
-        const res = await fetch(`/api/users/check-username?username=${cleanedHandle}`);
+        const res = await fetch(`/api/user/check-username?username=${cleanedHandle}`);
         const data = await res.json();
         
         if (data.available) {
