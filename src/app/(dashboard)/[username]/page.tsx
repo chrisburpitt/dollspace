@@ -12,10 +12,11 @@ import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
   const user = await prisma.user.findFirst({
     where: {
       username: {
-        equals: username,
+        equals: resolvedParams.username, // 🌟 FIXED: Points accurately to the resolved parameter tracking object!
         mode: "insensitive"
       }
     },
