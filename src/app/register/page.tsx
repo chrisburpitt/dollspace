@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import StaticFeedBanner from "@/components/StaticFeedBanner";
+import StaticFeedBanner from "@/components/StaticFeedBanner"; // 🚀 DYNAMIC UNLOCK: Loads whatever is set inside your platform config!
 import SubmitButton from "@/components/SubmitButton";
 
 const PREFIX_OPTIONS = ["Trans", "Non-Binary", "Crossdresser", "Cis"];
@@ -56,18 +56,9 @@ export default function RegisterPage() {
         </div>
       </header>
 
-      {/* 🎀 MASTER PLATFORM HERO GRAPHIC CANVAS ROW */}
+      {/* 🎀 MASTER PLATFORM HERO GRAPHIC CANVAS ROW - FIXED: Balanced layout structures with zero trailing div breaks */}
       <div className="w-full shrink-0 border-b border-rose-100">
         <StaticFeedBanner />
-      </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-0" />
-        <div className="max-w-7xl w-full mx-auto relative z-10 animate-fade-in">
-          <div className="bg-white/10 backdrop-blur-md border border-white/10 px-4 py-2 rounded-2xl w-fit mb-2">
-            <p className="text-white text-[11px] font-black uppercase tracking-widest flex items-center gap-1.5">
-              <span>👑</span> CREATE YOUR UNIQUE PROFILE ♡
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* 🗺️ CONTAINER WORKSPACE GRID SYSTEM */}
@@ -100,35 +91,35 @@ export default function RegisterPage() {
 
             <form onSubmit={handleRegisterFormSubmit} className="space-y-4 pt-6" autoComplete="off">
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Username Handle</label>
-                  <input 
-                    type="text" name="username" required placeholder="e.g. Chloe" 
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
-                  <input 
-                    type="text" name="displayName" required placeholder="e.g. Chloe Smith" 
-                    className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
-                  />
-                </div>
+              {/* 🚀 FIXED: Removed Username Handle completely! Display Name now fills its own full row layout cleanly */}
+              <div className="w-full text-left">
+                <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Display Name</label>
+                <input 
+                  type="text" 
+                  name="displayName" 
+                  required 
+                  placeholder="e.g. Chloe Smith" 
+                  className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Email Address</label>
                   <input 
-                    type="email" name="email" required placeholder="chloe@example.com" 
+                    type="email" 
+                    name="email" 
+                    required 
+                    placeholder="chloe@example.com" 
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
                   />
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Date of Birth</label>
                   <input 
-                    type="date" name="dateOfBirth" required 
+                    type="date" 
+                    name="dateOfBirth" 
+                    required 
                     className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-bold text-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white transition" 
                   />
                 </div>
@@ -137,11 +128,16 @@ export default function RegisterPage() {
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase block mb-1">Account Password</label>
                 <input 
-                  type="password" name="password" required placeholder="••••••••••••" minLength={8}
+                  type="password" 
+                  name="password" 
+                  required 
+                  placeholder="••••••••••••" 
+                  minLength={8}
                   className="w-full border border-gray-200 rounded-xl p-3 bg-gray-50 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400 focus:bg-white text-gray-800 transition" 
                 />
               </div>
 
+// src/app/register/page.tsx (PART 2 - DYNAMIC MATRIX SELECTIONS & LEGAL GATES)
 
               {/* 🧬 THE TWO-COLUMN GENDER IDENTITY MATRIX PICKER */}
               <div className="border-t border-gray-100 pt-4 text-left">
@@ -221,7 +217,7 @@ export default function RegisterPage() {
                 </select>
               </div>
 
-              {/* 📝 MANDATORY COMPULSORY LEGAL CHECKBOX INTERACTION GATES */}
+              {/* 📝 MANDATORY COMPULSORY LEGAL CHECKBOX GATES */}
               <div className="border-t border-gray-100 pt-4 space-y-3 text-left">
                 <label className="flex items-start space-x-3 cursor-pointer group">
                   <input 
@@ -255,7 +251,7 @@ export default function RegisterPage() {
                 <SubmitButton 
                   label="Sign Up & Enter Dollspace 👑" 
                   loadingLabel="Registering Profile Cluster..." 
-                  className="w-full bg-rose-500 hover:bg-rose-600 disabled:opacity-40 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-xs cursor-pointer transition transform active:scale-[0.99]" 
+                  className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-xl text-xs uppercase tracking-widest shadow-xs cursor-pointer transition transform active:scale-[0.99]" 
                 />
               </div>
 
