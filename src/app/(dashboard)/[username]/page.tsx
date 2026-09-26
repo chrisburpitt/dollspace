@@ -1,4 +1,4 @@
-// src/app/[username]/page.tsx (PART 1 - CONSOLIDATED METADATA & PROFILE QUERIES)
+// src/app/[username]/page.tsx
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
@@ -12,9 +12,13 @@ import ProfileClient from "./ProfileClient";
 import { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
-  const { username } = await params;
-  const user = await prisma.user.findUnique({
-    where: { username },
+  const user = await prisma.user.findFirst({
+    where: {
+      username: {
+        equals: username,
+        mode: "insensitive"
+      }
+    },
     select: { displayName: true }
   });
 
@@ -37,7 +41,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const waitingDMsCount = await prisma.directMessage.count({
     where: {
-      recipientId: sessionUser.id, // 🎯 FIXED
+      recipientId: sessionUser.id,
       isRead: false
     }
   });
@@ -50,13 +54,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const dashboardMetrics = {
     onlineCount: activeDollsOnlineCount,
     totalUsers: totalUsersCount,
-    unreadMailCount: await prisma.internalMail.count({ where: { recipientId: sessionUser.id, isRead: false } }), // 🎯 FIXED
+    unreadMailCount: await prisma.internalMail.count({ where: { recipientId: sessionUser.id, isRead: false } }),
     waitingDMsCount: waitingDMsCount
   };
   
-  // 🎯 1. UNIQUE PROFILE RESOLUTION SLOT: Fetches the primary target account row natively
-  const user = await prisma.user.findUnique({
-    where: { username },
+  const user = await prisma.user.findFirst({
+    where: {
+      username: {
+        equals: username,
+        mode: "insensitive"
+      }
+    },
     include: {
       _count: {
         select: { followers: true, following: true, posts: true }
@@ -67,10 +75,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     }
   });
 
-  // 🛑 Safety Halt: If the user doesn't exist on the network, drop out to a 404
   if (!user) notFound();
 
-  // 🚀 2. TYPESAFE WIDGET HOOK: Now fully authorized to read user.id without null compiler conflicts!
   const dotwRecord = await prisma.dollOfTheWeekEntry.findUnique({
     where: { userId: user.id } 
   });
